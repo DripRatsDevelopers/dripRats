@@ -19,7 +19,6 @@ import { Slider } from "@/components/ui/slider";
 import { useWishlist } from "@/hooks/useWishlist";
 import { db } from "@/lib/firebase";
 import { Product } from "@/types/Products";
-import { User } from "firebase/auth";
 import { collection, getDocs } from "firebase/firestore";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -40,7 +39,7 @@ const PRODUCTS_PER_PAGE = 9;
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   // const [wishlist, setWishlist] = useState<string[]>([]);
-  const [user, setUser] = useState<User | null>(null);
+  // const [user, setUser] = useState<User | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([
     "All",
   ]);
@@ -217,7 +216,7 @@ export default function ProductsPage() {
                     onClick={() =>
                       setCurrentPage((prev) => Math.max(prev - 1, 1))
                     }
-                    disabled={currentPage === 1}
+                    // disabled={currentPage === 1}
                   />
                 </PaginationItem>
                 <PaginationItem>
@@ -228,7 +227,7 @@ export default function ProductsPage() {
                     onClick={() =>
                       setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                     }
-                    disabled={currentPage === totalPages}
+                    // disabled={currentPage === totalPages}
                   />
                 </PaginationItem>
               </PaginationContent>

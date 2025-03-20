@@ -27,63 +27,64 @@ import {
   ZoomIn,
 } from "lucide-react";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { MouseEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import "./page.css";
 
 export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [pincode, setPincode] = useState("");
-  const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
+  // const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
   const [currentImage, setCurrentImage] = useState<string>("");
   const [isZoomed, setIsZoomed] = useState(false);
-  const [zoomStyle, setZoomStyle] = useState<React.CSSProperties>({});
-  const [deliveryAvailable, setDeliveryAvailable] = useState<null | boolean>(
-    null
-  );
+  // const [zoomStyle, setZoomStyle] = useState<React.CSSProperties>({});
+  // const [deliveryAvailable, setDeliveryAvailable] = useState<null | boolean>(
+  //   null
+  // );
   const [quantity, setQuantity] = useState(1);
 
-  const router = usePathname();
+  // const path = usePathname();
+  const router = useRouter();
   const { id } = { id: 2 };
 
-  const { addToCart, cart, isInCart } = useCart();
+  const { addToCart, isInCart } = useCart();
   const { toggleWishlist, wishlist } = useWishlist();
 
-  const isAddedToCart = isInCart(product?.id);
+  const isAddedToCart = product?.id ? isInCart(product?.id) : false;
 
   const isInWishlist = (productId: string) =>
     wishlist.some((item) => item.id === productId);
 
-  const checkDelivery = () => {
-    if (pincode.length === 6) {
-      const today = new Date();
-      const deliveryDate = new Date(today.setDate(today.getDate() + 5)); // Assuming 5 days delivery
-      setDeliveryDate(deliveryDate.toDateString());
-    } else {
-      setDeliveryDate(null);
-    }
-  };
+  // const checkDelivery = () => {
+  //   if (pincode.length === 6) {
+  //     const today = new Date();
+  //     const deliveryDate = new Date(today.setDate(today.getDate() + 5)); // Assuming 5 days delivery
+  //     setDeliveryDate(deliveryDate.toDateString());
+  //   } else {
+  //     setDeliveryDate(null);
+  //   }
+  // };
 
-  const shareProduct = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: product?.Name,
-        text: `Check out this product: ${product?.Name}`,
-        url: window.location.href,
-      });
-    } else {
-      alert("Sharing not supported in this browser.");
-    }
-  };
+  // const shareProduct = () => {
+  //   if (navigator.share) {
+  //     navigator.share({
+  //       title: product?.Name,
+  //       text: `Check out this product: ${product?.Name}`,
+  //       url: window.location.href,
+  //     });
+  //   } else {
+  //     alert("Sharing not supported in this browser.");
+  //   }
+  // };
 
-  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
-    if (!isZoomed) return;
-    const { left, top, width, height } =
-      event.currentTarget.getBoundingClientRect();
-    const x = ((event.clientX - left) / width) * 100;
-    const y = ((event.clientY - top) / height) * 100;
-    setZoomStyle({ backgroundPosition: `${x}% ${y}%` });
-  };
+  // const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
+  //   if (!isZoomed) return;
+  //   const { left, top, width, height } =
+  //     event.currentTarget.getBoundingClientRect();
+  //   const x = ((event.clientX - left) / width) * 100;
+  //   const y = ((event.clientY - top) / height) * 100;
+  //   setZoomStyle({ backgroundPosition: `${x}% ${y}%` });
+  // };
 
   const handleBuyNow = () => {
     if (product) {
@@ -93,7 +94,7 @@ export default function ProductDetailPage() {
   };
 
   const handlePincodeCheck = () => {
-    setDeliveryAvailable(pincode === "123456");
+    // setDeliveryAvailable(pincode === "123456");
   };
 
   const increaseQuantity = () => setQuantity(quantity + 1);
