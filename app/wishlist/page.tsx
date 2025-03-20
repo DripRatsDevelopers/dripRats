@@ -2,16 +2,10 @@
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
+import { Product } from "@/types/Products";
 import { Trash } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-
-interface Product {
-  id: string;
-  Name: string;
-  Price: number;
-  ImageUrls: string[];
-}
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist } = useWishlist();
