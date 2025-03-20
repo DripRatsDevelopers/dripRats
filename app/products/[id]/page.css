@@ -1,0 +1,47 @@
+.strike-animation {
+  display: inline-block;
+  position: relative;
+  color: #b0b0b0; /* Light gray for original price */
+  font-weight: 500;
+}
+
+.strike-animation::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px; /* Increased thickness */
+  background: linear-gradient(
+    90deg,
+    #ff4d4d,
+    #ffaf40,
+    #00b8a9
+  ); /* More vibrant colors */
+  animation: colorful-strike 1s ease;
+}
+
+@keyframes colorful-strike {
+  0% {
+    width: 0;
+    left: 0;
+  }
+  100% {
+    width: 100%;
+    left: 0;
+  }
+}
+
+.discount-price,
+.discount-tag {
+  opacity: 0;
+  transition: opacity 0.3s;
+  animation: fade-in 0.3s ease 1s forwards; /* Delay of 1 second */
+  font-weight: 600;
+}
+
+@keyframes fade-in {
+  to {
+    opacity: 1;
+  }
+}
