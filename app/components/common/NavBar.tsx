@@ -12,7 +12,7 @@ const Navbar = () => {
   return (
     <nav className="flex justify-between p-4 bg-background text-foreground shadow-md">
       <Link href="/" className="text-xl font-bold">
-        DripRats
+        Drip Rats
       </Link>
       <div className="flex items-center gap-4">
         <Link href="/wishlist" className="relative">

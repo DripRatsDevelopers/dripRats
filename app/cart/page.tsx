@@ -1,21 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useCartContext } from "@/context/CartContext";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { Heart, Minus, Plus, Trash } from "lucide-react";
 import Image from "next/image";
 
 const Cart = () => {
-  const { cart } = useCartContext();
-  const { removeFromCart, updateQuantity } = useCart();
+  const { cart, removeFromCart, updateQuantity, totalAmount } = useCart();
   const { moveToWishlist } = useWishlist();
-
-  const totalAmount = cart.reduce(
-    (sum, item) => sum + item.Price * item.quantity,
-    0
-  );
 
   return (
     <div className="container mx-auto p-4">

@@ -3,44 +3,49 @@
 import { useCartContext } from "@/context/CartContext";
 import { CartType } from "@/types/Cart";
 import { Product } from "@/types/Products";
-import { useEffect } from "react";
 
 export const useCart = () => {
   const { cart, setCart } = useCartContext();
 
-  useEffect(() => {
+  const updateLocalStorage = (cart: CartType[]) => {
     localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+  };
 
   const addToCart = (product: Product) => {
-    setCart((prevCart: CartType[]) => {
-      const exists = prevCart.find((item) => item.id === product.id);
-      if (exists) {
-        return prevCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: (item.quantity || 1) + 1 }
-            : item
-        );
-      }
-      return [...prevCart, { ...product, quantity: 1 }] as CartType[];
-    });
+    const updatedCart = isInCart(product.id)
+      ? cart.map((item: CartType) => {
+          if (item.id === product.id) {
+            return { ...item, quantity: (item.quantity || 1) + 1 };
+          }
+          return { ...item } as CartType;
+        })
+      : ([...cart, product] as CartType[]);
+    setCart(updatedCart);
+    updateLocalStorage(updatedCart);
   };
 
   const removeFromCart = (productId: string) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
+    const updatedCart = cart.filter((item) => item.id !== productId);
+    setCart(updatedCart);
+    updateLocalStorage(updatedCart);
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === productId ? { ...item, quantity } : item
-      )
+    const updatedCart = cart.map((item) =>
+      item.id === productId ? { ...item, quantity } : item
     );
+    setCart(updatedCart);
+    updateLocalStorage(updatedCart);
   };
 
   const isInCart = (productId: string) => {
     return cart.some((item) => item.id === productId);
   };
+
+  const totalAmount = cart.reduce(
+    (sum, item) => sum + item.Price * item.quantity,
+    0
+  );
 
   return {
     cart,
@@ -48,5 +53,6 @@ export const useCart = () => {
     removeFromCart,
     updateQuantity,
     isInCart,
+    totalAmount,
   };
 };

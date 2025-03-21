@@ -1,11 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCart } from "@/hooks/useCart";
 import { Product } from "@/types/Products";
 import { Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 interface ProductCard {
@@ -18,13 +16,8 @@ const ProductCard = ({
   toggleWishlist,
   isInWishlist,
 }: ProductCard) => {
-  const { isInCart, addToCart } = useCart();
-
   const [imageIndex, setImageIndex] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const router = useRouter();
-
-  const isAddedToCart = isInCart(product.id);
 
   const startRotation = () => {
     if (!intervalRef.current) {
@@ -41,56 +34,57 @@ const ProductCard = ({
     }
   };
 
+  const { id, Name, Price, ImageUrls } = product;
+
   return (
-    <Card
-      key={product.id}
-      className="relative p-4 shadow-lg hover:shadow-xl hover:scale-110 transition-shadow duration-300 rounded-lg group"
-      onMouseEnter={startRotation}
-      onMouseLeave={stopRotation}
-    >
-      <CardHeader className="relative">
-        <CardTitle>
-          {product.Name}
-          <button
-            className={`absolute right-2 pr-2 rounded-full transition-all 
-          ${
-            isInWishlist(product.id) ? "text-red-500" : "text-gray-400"
-          } hover:scale-110`}
-            onClick={() => toggleWishlist(product)}
-          >
-            <Heart
-              fill={isInWishlist(product.id) ? "currentColor" : "none"}
-              stroke="currentColor"
+    <Link href={`/products/${id}`} className="block">
+      <Card
+        className="relative group overflow-hidden py-2 gap-0 shadow-lg hover:shadow-xl"
+        onMouseEnter={startRotation}
+        onMouseLeave={stopRotation}
+      >
+        <CardHeader className="relative">
+          <div className="relative w-full h-70 overflow-hidden">
+            {/* Image with object-contain */}
+            <Image
+              src={ImageUrls[imageIndex]}
+              alt={Name}
+              fill
+              className="object-contain transition-transform duration-300 group-hover:scale-105"
             />
-          </button>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="w-full">
-        <Link href={`/products/${product.id}`}>
-          <Image
-            src={product?.ImageUrls?.[imageIndex]}
-            alt={product.Name}
-            width={300}
-            height={400}
-            className="rounded-lg object-cover transition-opacity duration-200"
-            loading="lazy"
-          />
-        </Link>
-        <Button
-          onClick={() => {
-            if (isAddedToCart) {
-              router.push("/cart");
-            } else {
-              addToCart(product);
-            }
-          }}
-          className="mt-2 w-full hover:scale-110 md:opacity-0 group-hover:opacity-100"
-        >
-          {isAddedToCart ? "Go to Cart" : "Add to Cart"}
-        </Button>
-        <p className="text-lg font-semibold mt-2">₹{product.Price}</p>
-      </CardContent>
-    </Card>
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-4/5">
+              <Button
+                variant="default"
+                className="w-full bg-white text-black shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-gray-100"
+              >
+                View Product
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-2 px-6">
+          <CardTitle className="text-lg font-semibold flex items-center">
+            {Name}
+            <button
+              className={`absolute right-2 pr-2 rounded-full transition-all 
+              ${
+                isInWishlist(id) ? "text-red-500" : "text-gray-400"
+              } hover:scale-110`}
+              onClick={(e) => {
+                e.preventDefault();
+                toggleWishlist(product);
+              }}
+            >
+              <Heart
+                fill={isInWishlist(id) ? "currentColor" : "none"}
+                stroke="currentColor"
+              />
+            </button>
+          </CardTitle>
+          <p className="text-gray-500">{`₹${Price}`}</p>
+        </CardContent>
+      </Card>
+    </Link>
   );
 };
 
