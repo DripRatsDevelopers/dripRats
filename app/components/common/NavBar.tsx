@@ -4,13 +4,14 @@ import { useCartContext } from "@/context/CartContext";
 import { useWishlistContext } from "@/context/WishlistContext";
 import { Heart, ShoppingCart } from "lucide-react";
 import Link from "next/link";
+import UserPopover from "./UserPopover";
 
 const Navbar = () => {
   const { totalItems } = useCartContext();
   const { totalWishlistItems } = useWishlistContext();
 
   return (
-    <nav className="flex justify-between p-4 bg-background text-foreground shadow-md">
+    <nav className="flex justify-between p-4 bg-background text-foreground shadow-md sticky top-0">
       <Link href="/" className="text-xl font-bold">
         Drip Rats
       </Link>
@@ -32,6 +33,7 @@ const Navbar = () => {
             </span>
           )}
         </Link>
+        <UserPopover />
       </div>
     </nav>
   );

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
+import { Toaster } from "sonner";
 import Navbar from "./components/common/NavBar";
 import "./globals.css";
 import Providers from "./Providers";
@@ -34,6 +35,7 @@ export default function RootLayout({
           <Providers>
             <Navbar />
             <div className="mt-3"> {children}</div>
+            <Toaster position="bottom-right" richColors />
           </Providers>
         </Suspense>
       </body>

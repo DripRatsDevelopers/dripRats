@@ -5,11 +5,12 @@ import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { Heart, Minus, Plus, Trash } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const Cart = () => {
   const { cart, removeFromCart, updateQuantity, totalAmount } = useCart();
   const { moveToWishlist } = useWishlist();
-
+  const router = useRouter();
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Your Cart</h1>
@@ -87,7 +88,12 @@ const Cart = () => {
               <span>Total:</span>
               <span>₹{totalAmount.toFixed(2)}</span>
             </div>
-            <Button className="mt-4 w-full bg-primary text-primary-foreground">
+            <Button
+              className="mt-4 w-full bg-primary text-primary-foreground"
+              onClick={() => {
+                router.push("/checkout");
+              }}
+            >
               Proceed to Checkout
             </Button>
           </div>
