@@ -5,6 +5,7 @@ import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { Heart, Minus, Plus, Trash } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const Cart = () => {
@@ -25,13 +26,15 @@ const Cart = () => {
                 key={item.id}
                 className="flex items-center gap-4 p-2 md:p-4 border rounded-lg shadow-sm"
               >
-                <Image
-                  src={item.ImageUrls[0]}
-                  alt={item.Name}
-                  className="w-30 h-30 object-cover rounded-lg"
-                  width={300}
-                  height={200}
-                />
+                <Link href={`/products/${item.id}`} className="block">
+                  <Image
+                    src={item.ImageUrls[0]}
+                    alt={item.Name}
+                    className="w-30 h-30 object-cover rounded-lg"
+                    width={300}
+                    height={200}
+                  />
+                </Link>
                 <div className="flex-1">
                   <p className="font-semibold">{item.Name}</p>
                   <p className="text-sm font-semibold text-muted-foreground">

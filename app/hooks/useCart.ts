@@ -19,7 +19,7 @@ export const useCart = () => {
           }
           return { ...item } as CartType;
         })
-      : ([...cart, product] as CartType[]);
+      : ([...cart, { ...product, quantity: 1 }] as CartType[]);
     setCart(updatedCart);
     updateLocalStorage(updatedCart);
   };

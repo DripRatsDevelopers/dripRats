@@ -27,7 +27,7 @@ import {
   ZoomIn,
 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import "./page.css";
 
@@ -43,9 +43,10 @@ export default function ProductDetailPage() {
   // );
   const [quantity, setQuantity] = useState(1);
 
-  // const path = usePathname();
+  const path = usePathname();
+
   const router = useRouter();
-  const { id } = { id: 2 };
+  const [id] = path.split("/").slice(-1);
 
   const { addToCart, isInCart } = useCart();
   const { toggleWishlist, wishlist } = useWishlist();
@@ -65,26 +66,17 @@ export default function ProductDetailPage() {
   //   }
   // };
 
-  // const shareProduct = () => {
-  //   if (navigator.share) {
-  //     navigator.share({
-  //       title: product?.Name,
-  //       text: `Check out this product: ${product?.Name}`,
-  //       url: window.location.href,
-  //     });
-  //   } else {
-  //     alert("Sharing not supported in this browser.");
-  //   }
-  // };
-
-  // const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
-  //   if (!isZoomed) return;
-  //   const { left, top, width, height } =
-  //     event.currentTarget.getBoundingClientRect();
-  //   const x = ((event.clientX - left) / width) * 100;
-  //   const y = ((event.clientY - top) / height) * 100;
-  //   setZoomStyle({ backgroundPosition: `${x}% ${y}%` });
-  // };
+  const shareProduct = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: product?.Name,
+        text: `Check out this product: ${product?.Name}`,
+        url: window.location.href,
+      });
+    } else {
+      alert("Sharing not supported in this browser.");
+    }
+  };
 
   const handleBuyNow = () => {
     if (product) {
@@ -105,7 +97,7 @@ export default function ProductDetailPage() {
       const fetchProduct = async () => {
         const productQuery = query(
           collection(db, "Products"),
-          where("id", "==", "2")
+          where("id", "==", id)
         );
         const productDoc = (await getDocs(productQuery))?.docs?.[0];
         if (productDoc.exists()) {
@@ -191,6 +183,7 @@ export default function ProductDetailPage() {
             <Button
               variant="ghost"
               className="pr-5 rounded-full transition-all hover:scale-110"
+              onClick={() => shareProduct()}
             >
               <Share className="text-gray-700 w-6 h-6 !size-auto" />
             </Button>
@@ -338,7 +331,11 @@ export default function ProductDetailPage() {
           </Button>
           <Button
             className="w-full bg-white text-black border border-gray-400 hover:bg-gray-100"
-            onClick={() => addToCart(product)}
+            onClick={() => {
+              if (isAddedToCart) {
+                router.push("/cart");
+              } else addToCart(product);
+            }}
           >
             {isAddedToCart ? "Go to Cart" : "Add to Cart"}
           </Button>
