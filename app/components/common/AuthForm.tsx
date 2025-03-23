@@ -144,7 +144,11 @@ export default function AuthForm({ isSignUp = false }: { isSignUp?: boolean }) {
         <p className="text-center">
           {isSignUp ? "Already have an account?" : "Don't have an account?"}
           <span
-            onClick={() => router.push("/auth/signup")}
+            onClick={() => {
+              if (isSignUp) {
+                router.push(`/auth/login${window.location.search}`);
+              } else router.push(`/auth/signup${window.location.search}`);
+            }}
             className="text-blue-500 cursor-pointer hover:underline ml-2"
           >
             {isSignUp ? "Login" : "Sign Up"}
