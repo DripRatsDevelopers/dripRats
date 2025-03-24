@@ -11,12 +11,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/hooks/useCart";
+import useGetDeliveryTime from "@/hooks/useGetDeliveryTime";
 import { useWishlist } from "@/hooks/useWishlist";
 import { db } from "@/lib/firebase";
 import { Product } from "@/types/Products";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import {
   Album,
+  Edit,
   Heart,
   Minus,
   Plus,
@@ -34,17 +36,19 @@ import "./page.css";
 export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [pincode, setPincode] = useState("");
-  // const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
   const [currentImage, setCurrentImage] = useState<string>("");
   const [isZoomed, setIsZoomed] = useState(false);
-  // const [zoomStyle, setZoomStyle] = useState<React.CSSProperties>({});
-  // const [deliveryAvailable, setDeliveryAvailable] = useState<null | boolean>(
-  //   null
-  // );
+
+  const {
+    checkDeliveryTime,
+    loading: deliveryLoading,
+    deliveryTime,
+    setDeliveryTime,
+  } = useGetDeliveryTime();
+
   const [quantity, setQuantity] = useState(1);
 
   const path = usePathname();
-
   const router = useRouter();
   const [id] = path.split("/").slice(-1);
 
@@ -55,16 +59,6 @@ export default function ProductDetailPage() {
 
   const isInWishlist = (productId: string) =>
     wishlist.some((item) => item.id === productId);
-
-  // const checkDelivery = () => {
-  //   if (pincode.length === 6) {
-  //     const today = new Date();
-  //     const deliveryDate = new Date(today.setDate(today.getDate() + 5)); // Assuming 5 days delivery
-  //     setDeliveryDate(deliveryDate.toDateString());
-  //   } else {
-  //     setDeliveryDate(null);
-  //   }
-  // };
 
   const shareProduct = () => {
     if (navigator.share) {
@@ -86,7 +80,7 @@ export default function ProductDetailPage() {
   };
 
   const handlePincodeCheck = () => {
-    // setDeliveryAvailable(pincode === "123456");
+    checkDeliveryTime(pincode);
   };
 
   const increaseQuantity = () => setQuantity(quantity + 1);
@@ -287,19 +281,38 @@ export default function ProductDetailPage() {
                 ₹1000.
               </p>
               <div className="mt-2 flex gap-2">
-                <Input
-                  type="text"
-                  value={pincode}
-                  onChange={(e) => setPincode(e.target.value)}
-                  placeholder="Enter Pincode"
-                  className="w-80 border-gray-400"
-                />
-                <Button
-                  onClick={handlePincodeCheck}
-                  className="bg-gray-600 text-white hover:bg-gray-500"
-                >
-                  Check
-                </Button>
+                {pincode && deliveryTime ? (
+                  <div className="flex items-center">
+                    <strong>Delivery by {deliveryTime}</strong>
+                    <Button
+                      variant="link"
+                      className="underline text-blue-500"
+                      onClick={() => {
+                        setPincode("");
+                        setDeliveryTime("");
+                      }}
+                    >
+                      Edit Pincode <Edit />
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <Input
+                      type="text"
+                      value={pincode}
+                      onChange={(e) => setPincode(e.target.value)}
+                      placeholder="Enter Pincode"
+                      className="w-80 border-gray-400"
+                    />
+                    <Button
+                      onClick={handlePincodeCheck}
+                      className="bg-gray-600 text-white hover:bg-gray-500"
+                      disabled={!pincode}
+                    >
+                      {deliveryLoading ? "Checking..." : "Check"}
+                    </Button>
+                  </>
+                )}
               </div>
             </AccordionContent>
           </AccordionItem>
