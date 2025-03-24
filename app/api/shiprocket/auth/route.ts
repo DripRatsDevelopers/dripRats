@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { NextResponse } from "next/server";
 
 export async function POST() {
@@ -13,7 +13,10 @@ export async function POST() {
 
     return NextResponse.json({ token: response.data.token });
   } catch (error) {
-    console.error("Auth Error:", error.response?.data || error.message);
+    console.error(
+      "Auth Error:",
+      (error as AxiosError).response?.data || (error as Error).message
+    );
     return NextResponse.json(
       { message: "Authentication failed" },
       { status: 500 }

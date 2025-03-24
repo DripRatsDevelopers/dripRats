@@ -1,7 +1,7 @@
-import axios from "axios";
-import { NextResponse } from "next/server";
+import axios, { AxiosError } from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request) {
+export async function GET(request: NextRequest) {
   // Extract query parameters
   const { searchParams } = new URL(request.url);
 
@@ -38,7 +38,7 @@ export async function GET(request) {
   } catch (error) {
     console.error(
       "Serviceability Error:",
-      error.response?.data || error.message
+      (error as AxiosError).response?.data || (error as Error).message
     );
     return NextResponse.json(
       { message: "Failed to fetch delivery time" },

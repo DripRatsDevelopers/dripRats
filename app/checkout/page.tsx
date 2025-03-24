@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/select";
 import useAuthState from "@/hooks/useAuthState";
 import { useCart } from "@/hooks/useCart";
+import { fetchProduct } from "@/lib/productUtils";
+import { CartType } from "@/types/Cart";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import CheckoutPayment from "./CheckoutPayment";
 
@@ -54,6 +56,8 @@ const shippingFormDetails = [
 
 const CheckoutPage: React.FC = () => {
   const { cart } = useCart();
+  const router = useRouter();
+  const { user, loading } = useAuthState();
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     fullName: "",
@@ -65,16 +69,34 @@ const CheckoutPage: React.FC = () => {
     phone: "",
     deliveryType: "Standard",
   });
+
   const [tempQuantities, setTempQuantities] = useState<Record<string, number>>(
     {}
   );
-  const subtotal = cart.reduce(
+  const searchParams = useSearchParams();
+
+  const productId = searchParams.get("productId");
+  const quantity = Number(searchParams.get("quantity")) || 1;
+  const [checkoutItems, setCheckoutItems] = useState<CartType[]>([]);
+
+  useEffect(() => {
+    if (productId) {
+      const fetchData = async () => {
+        const productdata = await fetchProduct(productId);
+        if (productdata) {
+          setCheckoutItems([{ ...productdata, quantity }]);
+        }
+      };
+      fetchData();
+    } else {
+      setCheckoutItems(cart);
+    }
+  }, [cart, productId, quantity]);
+
+  const subtotal = checkoutItems.reduce(
     (acc, item) => acc + item.Price * (tempQuantities[item.id] || 1),
     0
   );
-
-  const router = useRouter();
-  const { user, loading } = useAuthState();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -85,9 +107,12 @@ const CheckoutPage: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     setTempQuantities(
-      cart.reduce((acc, item) => ({ ...acc, [item.id]: item.quantity }), {})
+      checkoutItems.reduce(
+        (acc, item) => ({ ...acc, [item.id]: item.quantity }),
+        {}
+      )
     );
-  }, [cart, currentStep]);
+  }, [checkoutItems]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

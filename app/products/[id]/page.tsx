@@ -13,9 +13,8 @@ import { Input } from "@/components/ui/input";
 import { useCart } from "@/hooks/useCart";
 import useGetDeliveryTime from "@/hooks/useGetDeliveryTime";
 import { useWishlist } from "@/hooks/useWishlist";
-import { db } from "@/lib/firebase";
+import { fetchProduct } from "@/lib/productUtils";
 import { Product } from "@/types/Products";
-import { collection, getDocs, query, where } from "firebase/firestore";
 import {
   Album,
   Edit,
@@ -73,10 +72,7 @@ export default function ProductDetailPage() {
   };
 
   const handleBuyNow = () => {
-    if (product) {
-      addToCart(product);
-      router.push("/checkout");
-    }
+    router.push(`/checkout?productId=${id}&quantity=${quantity}`);
   };
 
   const handlePincodeCheck = () => {
@@ -88,19 +84,14 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     if (id) {
-      const fetchProduct = async () => {
-        const productQuery = query(
-          collection(db, "Products"),
-          where("id", "==", id)
-        );
-        const productDoc = (await getDocs(productQuery))?.docs?.[0];
-        if (productDoc.exists()) {
-          const product = productDoc.data();
-          setProduct({ id: productDoc.id, ...product } as Product);
-          setCurrentImage(product.ImageUrls?.[0]);
+      const fetchData = async () => {
+        const productdata = await fetchProduct(id);
+        if (productdata) {
+          setProduct(productdata);
+          setCurrentImage(productdata.ImageUrls?.[0]);
         }
       };
-      fetchProduct();
+      fetchData();
     }
   }, [id]);
 
