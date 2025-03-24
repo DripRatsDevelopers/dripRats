@@ -71,9 +71,12 @@ export default function AuthForm({ isSignUp = false }: { isSignUp?: boolean }) {
 
   const handleGoogleLogin = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      toast.success(`Welcome, ${result.user.displayName || "User"}!`);
-      router.refresh();
+      const userCredential = await signInWithPopup(auth, googleProvider);
+      toast.success(`Welcome, ${userCredential.user.displayName || "User"}!`);
+      const token = await userCredential.user.getIdToken();
+
+      setCookie("authToken", token);
+      router.push(redirectPath);
     } catch (error) {
       console.error(error);
 
@@ -145,6 +148,8 @@ export default function AuthForm({ isSignUp = false }: { isSignUp?: boolean }) {
           {isSignUp ? "Already have an account?" : "Don't have an account?"}
           <span
             onClick={() => {
+              setEmail("");
+              setPassword("");
               if (isSignUp) {
                 router.push(`/auth/login${window.location.search}`);
               } else router.push(`/auth/signup${window.location.search}`);
