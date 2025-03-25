@@ -17,9 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useWishlist } from "@/hooks/useWishlist";
-import { db } from "@/lib/firebase";
+import { fetchAllProducts } from "@/lib/productUtils";
 import { Product } from "@/types/Products";
-import { collection, getDocs } from "firebase/firestore";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 import ProductCard from "./components/ProductCard";
@@ -38,8 +37,6 @@ const PRODUCTS_PER_PAGE = 9;
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  // const [wishlist, setWishlist] = useState<string[]>([]);
-  // const [user, setUser] = useState<User | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([
     "All",
   ]);
@@ -52,65 +49,15 @@ export default function ProductsPage() {
 
   // Fetch products from Firestore
   useEffect(() => {
-    async function fetchProducts() {
-      const snapshot = await getDocs(collection(db, "Products"));
-      setProducts(
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Product))
-      );
-    }
-    fetchProducts();
+    const fetchData = async () => {
+      const products = await fetchAllProducts();
+      console.log({ products });
+      if (products) {
+        setProducts(products);
+      }
+    };
+    fetchData();
   }, []);
-
-  // // Handle user auth state change
-  // useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(auth, async (user) => {
-  //     setUser(user);
-  //     if (!user) return;
-
-  //     // Fetch wishlist from Firestore
-  //     const q = query(
-  //       collection(db, "wishlist"),
-  //       where("userId", "==", user.uid)
-  //     );
-  //     const snapshot = await getDocs(q);
-  //     const userWishlist = snapshot.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data().productId,
-  //     })) as string[];
-
-  //     // Merge localStorage wishlist with Firestore wishlist (remove duplicates)
-  //     const localWishlist: string[] = JSON.parse(
-  //       localStorage.getItem("wishlist") || "[]"
-  //     );
-
-  //     const mergedWishlist = [
-  //       ...userWishlist,
-  //       ...localWishlist.filter(
-  //         (localItem) =>
-  //           !userWishlist.some((firestoreItem) => firestoreItem === localItem)
-  //       ),
-  //     ];
-
-  //     // Save merged wishlist in Firestore
-  //     for (const item of localWishlist) {
-  //       if (!userWishlist.some((firestoreItem) => firestoreItem === item)) {
-  //         await addDoc(collection(db, "wishlist"), {
-  //           userId: user.uid,
-  //           productId: item,
-  //           productName: item,
-  //           price: item,
-  //           imageURL: item || "",
-  //         });
-  //       }
-  //     }
-
-  //     // Update wishlist state and clear localStorage
-  //     setWishlist(mergedWishlist);
-  //     localStorage.removeItem("wishlist");
-  //   });
-
-  //   return () => unsubscribe();
-  // }, []);
 
   const handleCategorySelection = (category: string) => {
     setSelectedCategories((prev) =>

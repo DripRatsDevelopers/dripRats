@@ -251,7 +251,7 @@ const CheckoutPage: React.FC = () => {
 
               {/* Product List */}
               <ul className="space-y-4">
-                {cart.map((item) => (
+                {checkoutItems.map((item) => (
                   <li
                     key={item.id}
                     className="flex justify-between items-center p-4 border rounded-lg"

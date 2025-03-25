@@ -45,7 +45,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
 
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      amount: amount * 100, // Amount in paisa (1 INR = 100 paisa)
+      amount: Math.round(amount * 100), // Amount in paisa (1 INR = 100 paisa)
       currency: "INR",
       name: "Driprats",
       description: "Fashion Jewelry",
@@ -63,7 +63,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
         address: "Driprats Corporate Office",
       },
       theme: {
-        color: "#F37254",
+        color: "#528FF0",
       },
       modal: {
         escape: false,
