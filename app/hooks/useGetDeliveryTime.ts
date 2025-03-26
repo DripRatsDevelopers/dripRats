@@ -1,46 +1,25 @@
-import axios from "axios";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const useGetDeliveryTime = () => {
-  const [deliveryTime, setDeliveryTime] = useState("");
+  const [deliveryTime, setDeliveryTime] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
-  const checkDeliveryTime = async (deliveryPincode: string) => {
-    setLoading(true);
-
+  const checkDeliveryTime = useCallback(async (pincode: string) => {
     try {
-      // Step 1: Get Auth Token
-      const authResponse = await axios.post("/api/shiprocket/auth", {
-        email: process.env.SHIPROCKET_EMAIL,
-        password: process.env.SHIPROCKET_PASSWORD,
-      });
-
-      const token = authResponse.data.token;
-
-      // Step 2: Fetch Delivery Time
-      const serviceResponse = await axios.get("/api/shiprocket/delivery-time", {
-        params: {
-          token,
-          pickupPincode: "600066",
-          deliveryPincode,
-          weight: 1,
-          cod: 0,
-        },
-      });
-
-      setDeliveryTime(
-        serviceResponse.data.data.available_courier_companies[0]?.etd ||
-          "Not Available"
+      setLoading(true);
+      const response = await fetch(
+        `/api/shiprocket/delivery-time?pincode=${pincode}`
       );
+      const deliveryTime = await response.json();
+      setDeliveryTime(deliveryTime.data.available_courier_companies[0]?.etd);
     } catch (error) {
-      console.error("Error fetching delivery time:", error);
-      setDeliveryTime("Failed to fetch");
+      console.error("Error checking delivery time:", error);
+    } finally {
+      setLoading(false);
     }
+  }, []); // Empty dependency array since this function doesn't depend on any external values
 
-    setLoading(false);
-  };
-
-  return { checkDeliveryTime, loading, deliveryTime, setDeliveryTime };
+  return { checkDeliveryTime, deliveryTime, setDeliveryTime, loading };
 };
 
 export default useGetDeliveryTime;

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import useAuthState from "@/hooks/useAuthState";
 import { useCart } from "@/hooks/useCart";
+import useGetDeliveryTime from "@/hooks/useGetDeliveryTime";
 import { fetchProduct } from "@/lib/productUtils";
 import { CartType } from "@/types/Cart";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -78,6 +79,13 @@ const CheckoutPage: React.FC = () => {
   const productId = searchParams.get("productId");
   const quantity = Number(searchParams.get("quantity")) || 1;
   const [checkoutItems, setCheckoutItems] = useState<CartType[]>([]);
+  const { checkDeliveryTime, deliveryTime } = useGetDeliveryTime();
+
+  useEffect(() => {
+    if (shippingInfo.pincode && currentStep !== 1) {
+      checkDeliveryTime(shippingInfo.pincode);
+    }
+  }, [checkDeliveryTime, shippingInfo.pincode, currentStep]);
 
   useEffect(() => {
     if (productId) {
@@ -296,6 +304,9 @@ const CheckoutPage: React.FC = () => {
                 ))}
               </ul>
 
+              <p className="text-orange-600 text-center font-bold">
+                Arriving By {deliveryTime}
+              </p>
               {/* Price Details */}
               <div className="p-4 border rounded-lg bg-gray-50 space-y-2">
                 <p>Subtotal: ₹{subtotal}</p>
