@@ -143,9 +143,7 @@ export default function ProductDetailPage() {
       <div className="flex-1 space-y-4">
         {/* Title and Icons */}
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            {product.Name}
-          </h1>
+          <h1 className="text-2xl font-semibold">{product.Name}</h1>
           <div className="flex gap-2">
             <Button
               variant="ghost"
@@ -156,7 +154,7 @@ export default function ProductDetailPage() {
           ${
             isInWishlist(product.id)
               ? "text-red-500 hover:text-red-500"
-              : "text-gray-400 hover:text-red-500"
+              : "text-gray-700 dark:text-gray-300 hover:text-red-500"
           } hover:scale-110`}
             >
               <Heart
@@ -170,22 +168,22 @@ export default function ProductDetailPage() {
               className="pr-5 rounded-full transition-all hover:scale-110"
               onClick={() => shareProduct()}
             >
-              <Share className="text-gray-700 w-6 h-6 !size-auto" />
+              <Share className="text-gray-700 dark:text-gray-300 w-6 h-6 !size-auto" />
             </Button>
           </div>
         </div>
 
         {/* Product Description */}
 
-        <p className="text-gray-700">{product.Description}</p>
+        <p>{product.Description}</p>
 
         {/* Price */}
         <div className="flex items-center space-x-3 mt-2">
-          <span className="text-2xl font-semibold text-gray-700 relative">
-            <span className="text-gray-400 strike-animation">
+          <span className="text-2xl font-semibold relative">
+            <span className="text-gray-400 dark:text-gray-500 strike-animation">
               ₹{product.Price}
             </span>
-            <span className="ml-2 text-black font-bold discount-price">
+            <span className="ml-2 font-bold discount-price">
               ₹{(product.Price * 0.9).toFixed(2)}
             </span>
           </span>
@@ -194,7 +192,9 @@ export default function ProductDetailPage() {
           </span>
         </div>
         <div className="space-y-2">
-          <p className="text-gray-600 font-semibold">Select Quantity:</p>
+          <p className="text-gray-600 dark:text-gray-300 font-semibold">
+            Select Quantity:
+          </p>
           <div className="flex items-center gap-2">
             <Button
               onClick={decreaseQuantity}
@@ -216,7 +216,7 @@ export default function ProductDetailPage() {
 
         {/* Offers */}
         <div className="mt-4 space-y-2">
-          <p className="text-gray-600 font-semibold flex gap-2">
+          <p className="text-gray-600 dark:text-gray-300 font-semibold flex gap-2">
             <Tag stroke="currentColor" /> Offers:
           </p>
           <div className="flex gap-2 flex-wrap">
@@ -234,12 +234,12 @@ export default function ProductDetailPage() {
         <Accordion type="multiple" className="my-6">
           <AccordionItem value="details">
             <AccordionTrigger className="text-lg font-medium no-underline hover:no-underline">
-              <div className="text-gray-600 flex items-center gap-1">
+              <div className="text-gray-600 dark:text-gray-300 flex items-center gap-1">
                 <Album stroke="currentColor" />
                 Product Details
               </div>
             </AccordionTrigger>
-            <AccordionContent className="p-4 bg-gray-50 rounded-md">
+            <AccordionContent className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
               <ul className="list-disc ml-6 space-y-2">
                 <li>
                   <strong>Material:</strong> High-quality stainless steel
@@ -262,11 +262,11 @@ export default function ProductDetailPage() {
 
           <AccordionItem value="shipping">
             <AccordionTrigger className="text-lg font-medium no-underline hover:no-underline">
-              <div className="text-gray-600 flex gap-1 items-center">
+              <div className="text-gray-600 dark:text-gray-300 flex gap-1 items-center">
                 <Rocket stroke="currentColor" /> Shipping Details
               </div>
             </AccordionTrigger>
-            <AccordionContent className="p-4 bg-gray-50 rounded-md">
+            <AccordionContent className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
               <p>
                 Delivered in 5-7 business days. Free shipping on orders over
                 ₹1000.
@@ -297,7 +297,7 @@ export default function ProductDetailPage() {
                     />
                     <Button
                       onClick={handlePincodeCheck}
-                      className="bg-gray-600 text-white hover:bg-gray-500"
+                      className="bg-gray-600 dark:bg-gray-300  hover:bg-gray-500 hover:dark:bg-gray-300"
                       disabled={!pincode}
                     >
                       {deliveryLoading ? "Checking..." : "Check"}
@@ -309,12 +309,12 @@ export default function ProductDetailPage() {
           </AccordionItem>
 
           <AccordionItem value="suggestions">
-            <AccordionTrigger className="text-lg font-medium text-gray-600 no-underline hover:no-underline">
-              <div className="text-gray-600 flex gap-1 items-center">
+            <AccordionTrigger className="text-lg font-medium no-underline hover:no-underline">
+              <div className="text-gray-600 dark:text-gray-300 flex gap-1 items-center">
                 <Snowflake stroke="currentColor" /> Style Suggestions
               </div>
             </AccordionTrigger>
-            <AccordionContent className="p-4 bg-gray-50 rounded-md">
+            <AccordionContent className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
               <p>Pair it with:</p>
               <ul className="list-disc ml-6 space-y-2">
                 <li>Classic black outfit for a bold look</li>
@@ -327,19 +327,17 @@ export default function ProductDetailPage() {
 
         {/* Buy Now & Add to Cart */}
         <div className="flex flex-col gap-2">
-          <Button
-            className="w-full bg-black text-white hover:bg-gray-800"
-            onClick={handleBuyNow}
-          >
+          <Button className="w-full" onClick={handleBuyNow}>
             Buy Now
           </Button>
           <Button
-            className="w-full bg-white text-black border border-gray-400 hover:bg-gray-100"
+            className="w-full bg-white hover:bg-gray-100"
             onClick={() => {
               if (isAddedToCart) {
                 router.push("/cart");
               } else addToCart(product);
             }}
+            variant="outline"
           >
             {isAddedToCart ? "Go to Cart" : "Add to Cart"}
           </Button>

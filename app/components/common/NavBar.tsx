@@ -11,7 +11,7 @@ const Navbar = () => {
   const { totalWishlistItems } = useWishlistContext();
 
   return (
-    <nav className="flex justify-between p-4 bg-background text-foreground shadow-md sticky top-0">
+    <nav className="flex justify-between p-4 bg-background text-foreground shadow-md sticky top-0 z-50">
       <Link href="/" className="text-xl font-bold">
         Drip Rats
       </Link>

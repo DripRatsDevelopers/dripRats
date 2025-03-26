@@ -76,10 +76,11 @@ export default function ProductsPage() {
         >
           <span className="flex items-center">
             <SlidersHorizontal />
-            <span className="ml-2">Filters</span>
+            <span className="ml-2 hidden md:block">Filters</span>
           </span>
-
-          {isSidebarOpen ? <ChevronLeft /> : <ChevronRight />}
+          <span className="hidden md:block">
+            {isSidebarOpen ? <ChevronLeft /> : <ChevronRight />}
+          </span>
         </button>
         <h1 className="text-3xl font-bold mb-4 items-self-center text-center w-full">
           Our Products
