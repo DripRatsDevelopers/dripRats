@@ -4,7 +4,7 @@ export const fetchProduct = async (
   id: string
 ): Promise<CartType | undefined> => {
   try {
-    const response = await fetch(`/api/firebase/products/${id}`);
+    const response = await fetch(`/api/products/${id}`);
     const data = await response.json();
 
     if (response.ok) {
@@ -19,7 +19,7 @@ export const fetchProduct = async (
 
 export const fetchAllProducts = async (): Promise<CartType[] | undefined> => {
   try {
-    const response = await fetch("/api/firebase/products");
+    const response = await fetch("/api/products");
     const data = await response.json();
 
     if (response.ok) {
