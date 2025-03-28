@@ -36,6 +36,7 @@ const statusSteps = [
       OrderStatusEnum.INITIATED,
       OrderStatusEnum.VERIFYING,
       OrderStatusEnum.ERROR,
+      OrderStatusEnum.SUCCESS,
     ],
   },
   {
@@ -96,7 +97,7 @@ export default function OrderStatus() {
       setStatus(OrderStatusEnum.ERROR);
       return;
     }
-    // checkOrderStatus(orderId as string);
+    checkOrderStatus(orderId as string);
   }, [orderId, checkOrderStatus]);
 
   const verifyPayment = async (orderId: string) => {

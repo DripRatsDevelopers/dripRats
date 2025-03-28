@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { storePayment } from "@/lib/cookie";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface RazorpayButtonProps {
   amount: number;
@@ -21,21 +21,11 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
   onPaymentUpdate,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const amountInPaisa = Math.round(amount * 100);
-  // Load Razorpay Script
-  useEffect(() => {
-    const loadRazorpayScript = () => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.async = true;
-      script.onload = () => setIsScriptLoaded(true);
-      script.onerror = () =>
-        alert("Failed to load Razorpay. Please try again.");
-      document.body.appendChild(script);
-    };
-    loadRazorpayScript();
-  }, []);
+
+  const isScriptLoaded =
+    typeof window !== "undefined" &&
+    (window as unknown as RazorpayWindow).Razorpay;
 
   const handlePayment = async () => {
     if (!isScriptLoaded) {

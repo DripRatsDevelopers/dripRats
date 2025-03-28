@@ -12,9 +12,9 @@ const CheckoutPayment = ({ totalAmount }: { totalAmount: number }) => {
     error?: { error: { description: string } }
   ) => {
     if (error) {
-      router.push("/order-failed");
+      router.replace("/order-failed");
     }
-    router.push(`/order-status/${orderId}`);
+    router.replace(`/order-status/${orderId}`);
   };
 
   return (
