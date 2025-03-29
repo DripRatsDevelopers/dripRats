@@ -176,7 +176,7 @@ export default function OrderStatus() {
           </p>
           <div className="mt-6 flex space-x-4">
             <Button onClick={() => router.replace(`/order-details/${orderId}`)}>
-              View Orders
+              View Order Details
             </Button>
             <Button variant="outline" onClick={() => router.replace("/")}>
               Go to Home
