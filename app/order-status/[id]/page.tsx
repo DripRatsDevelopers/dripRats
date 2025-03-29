@@ -1,53 +1,74 @@
 "use client";
 
-import { OrderStatusEnum } from "@/types/Order";
+import { OrderEnum, PaymentStatusEnum } from "@/types/Order";
 import { motion } from "framer-motion";
-import { AlertTriangle, CheckCircle, Loader2, Package } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Loader2,
+  LucideProps,
+  Package,
+} from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import {
+  ForwardRefExoticComponent,
+  RefAttributes,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
-const statusSteps = [
+interface statusStep {
+  key: PaymentStatusEnum | OrderEnum;
+  label: string;
+  icon: ForwardRefExoticComponent<
+    Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
+  >;
+  hideOn?: (PaymentStatusEnum | OrderEnum)[];
+}
+
+const statusSteps: statusStep[] = [
   {
-    key: OrderStatusEnum.INITIATED,
+    key: PaymentStatusEnum.INITIATED,
     label: "Payment Initiated",
     icon: CheckCircle,
   },
   {
-    key: OrderStatusEnum.VERIFYING,
+    key: PaymentStatusEnum.VERIFYING,
     label: "Verifying Payment",
     icon: Loader2,
-    hideOn: [OrderStatusEnum.INITIATED],
+    hideOn: [PaymentStatusEnum.INITIATED],
   },
   {
-    key: OrderStatusEnum.SUCCESS,
+    key: PaymentStatusEnum.PAID,
     label: "Payment Successful",
     icon: CheckCircle,
     hideOn: [
-      OrderStatusEnum.INITIATED,
-      OrderStatusEnum.VERIFYING,
-      OrderStatusEnum.ERROR,
+      PaymentStatusEnum.INITIATED,
+      PaymentStatusEnum.VERIFYING,
+      PaymentStatusEnum.FAILED,
     ],
   },
   {
-    key: OrderStatusEnum.CONFIRMED,
+    key: OrderEnum.CONFIRMED,
     label: "Order Confirmed",
     icon: Package,
     hideOn: [
-      OrderStatusEnum.INITIATED,
-      OrderStatusEnum.VERIFYING,
-      OrderStatusEnum.ERROR,
-      OrderStatusEnum.SUCCESS,
+      PaymentStatusEnum.INITIATED,
+      PaymentStatusEnum.VERIFYING,
+      PaymentStatusEnum.FAILED,
+      PaymentStatusEnum.PAID,
     ],
   },
   {
-    key: OrderStatusEnum.ERROR,
+    key: PaymentStatusEnum.FAILED,
     label: "Something Went Wrong",
     icon: AlertTriangle,
     hideOn: [
-      OrderStatusEnum.INITIATED,
-      OrderStatusEnum.VERIFYING,
-      OrderStatusEnum.SUCCESS,
-      OrderStatusEnum.CONFIRMED,
+      PaymentStatusEnum.INITIATED,
+      PaymentStatusEnum.VERIFYING,
+      PaymentStatusEnum.PAID,
+      OrderEnum.CONFIRMED,
     ],
   },
 ];
@@ -56,45 +77,44 @@ export default function OrderStatus() {
   const { id: orderId } = useParams();
   const router = useRouter();
 
-  const [status, setStatus] = useState<OrderStatusEnum>(
-    OrderStatusEnum.INITIATED
+  const [status, setStatus] = useState<PaymentStatusEnum | OrderEnum>(
+    PaymentStatusEnum.INITIATED
   );
+  const [showDetails, setShowDetails] = useState(false);
+
   const currentStepIndex = statusSteps.findIndex((s) => s.key === status);
 
   const checkOrderStatus = useCallback(async (orderId: string) => {
-    setStatus(OrderStatusEnum.VERIFYING);
+    setStatus(PaymentStatusEnum.VERIFYING);
     try {
       if (!orderId) {
         return;
       }
       const res = await fetch(
-        `/api/order/get-order-payment-status?order_id=${orderId}`
+        `/api/order/get-order-status?order_id=${orderId}`
       );
-      const data = await res.json();
 
-      if (data.status === "paid") {
-        setStatus(OrderStatusEnum.SUCCESS);
+      const {
+        body: { data },
+      } = await res.json();
+      const status = data?.Status;
+
+      if ([PaymentStatusEnum.PAID, OrderEnum.CONFIRMED].includes(status)) {
+        setStatus(status);
+        triggerTransition();
         return;
       } else {
         verifyPayment(orderId);
       }
     } catch (error) {
       console.error(error);
-      setStatus(OrderStatusEnum.ERROR);
+      setStatus(PaymentStatusEnum.FAILED);
     }
   }, []);
 
   useEffect(() => {
-    if (status === OrderStatusEnum.CONFIRMED) {
-      setTimeout(() => {
-        router.replace(`/orders/${orderId}`);
-      }, 5000);
-    }
-  }, [status, orderId, router]);
-
-  useEffect(() => {
     if (!orderId) {
-      setStatus(OrderStatusEnum.ERROR);
+      setStatus(PaymentStatusEnum.FAILED);
       return;
     }
     checkOrderStatus(orderId as string);
@@ -108,104 +128,149 @@ export default function OrderStatus() {
         body: JSON.stringify({ orderId }),
       });
 
-      const data = await res.json();
-      setStatus(data.success ? OrderStatusEnum.SUCCESS : OrderStatusEnum.ERROR);
+      const {
+        body: {
+          data: { Status },
+        },
+      } = await res.json();
+      setStatus(Status);
     } catch (error) {
       console.error(error);
-      setStatus(OrderStatusEnum.ERROR);
+      setStatus(PaymentStatusEnum.FAILED);
     }
   };
 
+  const triggerTransition = () => {
+    setTimeout(() => {
+      setShowDetails(true);
+    }, 1500);
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-6">
       <h1 className="text-2xl font-bold mb-6">Payment Status</h1>
 
-      <div className="relative flex flex-col ">
-        {statusSteps.map((step, index) => {
-          if (!step.hideOn?.includes(status)) {
-            return (
-              <div
-                key={step.key}
-                className="flex items-center mb-6 relative w-full"
-              >
-                {/* Vertical Connecting Line */}
-                {index > 0 && (
-                  <motion.div
-                    initial={{ height: "0%" }}
-                    animate={{
-                      height: currentStepIndex >= index ? "100%" : "50%",
-                    }}
-                    transition={{ duration: 0.5 }}
-                    className={`absolute left-6 -top-6 w-1 ${
-                      currentStepIndex >= index
-                        ? "bg-blue-500"
-                        : "bg-gray-300 dark:bg-gray-700"
-                    }`}
-                  />
-                )}
+      <motion.div
+        className="relative w-80 flex flex-col items-start"
+        initial={{ opacity: 1, scale: 1 }}
+        animate={
+          showDetails
+            ? { opacity: 0, scale: 0.8, x: -200 }
+            : { opacity: 1, scale: 1, x: 0 }
+        }
+        transition={{ duration: 0.5 }}
+      >
+        <div className="relative flex flex-col ">
+          {statusSteps.map((step, index) => {
+            if (!step.hideOn?.includes(status)) {
+              return (
+                <div
+                  key={step.key}
+                  className="flex items-center mb-6 relative w-full"
+                >
+                  {/* Vertical Connecting Line */}
+                  {index > 0 && (
+                    <motion.div
+                      initial={{ height: "0%" }}
+                      animate={{
+                        height:
+                          statusSteps.findIndex((s) => s.key === status) >=
+                          index
+                            ? "100%"
+                            : "50%",
+                      }}
+                      transition={{ duration: 0.5 }}
+                      className={`absolute left-6 -top-6 w-1 ${
+                        statusSteps.findIndex((s) => s.key === status) >= index
+                          ? "bg-blue-500"
+                          : "bg-gray-300 dark:bg-gray-700"
+                      }`}
+                    />
+                  )}
 
-                {/* Icon & Label */}
-                <div className="flex items-center space-x-4 z-10">
-                  <motion.div
-                    initial={{ scale: 0.8 }}
-                    animate={{ scale: status === step.key ? 1.2 : 1 }}
-                    transition={{ duration: 0.3 }}
-                    className={`w-12 h-12 flex items-center justify-center rounded-full border-2 ${
-                      currentStepIndex === index
-                        ? "border-blue-500 bg-blue-100 dark:bg-blue-900"
-                        : "border-gray-300 dark:border-gray-700 bg-gray-200 dark:bg-gray-800"
-                    }`}
-                  >
-                    {status === "verifying" && step.key === "verifying" ? (
-                      <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
-                    ) : (
-                      <step.icon
-                        className={`w-6 h-6 ${
-                          currentStepIndex === index
-                            ? "text-blue-500 "
-                            : "text-gray-500 dark:text-gray-400"
-                        }`}
-                      />
-                    )}
-                  </motion.div>
-                  <span
-                    className={`font-medium ${
-                      currentStepIndex === index
-                        ? "text-blue-500 text-2xl"
-                        : "text-gray-500 dark:text-gray-400 text-lg"
-                    }`}
-                  >
-                    {step.label}
-                  </span>
+                  {/* Icon & Label */}
+                  <div className="flex items-center space-x-4 z-10">
+                    <motion.div
+                      initial={{ scale: 0.8 }}
+                      animate={{ scale: status === step.key ? 1.2 : 1 }}
+                      transition={{ duration: 0.3 }}
+                      className={`w-12 h-12 flex items-center justify-center rounded-full border-2 ${
+                        currentStepIndex === index
+                          ? "border-blue-500 bg-blue-100 dark:bg-blue-900"
+                          : "border-gray-300 dark:border-gray-700 bg-gray-200 dark:bg-gray-800"
+                      }`}
+                    >
+                      {status === PaymentStatusEnum.VERIFYING &&
+                      step.key === PaymentStatusEnum.VERIFYING ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+                      ) : (
+                        <step.icon
+                          className={`w-6 h-6 ${
+                            currentStepIndex === index
+                              ? "text-blue-500 "
+                              : "text-gray-500 dark:text-gray-400"
+                          }`}
+                        />
+                      )}
+                    </motion.div>
+                    <span
+                      className={`font-medium ${
+                        currentStepIndex === index
+                          ? "text-blue-500 text-2xl"
+                          : "text-gray-500 dark:text-gray-400 text-lg"
+                      }`}
+                    >
+                      {step.label}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            );
-          } else {
-            return null;
-          }
-        })}
-      </div>
-      {status === OrderStatusEnum.ERROR && (
-        <div className="mt-6 text-center">
-          <p className="text-red-500 text-lg">
-            Something went wrong from our side. Please try again later.
+              );
+            } else {
+              return null;
+            }
+          })}
+        </div>
+        {status === PaymentStatusEnum.FAILED && (
+          <div className="mt-6 text-center">
+            <p className="text-red-500 text-lg">
+              Something went wrong from our side. Please try again later.
+            </p>
+            <button
+              className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              onClick={() => router.push("/orders")}
+            >
+              Go to Orders
+            </button>
+          </div>
+        )}
+      </motion.div>
+      {/* Order Details Section */}
+      {showDetails && (
+        <motion.div
+          initial={{ opacity: 0, x: 200 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mt-6 p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md w-80"
+        >
+          <h2 className="text-xl font-semibold mb-2">Order Details</h2>
+          <p>Order ID: {orderId}</p>
+          <p>
+            Status:{" "}
+            {status === OrderEnum.CONFIRMED
+              ? "Payment Successful"
+              : "Something went wrong"}
           </p>
-          <button
-            className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            onClick={() => router.push("/orders")}
-          >
-            Go to Orders
-          </button>
-        </div>
-      )}
-
-      {status === OrderStatusEnum.CONFIRMED && (
-        <div className="mt-6 flex items-center space-x-2">
-          <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
-          <span className="text-gray-600 dark:text-gray-300">
-            Redirecting to order details in 5 seconds...
-          </span>
-        </div>
+          {status === OrderEnum.CONFIRMED && (
+            <motion.div
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 0 }}
+              transition={{ duration: 5 }}
+              className="text-sm text-gray-500 dark:text-gray-400 mt-2"
+            >
+              Redirecting you in 5 seconds...
+            </motion.div>
+          )}
+        </motion.div>
       )}
     </div>
   );

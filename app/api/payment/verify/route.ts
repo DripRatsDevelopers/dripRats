@@ -1,62 +1,106 @@
-import { mutate, query } from "@/lib/db";
+import { apiResponse, db } from "@/lib/dynamoClient";
+import { OrderEnum, PaymentStatusEnum } from "@/types/Order";
+import { GetCommand, TransactWriteCommand } from "@aws-sdk/lib-dynamodb";
 import crypto from "crypto";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     const { orderId } = await req.json();
 
     const cookieStore = await cookies();
 
-    const razorpayPaymentId = cookieStore.get(`payment_id_${orderId}`)?.value;
-    const razorpaySignature = cookieStore.get(`signature_${orderId}`)?.value;
+    const RazorpayPaymentId = cookieStore.get(
+      `razorpay_payment_id_${orderId}`
+    )?.value;
+    const RazorpaySignature = cookieStore.get(`signature_${orderId}`)?.value;
+    const PaymentId = cookieStore.get(`paymentId_${orderId}`)?.value;
 
-    if (!orderId || !razorpayPaymentId || !razorpaySignature) {
+    const UpdatedAt = new Date().toISOString();
+
+    // Step 1: Retrieve the stored Payment entry using RazorpayOrderId
+    const paymentData = await db.send(
+      new GetCommand({
+        TableName: "Payments",
+        Key: { PaymentId },
+      })
+    );
+
+    if (!paymentData.Item) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        apiResponse({ success: false, error: "Payment not found", status: 404 })
+      );
+    }
+
+    const { RazorpayOrderId, OrderId } = paymentData.Item;
+
+    // Step 2: Verify Razorpay Signature
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_SECRET!)
+      .update(RazorpayOrderId + "|" + RazorpayPaymentId)
+      .digest("hex");
+
+    if (generatedSignature !== RazorpaySignature) {
+      return NextResponse.json(
+        { success: false, error: "Invalid signature" },
         { status: 400 }
       );
     }
 
-    // Fetch the order from DB
-    const payment = await query("SELECT * FROM payments WHERE orderid = $1", [
-      orderId,
-    ]);
-
-    const razorPayOrderId = payment?.[0]?.razorpayorderid;
-
-    if (!payment.length || !razorPayOrderId) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
-
-    // Verify the signature
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_SECRET!)
-      .update(razorPayOrderId + "|" + razorpayPaymentId)
-      .digest("hex");
-
-    if (expectedSignature !== razorpaySignature) {
-      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
-    }
-
-    // Update payment status
-    await mutate(
-      "UPDATE payments SET razorpayPaymentId = $1, status = 'paid' WHERE orderid = $2",
-      [razorpayPaymentId, orderId]
+    // Step 3: Use Transaction to update both Payment & Order
+    await db.send(
+      new TransactWriteCommand({
+        TransactItems: [
+          {
+            Update: {
+              TableName: "Payments",
+              Key: { PaymentId },
+              UpdateExpression:
+                "SET #Status = :status, RazorpayPaymentId = :razorpayPaymentId, UpdatedAt = :updatedAt",
+              ExpressionAttributeValues: {
+                ":status": PaymentStatusEnum.PAID,
+                ":razorpayPaymentId": RazorpayPaymentId,
+                ":updatedAt": UpdatedAt,
+              },
+              ExpressionAttributeNames: {
+                "#Status": "Status",
+              },
+            },
+          },
+          {
+            Update: {
+              TableName: "Orders",
+              Key: { OrderId },
+              UpdateExpression: "SET #Status = :status, UpdatedAt = :updatedAt",
+              ExpressionAttributeValues: {
+                ":status": OrderEnum.CONFIRMED,
+                ":updatedAt": UpdatedAt,
+              },
+              ExpressionAttributeNames: {
+                "#Status": "Status",
+              },
+            },
+          },
+        ],
+      })
     );
 
-    await mutate(
-      "UPDATE orders SET paymentstatus = 'paid' WHERE id = $1",
-      [orderId]
-    );
-
-    return NextResponse.json({ success: true, message: "Payment verified" });
-  } catch (error) {
-    console.error("Error verifying payment:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
+      apiResponse({
+        success: true,
+        data: { OrderId, Status: OrderEnum.CONFIRMED },
+      })
+    );
+  } catch (error) {
+    console.error("Payment verification failed:", error);
+
+    return NextResponse.json(
+      apiResponse({
+        success: false,
+        error: "Payment verification failed",
+        status: 500,
+      })
     );
   }
 }

@@ -8,7 +8,7 @@ const useGetDeliveryTime = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/create-delivery-time?pincode=${pincode}`
+        `/api/delivery/get-delivery-time?pincode=${pincode}`
       );
       const deliveryTime = await response.json();
       setDeliveryTime(deliveryTime.data.available_courier_companies[0]?.etd);

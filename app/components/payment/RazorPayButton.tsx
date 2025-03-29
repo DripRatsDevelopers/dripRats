@@ -2,7 +2,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 import { storePayment } from "@/lib/cookie";
+import { CartType } from "@/types/Cart";
+import { ShippingInfo } from "@/types/Order";
 import { useState } from "react";
 
 interface RazorpayButtonProps {
@@ -11,6 +14,8 @@ interface RazorpayButtonProps {
     orderId: string,
     error?: { error: { description: string } }
   ) => void;
+  shippingInfo: ShippingInfo;
+  items: CartType[];
 }
 
 interface RazorpayWindow extends Window {
@@ -19,7 +24,10 @@ interface RazorpayWindow extends Window {
 const RazorpayButton: React.FC<RazorpayButtonProps> = ({
   amount,
   onPaymentUpdate,
+  shippingInfo,
+  items,
 }) => {
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const amountInPaisa = Math.round(amount * 100);
 
@@ -38,25 +46,37 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
     const response = await fetch("/api/order/create-order", {
       method: "POST",
       body: JSON.stringify({
-        totalAmount: amountInPaisa,
-        userId: "user123",
-        shippingAddress: JSON.stringify({ pincode: "Some address" }),
+        TotalAmount: amountInPaisa,
+        UserId: user?.uid,
+        ShippingAddress: JSON.stringify(shippingInfo),
+        Items: items?.map((item) => ({
+          ProductId: item.id,
+          Quantity: item.quantity,
+          Price: item.Price,
+        })),
       }),
       headers: { "Content-Type": "application/json" },
     });
 
-    const { orderId } = await response.json();
+    const {
+      body: {
+        data: { OrderId },
+      },
+    } = await response.json();
 
     const paymentOrderResponse = await fetch("/api/payment/create-payment", {
       method: "POST",
       body: JSON.stringify({
-        orderId,
-        amount: amountInPaisa,
+        OrderId,
       }),
       headers: { "Content-Type": "application/json" },
     });
 
-    const { razorpayOrderId } = await paymentOrderResponse.json();
+    const {
+      body: {
+        data: { RazorpayOrderId, PaymentId },
+      },
+    } = await paymentOrderResponse.json();
 
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -65,7 +85,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
       name: "Driprats",
       description: "Fashion Jewelry",
       image: "/logo.png",
-      order_id: razorpayOrderId,
+      order_id: RazorpayOrderId,
       handler: async (response: {
         razorpay_payment_id: string;
         razorpay_signature: string;
@@ -74,12 +94,13 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
         // Verify the payment
 
         await storePayment(
-          orderId,
+          OrderId,
           response.razorpay_payment_id,
-          response.razorpay_signature
+          response.razorpay_signature,
+          PaymentId
         );
 
-        onPaymentUpdate(orderId);
+        onPaymentUpdate(OrderId);
       },
       prefill: {
         name: "John Doe",
@@ -105,7 +126,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
       "payment.failed",
       (response: { error: { description: string } }) => {
         setIsLoading(false);
-        onPaymentUpdate(orderId, { error: response.error });
+        onPaymentUpdate(OrderId, { error: response.error });
       }
     );
 

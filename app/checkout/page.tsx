@@ -10,27 +10,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import useAuthState from "@/hooks/useAuthState";
+import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import useGetDeliveryTime from "@/hooks/useGetDeliveryTime";
 import { fetchProduct } from "@/lib/productUtils";
 import { CartType } from "@/types/Cart";
+import { ShippingInfo } from "@/types/Order";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import CheckoutPayment from "./CheckoutPayment";
-
-interface ShippingInfo {
-  fullName: string;
-  houseNumber: string;
-  street: string;
-  city: string;
-  state: string;
-  pincode: string;
-  phone: string;
-  deliveryType: string;
-}
 
 const shippingFormDetails = [
   {
@@ -58,7 +48,7 @@ const shippingFormDetails = [
 const CheckoutPage: React.FC = () => {
   const { cart } = useCart();
   const router = useRouter();
-  const { user, loading } = useAuthState();
+  const { user, loading } = useAuth();
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     fullName: "",
@@ -71,14 +61,13 @@ const CheckoutPage: React.FC = () => {
     deliveryType: "Standard",
   });
 
-  const [tempQuantities, setTempQuantities] = useState<Record<string, number>>(
-    {}
-  );
   const searchParams = useSearchParams();
 
   const productId = searchParams.get("productId");
   const quantity = Number(searchParams.get("quantity")) || 1;
-  const [checkoutItems, setCheckoutItems] = useState<CartType[]>([]);
+  const [checkoutItems, setCheckoutItems] = useState<Record<string, CartType>>(
+    {}
+  );
   const { checkDeliveryTime, deliveryTime } = useGetDeliveryTime();
 
   useEffect(() => {
@@ -92,17 +81,21 @@ const CheckoutPage: React.FC = () => {
       const fetchData = async () => {
         const productdata = await fetchProduct(productId);
         if (productdata) {
-          setCheckoutItems([{ ...productdata, quantity }]);
+          setCheckoutItems({ [productdata.id]: { ...productdata, quantity } });
         }
       };
       fetchData();
     } else {
-      setCheckoutItems(cart);
+      setCheckoutItems(
+        cart.reduce((acc, item) => ({ ...acc, [item.id]: item }), {})
+      );
     }
   }, [cart, productId, quantity]);
 
-  const subtotal = checkoutItems.reduce(
-    (acc, item) => acc + item.Price * (tempQuantities[item.id] || 1),
+  const checkoutItemsList = Object.values(checkoutItems);
+
+  const subtotal = checkoutItemsList.reduce(
+    (acc, item) => acc + item.Price * (item.quantity || 1),
     0
   );
 
@@ -112,15 +105,15 @@ const CheckoutPage: React.FC = () => {
     }
   }, [user, loading, router]);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    setTempQuantities(
-      checkoutItems.reduce(
-        (acc, item) => ({ ...acc, [item.id]: item.quantity }),
-        {}
-      )
-    );
-  }, [checkoutItems]);
+  // useEffect(() => {
+  //   window.scrollTo(0, 0);
+  //   setTempQuantities(
+  //     checkoutItems.reduce(
+  //       (acc, item) => ({ ...acc, [item.id]: item.quantity }),
+  //       {}
+  //     )
+  //   );
+  // }, [checkoutItems]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -133,10 +126,17 @@ const CheckoutPage: React.FC = () => {
   };
 
   const handleQuantityChange = (id: string, increment: boolean) => {
-    setTempQuantities((prev) => {
-      const newQty = increment ? prev[id] + 1 : Math.max(prev[id] - 1, 1);
-      return { ...prev, [id]: newQty };
+    setCheckoutItems((prev) => {
+      const item = prev[id];
+      const newQty = increment
+        ? item.quantity + 1
+        : Math.max(item.quantity - 1, 1);
+      return { ...prev, [id]: { ...item, quantity: newQty } };
     });
+    // setTempQuantities((prev) => {
+    //   const newQty = increment ? prev[id] + 1 : Math.max(prev[id] - 1, 1);
+    //   return { ...prev, [id]: newQty };
+    // });
   };
 
   const isShippingInfoComplete = Object.values(shippingInfo).every(
@@ -259,7 +259,7 @@ const CheckoutPage: React.FC = () => {
 
               {/* Product List */}
               <ul className="space-y-4">
-                {checkoutItems.map((item) => (
+                {checkoutItemsList.map((item) => (
                   <li
                     key={item.id}
                     className="flex justify-between items-center p-4 border rounded-lg"
@@ -286,7 +286,7 @@ const CheckoutPage: React.FC = () => {
                         >
                           -
                         </button>
-                        <span>{tempQuantities[item.id]}</span>
+                        <span>{item.quantity}</span>
                         <button
                           onClick={() => handleQuantityChange(item.id, true)}
                           className="p-1 border rounded"
@@ -297,7 +297,7 @@ const CheckoutPage: React.FC = () => {
 
                       {/* Item Total */}
                       <p className="mt-1">
-                        Total: ₹{item.Price * tempQuantities[item.id]}
+                        Total: ₹{item.Price * item.quantity}
                       </p>
                     </div>
                   </li>
@@ -321,7 +321,13 @@ const CheckoutPage: React.FC = () => {
         </Card>
       )}
 
-      {currentStep === 3 && <CheckoutPayment totalAmount={grandTotal} />}
+      {currentStep === 3 && (
+        <CheckoutPayment
+          totalAmount={grandTotal}
+          shippingInfo={shippingInfo}
+          items={checkoutItemsList}
+        />
+      )}
 
       {/* Navigation Buttons */}
       <div className="flex justify-between mt-4">
