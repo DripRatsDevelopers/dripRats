@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
         params: {
           pickup_postcode: "600066",
           delivery_postcode: deliveryPincode,
-          weight: 1,
+          weight: 0.5,
           cod: 0,
         },
       }

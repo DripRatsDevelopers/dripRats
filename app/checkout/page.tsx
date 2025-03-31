@@ -1,26 +1,18 @@
 "use client";
 
+import DeliveryOptions from "@/components/common/DeliveryOption";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useAuth } from "@/context/AuthContext";
-import { useCart } from "@/hooks/useCart";
-import useGetDeliveryTime from "@/hooks/useGetDeliveryTime";
-import { fetchProduct } from "@/lib/productUtils";
-import { CartType } from "@/types/Cart";
-import { ShippingInfo } from "@/types/Order";
+  deliveryPartnerDetails,
+  DeliveryType,
+  ShippingInfo,
+} from "@/types/Order";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import CheckoutPayment from "./CheckoutPayment";
+import useCheckout from "./useCheckout";
 
 const shippingFormDetails = [
   {
@@ -46,110 +38,28 @@ const shippingFormDetails = [
 ];
 
 const CheckoutPage: React.FC = () => {
-  const { cart } = useCart();
-  const router = useRouter();
-  const { user, loading } = useAuth();
-  const [currentStep, setCurrentStep] = useState<number>(1);
-  const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
-    fullName: "",
-    houseNumber: "",
-    street: "",
-    city: "",
-    state: "",
-    pincode: "",
-    phone: "",
-    deliveryType: "Standard",
-  });
+  const { items, shippingDetails, form } = useCheckout();
 
-  const searchParams = useSearchParams();
+  const {
+    checkoutItemsList,
+    handleQuantityChange,
+    grandTotal,
+    subtotal,
+    savings,
+  } = items;
 
-  const productId = searchParams.get("productId");
-  const quantity = Number(searchParams.get("quantity")) || 1;
-  const [checkoutItems, setCheckoutItems] = useState<Record<string, CartType>>(
-    {}
-  );
-  const { checkDeliveryTime, deliveryTime } = useGetDeliveryTime();
-
-  useEffect(() => {
-    if (shippingInfo.pincode && currentStep !== 1) {
-      checkDeliveryTime(shippingInfo.pincode);
-    }
-  }, [checkDeliveryTime, shippingInfo.pincode, currentStep]);
-
-  useEffect(() => {
-    if (productId) {
-      const fetchData = async () => {
-        const productdata = await fetchProduct(productId);
-        if (productdata) {
-          setCheckoutItems({ [productdata.id]: { ...productdata, quantity } });
-        }
-      };
-      fetchData();
-    } else {
-      setCheckoutItems(
-        cart.reduce((acc, item) => ({ ...acc, [item.id]: item }), {})
-      );
-    }
-  }, [cart, productId, quantity]);
-
-  const checkoutItemsList = Object.values(checkoutItems);
-
-  const subtotal = checkoutItemsList.reduce(
-    (acc, item) => acc + item.Price * (item.quantity || 1),
-    0
-  );
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push(`/auth/login?redirect=${window.location.pathname}`);
-    }
-  }, [user, loading, router]);
-
-  // useEffect(() => {
-  //   window.scrollTo(0, 0);
-  //   setTempQuantities(
-  //     checkoutItems.reduce(
-  //       (acc, item) => ({ ...acc, [item.id]: item.quantity }),
-  //       {}
-  //     )
-  //   );
-  // }, [checkoutItems]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (["phone", "pincode"].includes(name) && !/^\d*$/.test(value)) return;
-    setShippingInfo({ ...shippingInfo, [name]: value });
-  };
-
-  const handleDeliveryTypeChange = (value: string) => {
-    setShippingInfo({ ...shippingInfo, deliveryType: value });
-  };
-
-  const handleQuantityChange = (id: string, increment: boolean) => {
-    setCheckoutItems((prev) => {
-      const item = prev[id];
-      const newQty = increment
-        ? item.quantity + 1
-        : Math.max(item.quantity - 1, 1);
-      return { ...prev, [id]: { ...item, quantity: newQty } };
-    });
-    // setTempQuantities((prev) => {
-    //   const newQty = increment ? prev[id] + 1 : Math.max(prev[id] - 1, 1);
-    //   return { ...prev, [id]: newQty };
-    // });
-  };
-
-  const isShippingInfoComplete = Object.values(shippingInfo).every(
-    (val) => val.trim() !== ""
-  );
-
-  const handleStepChange = (direction: "next" | "prev") => {
-    setCurrentStep((prev) => (direction === "next" ? prev + 1 : prev - 1));
-  };
-
-  const savings = subtotal * 0.1;
-  const deliveryCharge = 50;
-  const grandTotal = subtotal - savings + deliveryCharge;
+  const { currentStep, setCurrentStep, handleStepChange } = form;
+  const {
+    shippingInfo,
+    handleInputChange,
+    handleDeliveryTypeChange,
+    handleInputBlur,
+    isShippingInfoComplete,
+    setDeliveryDetails,
+    error,
+    deliveryDetails,
+    deliveryCharge,
+  } = shippingDetails;
 
   return (
     <div className="p-6 space-y-6 max-w-3xl mx-auto">
@@ -184,15 +94,21 @@ const CheckoutPage: React.FC = () => {
           <CardContent>
             <div className="grid grid-cols-1 gap-4">
               {shippingFormDetails.map((field, idx) => (
-                <Input
-                  key={idx}
-                  placeholder={field.label}
-                  name={field.value}
-                  value={shippingInfo[field.value as keyof ShippingInfo]}
-                  onChange={handleInputChange}
-                  className="w-full"
-                  required
-                />
+                <div key={idx}>
+                  <Input
+                    key={idx}
+                    placeholder={field.label}
+                    name={field.value}
+                    value={shippingInfo[field.value as keyof ShippingInfo]}
+                    onChange={handleInputChange}
+                    className="w-full"
+                    required
+                    onBlur={handleInputBlur}
+                  />
+                  <p className="text-sm text-destructive">
+                    {error?.[field.value]}
+                  </p>
+                </div>
               ))}
               <Input
                 placeholder="Pincode"
@@ -201,7 +117,11 @@ const CheckoutPage: React.FC = () => {
                 onChange={handleInputChange}
                 className="w-full"
                 required
+                onBlur={handleInputBlur}
               />
+              {error?.pincode ? (
+                <p className="text-sm text-destructive">{error?.pincode}</p>
+              ) : null}
               <Input
                 placeholder="Phone"
                 name="phone"
@@ -209,19 +129,27 @@ const CheckoutPage: React.FC = () => {
                 onChange={handleInputChange}
                 className="w-full"
                 required
+                onBlur={handleInputBlur}
               />
-              <Select
-                onValueChange={handleDeliveryTypeChange}
-                value={shippingInfo.deliveryType}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Delivery Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Standard">Standard Delivery</SelectItem>
-                  <SelectItem value="Express">Express Delivery</SelectItem>
-                </SelectContent>
-              </Select>
+              {error?.phone ? (
+                <p className="text-sm text-destructive">{error?.phone}</p>
+              ) : null}
+              {shippingInfo?.pincode && shippingInfo?.pincode?.length === 6 ? (
+                <DeliveryOptions
+                  deliveryPincode={shippingInfo?.pincode}
+                  onSelect={(
+                    deliveryType: DeliveryType,
+                    deliveryDetails?: deliveryPartnerDetails | string
+                  ) => {
+                    handleDeliveryTypeChange(deliveryType);
+                    console.log(deliveryDetails);
+                    if (deliveryDetails && typeof deliveryDetails === "object")
+                      setDeliveryDetails(deliveryDetails);
+                  }}
+                  selectedDeliveryType={shippingInfo?.deliveryType}
+                  deliveryDetails={deliveryDetails}
+                />
+              ) : null}
             </div>
           </CardContent>
         </Card>
@@ -256,6 +184,12 @@ const CheckoutPage: React.FC = () => {
                   Edit Address
                 </Button>
               </div>
+
+              {deliveryDetails?.etd ? (
+                <p className="text-orange-600 text-center font-md font-bold">
+                  Arriving By {deliveryDetails?.etd}
+                </p>
+              ) : null}
 
               {/* Product List */}
               <ul className="space-y-4">
@@ -304,9 +238,6 @@ const CheckoutPage: React.FC = () => {
                 ))}
               </ul>
 
-              <p className="text-orange-600 text-center font-bold">
-                Arriving By {deliveryTime}
-              </p>
               {/* Price Details */}
               <div className="p-4 border rounded-lg bg-gray-50 space-y-2">
                 <p>Subtotal: ₹{subtotal}</p>
@@ -330,7 +261,11 @@ const CheckoutPage: React.FC = () => {
       )}
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between mt-4">
+      <div
+        className={`flex mt-4 ${
+          currentStep > 1 ? "justify-between" : "justify-end"
+        }`}
+      >
         {currentStep > 1 && (
           <Button onClick={() => handleStepChange("prev")} variant="outline">
             <ArrowLeft /> Previous

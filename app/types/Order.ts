@@ -21,5 +21,23 @@ export interface ShippingInfo {
   state: string;
   pincode: string;
   phone: string;
-  deliveryType: string;
+  deliveryType: DeliveryType;
+}
+
+export enum DeliveryType {
+  STANDARD = "STANDARD",
+  EXPRESS = "EXPRESS",
+}
+
+export interface deliveryPartnerDetails {
+  name: string;
+  price: number;
+  estimatedDays: number;
+  rating: number;
+  id: string;
+  etd: string;
+}
+export interface deliveryDetails {
+  expressDelivery: deliveryPartnerDetails | string;
+  standardDelivery: deliveryPartnerDetails | string;
 }
