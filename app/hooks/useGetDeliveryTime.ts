@@ -40,7 +40,6 @@ const useGetDeliveryTime = () => {
         (courier) => courier.estimated_delivery_days <= 2
       ); // Fastest delivery
       const standardDelivery = standardSorted[0];
-
       setDeliveryOptions({
         expressDelivery: expressDelivery
           ? {
@@ -71,7 +70,20 @@ const useGetDeliveryTime = () => {
     }
   }, []); // Empty dependency array since this function doesn't depend on any external values
 
-  return { checkDeliveryTime, deliveryOptions, setDeliveryOptions, loading };
+  const hasStandardDelivery =
+    typeof deliveryOptions?.standardDelivery === "object";
+
+  const hasExpressDelivery =
+    typeof deliveryOptions?.expressDelivery === "object";
+
+  return {
+    checkDeliveryTime,
+    deliveryOptions,
+    setDeliveryOptions,
+    loading,
+    hasExpressDelivery,
+    hasStandardDelivery,
+  };
 };
 
 export default useGetDeliveryTime;

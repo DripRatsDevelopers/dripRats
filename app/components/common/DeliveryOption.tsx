@@ -24,13 +24,13 @@ export default function DeliveryOptions({
   selectedDeliveryType: DeliveryType;
   deliveryDetails?: deliveryPartnerDetails | string;
 }) {
-  const { checkDeliveryTime, deliveryOptions, loading } = useGetDeliveryTime();
-
-  const hasStandardDelivery =
-    typeof deliveryOptions?.standardDelivery === "object";
-
-  const hasExpressDelivery =
-    typeof deliveryOptions?.expressDelivery === "object";
+  const {
+    checkDeliveryTime,
+    deliveryOptions,
+    loading,
+    hasExpressDelivery,
+    hasStandardDelivery,
+  } = useGetDeliveryTime();
 
   useEffect(() => {
     if (deliveryPincode && deliveryPincode?.length === 6) {

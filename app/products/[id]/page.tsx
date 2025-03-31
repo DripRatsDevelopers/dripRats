@@ -41,8 +41,8 @@ export default function ProductDetailPage() {
   const {
     checkDeliveryTime,
     loading: deliveryLoading,
-    deliveryTime,
-    setDeliveryTime,
+    deliveryOptions,
+    setDeliveryOptions,
   } = useGetDeliveryTime();
 
   const [quantity, setQuantity] = useState(1);
@@ -272,15 +272,21 @@ export default function ProductDetailPage() {
                 ₹1000.
               </p>
               <div className="mt-2 flex gap-2">
-                {pincode && deliveryTime ? (
+                {pincode &&
+                pincode?.length === 6 &&
+                typeof deliveryOptions?.standardDelivery === "object" ? (
                   <div className="flex items-center">
-                    <strong>Delivery by {deliveryTime}</strong>
+                    <strong>
+                      Delivery by {deliveryOptions?.standardDelivery?.etd}
+                    </strong>
                     <Button
                       variant="link"
                       className="underline text-blue-500"
                       onClick={() => {
-                        setPincode("");
-                        setDeliveryTime("");
+                        setDeliveryOptions({
+                          expressDelivery: "",
+                          standardDelivery: "",
+                        });
                       }}
                     >
                       Edit Pincode <Edit />
