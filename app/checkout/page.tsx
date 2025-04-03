@@ -1,41 +1,22 @@
 "use client";
 
+import AddressForm, { SELECTED_ADDRESS } from "@/components/common/AddressForm";
 import DeliveryOptions from "@/components/common/DeliveryOption";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   deliveryPartnerDetails,
   DeliveryType,
   ShippingInfo,
 } from "@/types/Order";
+import { Separator } from "@radix-ui/react-select";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import CheckoutPayment from "./CheckoutPayment";
 import useCheckout from "./useCheckout";
-
-const shippingFormDetails = [
-  {
-    label: "Full Name",
-    value: "fullName",
-  },
-  {
-    label: "House Number",
-    value: "houseNumber",
-  },
-  {
-    label: "Street",
-    value: "street",
-  },
-  {
-    label: "City",
-    value: "city",
-  },
-  {
-    label: "State",
-    value: "state",
-  },
-];
 
 const CheckoutPage: React.FC = () => {
   const { items, shippingDetails, form } = useCheckout();
@@ -59,6 +40,10 @@ const CheckoutPage: React.FC = () => {
     error,
     deliveryDetails,
     deliveryCharge,
+    savedAddresses,
+    setShippingInfo,
+    selectedAddress,
+    setSelectedAddress,
   } = shippingDetails;
 
   return (
@@ -92,35 +77,107 @@ const CheckoutPage: React.FC = () => {
             <CardTitle>Shipping Information</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 gap-4">
-              {shippingFormDetails.map((field, idx) => (
-                <div key={idx}>
-                  <Input
-                    key={idx}
-                    placeholder={field.label}
-                    name={field.value}
-                    value={shippingInfo[field.value as keyof ShippingInfo]}
-                    onChange={handleInputChange}
-                    className="w-full"
-                    required
-                    onBlur={handleInputBlur}
-                  />
-                  <p className="text-sm text-destructive">
-                    {error?.[field.value]}
-                  </p>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 gap-5">
+              {savedAddresses?.length ? (
+                <p className="text-xs text-muted-foreground text-center">
+                  You can choose any of the saved address <b>if saved</b>, or
+                  use a new one. You can also edit the selected address.
+                </p>
+              ) : null}
+              <RadioGroup
+                onValueChange={(value) => {
+                  let address;
+                  if (value === SELECTED_ADDRESS) {
+                    address = selectedAddress;
+                  } else {
+                    address = savedAddresses.find((addr) => addr.id === value);
+                  }
+                  const updatedAddress = {
+                    ...address,
+                    phone: shippingInfo.phone,
+                    fullName: shippingInfo.fullName,
+                    deliveryType: DeliveryType.STANDARD,
+                  } as ShippingInfo;
+
+                  setShippingInfo(updatedAddress);
+                }}
+              >
+                <AddressForm
+                  onSelectAddress={(data) => {
+                    const updatedAddress = {
+                      ...data,
+                      phone: shippingInfo.phone,
+                      fullName: shippingInfo.fullName,
+                      deliveryType: DeliveryType.STANDARD,
+                    } as ShippingInfo;
+
+                    setSelectedAddress(data);
+
+                    setShippingInfo(updatedAddress);
+                  }}
+                  selectedAddress={selectedAddress}
+                  selectedAddressId={shippingInfo?.id}
+                />
+                {savedAddresses?.length ? (
+                  <>
+                    <div className="relative flex items-center my-1">
+                      <Separator className="flex-grow border" />
+                      <span className="mx-3 text-xs text-muted-foreground uppercase font-medium">
+                        OR
+                      </span>
+                      <Separator className="flex-grow border" />
+                    </div>
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-2">
+                      Saved Addresses:
+                    </h4>
+                    <div className="overflow-x-auto flex gap-4">
+                      {savedAddresses.map((addr) => (
+                        <Label className="font-normal" key={addr.id}>
+                          <Card
+                            key={addr.id}
+                            className={`py-3 px-2 min-w-[200px] max-w-[250px] flex items-start flex-row border  ${
+                              shippingInfo?.id === addr.id
+                                ? "border-primary bg-gray-50"
+                                : "border-muted"
+                            }`}
+                          >
+                            <RadioGroupItem
+                              value={addr.id || ""}
+                              id={addr.id || ""}
+                              checked={addr.id === shippingInfo?.id}
+                            />
+                            <CardContent className="px-0 py-0 text-xs">
+                              <div>
+                                <p>
+                                  {addr.houseNumber}, {addr.street}
+                                </p>
+                                <p>
+                                  {addr.area} ,
+                                  {addr?.landmark ? <>{addr?.landmark},</> : ""}
+                                </p>
+                                <p>
+                                  {addr.city}, {addr.state} - {addr.pincode}
+                                </p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </Label>
+                      ))}
+                    </div>
+                  </>
+                ) : null}
+              </RadioGroup>
               <Input
-                placeholder="Pincode"
-                name="pincode"
-                value={shippingInfo.pincode}
+                placeholder="Full Name"
+                name="fullName"
+                value={shippingInfo.fullName}
                 onChange={handleInputChange}
                 className="w-full"
                 required
                 onBlur={handleInputBlur}
               />
-              {error?.pincode ? (
-                <p className="text-sm text-destructive">{error?.pincode}</p>
+              {error?.fullName ? (
+                <p className="text-sm text-destructive">{error?.fullName}</p>
               ) : null}
               <Input
                 placeholder="Phone"
@@ -142,7 +199,6 @@ const CheckoutPage: React.FC = () => {
                     deliveryDetails?: deliveryPartnerDetails | string
                   ) => {
                     handleDeliveryTypeChange(deliveryType);
-                    console.log(deliveryDetails);
                     if (deliveryDetails && typeof deliveryDetails === "object")
                       setDeliveryDetails(deliveryDetails);
                   }}

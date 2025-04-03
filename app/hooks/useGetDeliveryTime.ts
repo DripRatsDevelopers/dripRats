@@ -37,7 +37,7 @@ const useGetDeliveryTime = () => {
         );
       });
       const expressDelivery = expressSorted.find(
-        (courier) => courier.estimated_delivery_days <= 2
+        (courier) => courier.estimated_delivery_days <= 3
       ); // Fastest delivery
       const standardDelivery = standardSorted[0];
       setDeliveryOptions({

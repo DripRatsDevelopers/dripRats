@@ -3,6 +3,7 @@ import { useCart } from "@/hooks/useCart";
 import { fetchProduct } from "@/lib/productUtils";
 import { CartType } from "@/types/Cart";
 import {
+  addressDetails,
   deliveryPartnerDetails,
   DeliveryType,
   ShippingInfo,
@@ -10,13 +11,31 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const isPinCodeValid = (pincode: string) => {
-  return pincode?.length === 6;
-};
-
 const isPhoneValid = (phoneNumber: string) => {
   return phoneNumber?.length === 10;
 };
+
+const savedAddresses: addressDetails[] = [
+  {
+    id: "1",
+    houseNumber: "F1",
+    street: "JP Nagar",
+    area: "Surapet",
+    city: "Chennai",
+    landmark: "Behind Velammal School",
+    state: "Tamilnadu",
+    pincode: "600066",
+  },
+  {
+    id: "2",
+    houseNumber: "5",
+    street: "",
+    area: "Podavur",
+    city: "Kanchipuram",
+    state: "Tamilnadu",
+    pincode: "602108",
+  },
+];
 
 const useCheckout = () => {
   const { cart } = useCart();
@@ -25,13 +44,27 @@ const useCheckout = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     fullName: "",
+    id: "",
     houseNumber: "",
     street: "",
+    area: "",
     city: "",
+    landmark: "",
     state: "",
     pincode: "",
     phone: "",
     deliveryType: DeliveryType.STANDARD,
+  });
+
+  const [selectedAddress, setSelectedAddress] = useState<addressDetails>({
+    address: "",
+    houseNumber: "",
+    street: "",
+    landmark: "",
+    area: "",
+    city: "",
+    state: "",
+    pincode: "",
   });
   const [error, setError] = useState<Record<string, string>>({});
 
@@ -83,12 +116,7 @@ const useCheckout = () => {
     if (name === "pincode" && value.length > 6) {
       return;
     }
-    if (
-      (name === "pincode" && isPinCodeValid(value)) ||
-      (name === "phone" && isPhoneValid(value)) ||
-      value ||
-      value?.length
-    ) {
+    if ((name === "phone" && isPhoneValid(value)) || value || value?.length) {
       if (error.hasOwnProperty(name)) {
         const updatedErrorDetails = error;
         delete updatedErrorDetails[name];
@@ -161,7 +189,9 @@ const useCheckout = () => {
   const isDeliveryAvailable = typeof deliveryDetails === "object";
 
   const isShippingInfoComplete =
-    Object.values(shippingInfo).every((val) => val.trim() !== "") &&
+    shippingInfo?.pincode &&
+    shippingInfo?.fullName &&
+    shippingInfo?.phone &&
     !Object.values(error)?.length &&
     isDeliveryAvailable;
 
@@ -193,6 +223,10 @@ const useCheckout = () => {
       deliveryDetails,
       deliveryCharge,
       error,
+      savedAddresses,
+      setShippingInfo,
+      selectedAddress,
+      setSelectedAddress,
     },
     form: {
       currentStep,

@@ -13,13 +13,20 @@ export enum PaymentStatusEnum {
   FAILED = "FAILED",
 }
 
-export interface ShippingInfo {
-  fullName: string;
+export interface addressDetails {
+  id?: string;
+  address?: string;
   houseNumber: string;
   street: string;
+  landmark?: string;
+  area: string;
   city: string;
   state: string;
   pincode: string;
+}
+
+export interface ShippingInfo extends addressDetails {
+  fullName: string;
   phone: string;
   deliveryType: DeliveryType;
 }
