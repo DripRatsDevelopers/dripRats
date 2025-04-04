@@ -7,6 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { auth } from "@/lib/firebase";
+import { getInitials } from "@/lib/utils";
 import {
   User as FirebaseUser,
   onAuthStateChanged,
@@ -16,6 +17,7 @@ import { LogIn, LogOut, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export default function UserPopover() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -39,20 +41,28 @@ export default function UserPopover() {
       });
     }
   };
-
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <User className="w-6 h-6 cursor-pointer hover:text-gray-400" />
+        <Avatar>
+          <AvatarImage src={user?.photoURL ?? undefined} />
+          <AvatarFallback>
+            {user?.displayName ? (
+              getInitials(user?.displayName)
+            ) : (
+              <User className="w-6 h-6 cursor-pointer hover:text-gray-400" />
+            )}
+          </AvatarFallback>
+        </Avatar>
       </PopoverTrigger>
 
       <PopoverContent className="w-56 p-4 bg-white rounded-md shadow-md text-gray-700">
         {user ? (
           <>
             <div className="flex flex-col items-center mb-3">
-              <p className="font-semibold">
-                Hello, {user.displayName || user.email}
-              </p>
+              {user.displayName ? (
+                <p className="font-semibold">Hello, {user.displayName}</p>
+              ) : null}
               <p className="text-sm text-gray-500">{user.email}</p>
             </div>
             <Button

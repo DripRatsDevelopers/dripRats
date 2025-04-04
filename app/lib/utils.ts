@@ -8,3 +8,10 @@ export function cn(...inputs: ClassValue[]) {
 export const isPinCodeValid = (pincode: string) => {
   return pincode?.length === 6;
 };
+
+export const getInitials = (name: string) => {
+  return name
+    .split(" ")
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+};
