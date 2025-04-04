@@ -1,4 +1,8 @@
-import { addressDetails } from "@/types/Order";
+import {
+  deliveryPartnerDetails,
+  DeliveryType,
+  ShippingInfo,
+} from "@/types/Order";
 import { useState } from "react";
 import usePlacesAutocomplete, { getGeocode } from "use-places-autocomplete";
 
@@ -10,9 +14,8 @@ interface placesTypes {
 
 const useAddressForm = () => {
   const [error, setError] = useState<Record<string, string>>({});
-  const [open, setOpen] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [deliveryDetails, setDeliveryDetails] = useState<addressDetails>({
+  const [shippingDetails, setShippingDetails] = useState<ShippingInfo>({
     address: "",
     houseNumber: "",
     street: "",
@@ -21,7 +24,14 @@ const useAddressForm = () => {
     city: "",
     state: "",
     pincode: "",
+    fullName: "",
+    phone: "",
+    deliveryType: DeliveryType.STANDARD,
   });
+  const [open, setOpen] = useState(false);
+
+  const [deliveryDetails, setDeliveryDetails] =
+    useState<deliveryPartnerDetails>();
 
   const { suggestions, setValue, clearSuggestions } = usePlacesAutocomplete({
     requestOptions: { componentRestrictions: { country: "IN" } },
@@ -54,7 +64,8 @@ const useAddressForm = () => {
     const state = getComponent("administrative_area_level_1");
     const pincode = getComponent("postal_code");
 
-    setDeliveryDetails({
+    setShippingDetails({
+      ...shippingDetails,
       address,
       street,
       houseNumber,
@@ -89,7 +100,8 @@ const useAddressForm = () => {
   };
 
   const handleInputBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, placeholder } = e.target;
+    const { name, placeholder } = e.target;
+    const value = e.target.value?.trim();
     if (!value || value?.length === 0) {
       setError((prev) => ({ ...prev, [name]: `${placeholder} is required` }));
     } else {
@@ -119,8 +131,14 @@ const useAddressForm = () => {
     }
   };
 
+  const handleDeliveryTypeChange = (value: DeliveryType) => {
+    setShippingDetails({ ...shippingDetails, deliveryType: value });
+  };
+
+  const isDeliveryAvailable = typeof deliveryDetails === "object";
+
   const handleClear = () => {
-    setDeliveryDetails((prev) => ({
+    setShippingDetails((prev) => ({
       ...prev,
       address: "",
     }));
@@ -136,16 +154,22 @@ const useAddressForm = () => {
   };
 
   const disableConfirm =
-    !deliveryDetails?.houseNumber ||
-    !deliveryDetails?.street ||
-    !deliveryDetails?.city ||
-    !deliveryDetails?.state ||
-    !deliveryDetails?.pincode ||
-    !deliveryDetails?.area;
+    !shippingDetails?.fullName?.length ||
+    !shippingDetails?.phone?.length ||
+    !shippingDetails?.houseNumber?.length ||
+    !shippingDetails?.street?.length ||
+    !shippingDetails?.city?.length ||
+    !shippingDetails?.state?.length ||
+    !shippingDetails?.pincode?.length ||
+    !shippingDetails?.area?.length ||
+    Object.values(error)?.length ||
+    !isDeliveryAvailable;
 
   return {
     deliveryDetails,
     setDeliveryDetails,
+    shippingDetails,
+    setShippingDetails,
     showSuggestions,
     suggestions,
     setShowSuggestions,
@@ -155,11 +179,12 @@ const useAddressForm = () => {
     handleClear,
     error,
     setError,
-    open,
-    setOpen,
     getCurrentLocation,
     setValue,
     removeErrorIfExists,
+    handleDeliveryTypeChange,
+    open,
+    setOpen,
   };
 };
 

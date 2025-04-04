@@ -1,25 +1,22 @@
 "use client";
 
-import AddressForm, { SELECTED_ADDRESS } from "@/components/common/AddressForm";
-import DeliveryOptions from "@/components/common/DeliveryOption";
+import AddressForm from "@/components/common/AddressForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  deliveryPartnerDetails,
-  DeliveryType,
-  ShippingInfo,
-} from "@/types/Order";
-import { Separator } from "@radix-ui/react-select";
+import useAddressForm from "@/hooks/useAddressForm";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import CheckoutPayment from "./CheckoutPayment";
 import useCheckout from "./useCheckout";
 
 const CheckoutPage: React.FC = () => {
-  const { items, shippingDetails, form } = useCheckout();
+  const addressData = useAddressForm();
+
+  const { items, shippingInfo, form } = useCheckout({
+    deliveryDetails: addressData?.deliveryDetails,
+  });
+
+  const { shippingDetails, deliveryDetails } = addressData;
 
   const {
     checkoutItemsList,
@@ -30,21 +27,8 @@ const CheckoutPage: React.FC = () => {
   } = items;
 
   const { currentStep, setCurrentStep, handleStepChange } = form;
-  const {
-    shippingInfo,
-    handleInputChange,
-    handleDeliveryTypeChange,
-    handleInputBlur,
-    isShippingInfoComplete,
-    setDeliveryDetails,
-    error,
-    deliveryDetails,
-    deliveryCharge,
-    savedAddresses,
-    setShippingInfo,
-    selectedAddress,
-    setSelectedAddress,
-  } = shippingDetails;
+
+  const { deliveryCharge } = shippingInfo;
 
   return (
     <div className="p-6 space-y-6 max-w-3xl mx-auto">
@@ -70,142 +54,14 @@ const CheckoutPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Step 1: Shipping Information */}
       {currentStep === 1 && (
-        <Card className="p-4 shadow-lg">
-          <CardHeader>
+        <Card className="py-4 px-2 shadow-lg">
+          <CardHeader className="px-3">
             <CardTitle>Shipping Information</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3">
             <div className="grid grid-cols-1 gap-5">
-              {savedAddresses?.length ? (
-                <p className="text-xs text-muted-foreground text-center">
-                  You can choose any of the saved address <b>if saved</b>, or
-                  use a new one. You can also edit the selected address.
-                </p>
-              ) : null}
-              <RadioGroup
-                onValueChange={(value) => {
-                  let address;
-                  if (value === SELECTED_ADDRESS) {
-                    address = selectedAddress;
-                  } else {
-                    address = savedAddresses.find((addr) => addr.id === value);
-                  }
-                  const updatedAddress = {
-                    ...address,
-                    phone: shippingInfo.phone,
-                    fullName: shippingInfo.fullName,
-                    deliveryType: DeliveryType.STANDARD,
-                  } as ShippingInfo;
-
-                  setShippingInfo(updatedAddress);
-                }}
-              >
-                <AddressForm
-                  onSelectAddress={(data) => {
-                    const updatedAddress = {
-                      ...data,
-                      phone: shippingInfo.phone,
-                      fullName: shippingInfo.fullName,
-                      deliveryType: DeliveryType.STANDARD,
-                    } as ShippingInfo;
-
-                    setSelectedAddress(data);
-
-                    setShippingInfo(updatedAddress);
-                  }}
-                  selectedAddress={selectedAddress}
-                  selectedAddressId={shippingInfo?.id}
-                />
-                {savedAddresses?.length ? (
-                  <>
-                    <div className="relative flex items-center my-1">
-                      <Separator className="flex-grow border" />
-                      <span className="mx-3 text-xs text-muted-foreground uppercase font-medium">
-                        OR
-                      </span>
-                      <Separator className="flex-grow border" />
-                    </div>
-                    <h4 className="text-sm font-semibold text-muted-foreground mb-2">
-                      Saved Addresses:
-                    </h4>
-                    <div className="overflow-x-auto flex gap-4">
-                      {savedAddresses.map((addr) => (
-                        <Label className="font-normal" key={addr.id}>
-                          <Card
-                            key={addr.id}
-                            className={`py-3 px-2 min-w-[200px] max-w-[250px] flex items-start flex-row border  ${
-                              shippingInfo?.id === addr.id
-                                ? "border-primary bg-gray-50"
-                                : "border-muted"
-                            }`}
-                          >
-                            <RadioGroupItem
-                              value={addr.id || ""}
-                              id={addr.id || ""}
-                              checked={addr.id === shippingInfo?.id}
-                            />
-                            <CardContent className="px-0 py-0 text-xs">
-                              <div>
-                                <p>
-                                  {addr.houseNumber}, {addr.street}
-                                </p>
-                                <p>
-                                  {addr.area} ,
-                                  {addr?.landmark ? <>{addr?.landmark},</> : ""}
-                                </p>
-                                <p>
-                                  {addr.city}, {addr.state} - {addr.pincode}
-                                </p>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </Label>
-                      ))}
-                    </div>
-                  </>
-                ) : null}
-              </RadioGroup>
-              <Input
-                placeholder="Full Name"
-                name="fullName"
-                value={shippingInfo.fullName}
-                onChange={handleInputChange}
-                className="w-full"
-                required
-                onBlur={handleInputBlur}
-              />
-              {error?.fullName ? (
-                <p className="text-sm text-destructive">{error?.fullName}</p>
-              ) : null}
-              <Input
-                placeholder="Phone"
-                name="phone"
-                value={shippingInfo.phone}
-                onChange={handleInputChange}
-                className="w-full"
-                required
-                onBlur={handleInputBlur}
-              />
-              {error?.phone ? (
-                <p className="text-sm text-destructive">{error?.phone}</p>
-              ) : null}
-              {shippingInfo?.pincode && shippingInfo?.pincode?.length === 6 ? (
-                <DeliveryOptions
-                  deliveryPincode={shippingInfo?.pincode}
-                  onSelect={(
-                    deliveryType: DeliveryType,
-                    deliveryDetails?: deliveryPartnerDetails | string
-                  ) => {
-                    handleDeliveryTypeChange(deliveryType);
-                    if (deliveryDetails && typeof deliveryDetails === "object")
-                      setDeliveryDetails(deliveryDetails);
-                  }}
-                  selectedDeliveryType={shippingInfo?.deliveryType}
-                  deliveryDetails={deliveryDetails}
-                />
-              ) : null}
+              <AddressForm addressData={addressData} />
             </div>
           </CardContent>
         </Card>
@@ -222,15 +78,15 @@ const CheckoutPage: React.FC = () => {
               {/* Shipping Address */}
               <div className="p-4 border rounded-lg">
                 <h3 className="font-semibold mb-2">Shipping Address</h3>
-                <p>{shippingInfo.fullName}</p>
+                <p>{shippingDetails.fullName}</p>
                 <p>
-                  {shippingInfo.houseNumber}, {shippingInfo.street}
+                  {shippingDetails.houseNumber}, {shippingDetails.street}
                 </p>
                 <p>
-                  {shippingInfo.city}, {shippingInfo.state} -{" "}
-                  {shippingInfo.pincode}
+                  {shippingDetails.city}, {shippingDetails.state} -{" "}
+                  {shippingDetails.pincode}
                 </p>
-                <p>Phone: {shippingInfo.phone}</p>
+                <p>Phone: {shippingDetails.phone}</p>
                 <Button
                   variant="outline"
                   size="sm"
@@ -311,7 +167,7 @@ const CheckoutPage: React.FC = () => {
       {currentStep === 3 && (
         <CheckoutPayment
           totalAmount={grandTotal}
-          shippingInfo={shippingInfo}
+          shippingInfo={shippingDetails}
           items={checkoutItemsList}
         />
       )}
@@ -330,7 +186,7 @@ const CheckoutPage: React.FC = () => {
         {currentStep < 3 && (
           <Button
             onClick={() => handleStepChange("next")}
-            disabled={currentStep === 1 && !isShippingInfoComplete}
+            disabled={currentStep === 1 && Boolean(addressData.disableConfirm)}
           >
             Next <ArrowRight />
           </Button>

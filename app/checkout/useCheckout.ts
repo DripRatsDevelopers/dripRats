@@ -2,18 +2,9 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import { fetchProduct } from "@/lib/productUtils";
 import { CartType } from "@/types/Cart";
-import {
-  addressDetails,
-  deliveryPartnerDetails,
-  DeliveryType,
-  ShippingInfo,
-} from "@/types/Order";
+import { addressDetails, deliveryPartnerDetails } from "@/types/Order";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const isPhoneValid = (phoneNumber: string) => {
-  return phoneNumber?.length === 10;
-};
 
 const savedAddresses: addressDetails[] = [
   {
@@ -37,39 +28,15 @@ const savedAddresses: addressDetails[] = [
   },
 ];
 
-const useCheckout = () => {
+const useCheckout = ({
+  deliveryDetails,
+}: {
+  deliveryDetails?: deliveryPartnerDetails;
+}) => {
   const { cart } = useCart();
   const router = useRouter();
   const { user, loading } = useAuth();
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
-    fullName: "",
-    id: "",
-    houseNumber: "",
-    street: "",
-    area: "",
-    city: "",
-    landmark: "",
-    state: "",
-    pincode: "",
-    phone: "",
-    deliveryType: DeliveryType.STANDARD,
-  });
-
-  const [selectedAddress, setSelectedAddress] = useState<addressDetails>({
-    address: "",
-    houseNumber: "",
-    street: "",
-    landmark: "",
-    area: "",
-    city: "",
-    state: "",
-    pincode: "",
-  });
-  const [error, setError] = useState<Record<string, string>>({});
-
-  const [deliveryDetails, setDeliveryDetails] =
-    useState<deliveryPartnerDetails>();
 
   const searchParams = useSearchParams();
 
@@ -108,74 +75,6 @@ const useCheckout = () => {
     }
   }, [user, loading, router]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const trimmedValue = value?.trim();
-    if (["phone", "pincode"].includes(name) && !/^\d*$/.test(trimmedValue))
-      return;
-    if (name === "pincode" && value.length > 6) {
-      return;
-    }
-    if ((name === "phone" && isPhoneValid(value)) || value || value?.length) {
-      if (error.hasOwnProperty(name)) {
-        const updatedErrorDetails = error;
-        delete updatedErrorDetails[name];
-        setError(updatedErrorDetails);
-      }
-    }
-    setShippingInfo({ ...shippingInfo, [name]: trimmedValue });
-  };
-
-  const handleInputBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, placeholder } = e.target;
-    if (!value || value?.length === 0) {
-      setError((prev) => ({ ...prev, [name]: `${placeholder} is required` }));
-    } else {
-      switch (name) {
-        case "pincode": {
-          if (value?.length !== 6) {
-            setError((prev) => ({ ...prev, [name]: `Enter valid Pincode` }));
-          } else {
-            if (error.hasOwnProperty(name)) {
-              const updatedErrorDetails = error;
-              delete updatedErrorDetails[name];
-              setError(updatedErrorDetails);
-            }
-          }
-          break;
-        }
-        case "phone": {
-          if (value?.length !== 10) {
-            setError((prev) => ({
-              ...prev,
-              [name]: `Enter valid Phone Number`,
-            }));
-          } else {
-            if (error.hasOwnProperty(name)) {
-              const updatedErrorDetails = error;
-              delete updatedErrorDetails[name];
-              setError(updatedErrorDetails);
-            }
-          }
-          break;
-        }
-        default: {
-          if (value || value?.length) {
-            if (error.hasOwnProperty(name)) {
-              const updatedErrorDetails = error;
-              delete updatedErrorDetails[name];
-              setError(updatedErrorDetails);
-            }
-          }
-        }
-      }
-    }
-  };
-
-  const handleDeliveryTypeChange = (value: DeliveryType) => {
-    setShippingInfo({ ...shippingInfo, deliveryType: value });
-  };
-
   const handleQuantityChange = (id: string, increment: boolean) => {
     setCheckoutItems((prev) => {
       const item = prev[id];
@@ -185,15 +84,6 @@ const useCheckout = () => {
       return { ...prev, [id]: { ...item, quantity: newQty } };
     });
   };
-
-  const isDeliveryAvailable = typeof deliveryDetails === "object";
-
-  const isShippingInfoComplete =
-    shippingInfo?.pincode &&
-    shippingInfo?.fullName &&
-    shippingInfo?.phone &&
-    !Object.values(error)?.length &&
-    isDeliveryAvailable;
 
   const handleStepChange = (direction: "next" | "prev") => {
     setCurrentStep((prev) => (direction === "next" ? prev + 1 : prev - 1));
@@ -213,20 +103,9 @@ const useCheckout = () => {
       subtotal,
       savings,
     },
-    shippingDetails: {
-      shippingInfo,
-      handleInputChange,
-      handleDeliveryTypeChange,
-      handleInputBlur,
-      isShippingInfoComplete,
-      setDeliveryDetails,
-      deliveryDetails,
+    shippingInfo: {
       deliveryCharge,
-      error,
       savedAddresses,
-      setShippingInfo,
-      selectedAddress,
-      setSelectedAddress,
     },
     form: {
       currentStep,

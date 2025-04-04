@@ -25,11 +25,13 @@ export interface addressDetails {
   pincode: string;
 }
 
-export interface ShippingInfo extends addressDetails {
+export interface UserShippingData {
   fullName: string;
   phone: string;
   deliveryType: DeliveryType;
 }
+
+export interface ShippingInfo extends addressDetails, UserShippingData {}
 
 export enum DeliveryType {
   STANDARD = "STANDARD",
