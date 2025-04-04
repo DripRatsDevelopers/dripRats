@@ -4,7 +4,7 @@ import AddressForm from "@/components/common/AddressForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import useAddressForm from "@/hooks/useAddressForm";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import Image from "next/image";
 import CheckoutPayment from "./CheckoutPayment";
 import useCheckout from "./useCheckout";
@@ -12,11 +12,13 @@ import useCheckout from "./useCheckout";
 const CheckoutPage: React.FC = () => {
   const addressData = useAddressForm();
 
-  const { items, shippingInfo, form } = useCheckout({
+  const { items, shippingInfo, form, payment } = useCheckout({
     deliveryDetails: addressData?.deliveryDetails,
   });
 
   const { shippingDetails, deliveryDetails } = addressData;
+
+  const { isPaymentLoading } = payment;
 
   const {
     checkoutItemsList,
@@ -30,24 +32,34 @@ const CheckoutPage: React.FC = () => {
 
   const { deliveryCharge } = shippingInfo;
 
+  if (isPaymentLoading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-md flex flex-col items-center space-y-4">
+          <span className="text-lg font-medium text-gray-900 dark:text-white">
+            Processing Payment...
+          </span>
+          <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="p-6 space-y-6 max-w-3xl mx-auto">
       {/* Step Navigation */}
       <div className="flex justify-center items-center mb-6 space-x-4">
         {["Shipping", "Summary", "Payment"].map((step, index) => (
           <div key={index} className="flex items-center space-x-2">
-            <Button
+            <div
               className={`flex items-center justify-center h-8 w-8 rounded-full cursor-pointer ${
                 currentStep >= index + 1
                   ? "bg-black text-white"
                   : "bg-gray-200 text-gray-400"
               }`}
-              variant="ghost"
               onClick={() => setCurrentStep(index + 1)}
-              disabled={currentStep < index + 1}
             >
               {index + 1}
-            </Button>
+            </div>
             <p className="hidden sm:block text-gray-600">{step}</p>
             {index < 2 && <div className="w-16 sm:w-24 h-px bg-gray-400" />}
           </div>
@@ -169,6 +181,7 @@ const CheckoutPage: React.FC = () => {
           totalAmount={grandTotal}
           shippingInfo={shippingDetails}
           items={checkoutItemsList}
+          {...payment}
         />
       )}
 

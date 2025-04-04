@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useAddressForm from "@/hooks/useAddressForm";
 import { deliveryPartnerDetails, DeliveryType } from "@/types/Order";
+import { Separator } from "@radix-ui/react-select";
 import { MapPin, Save, X } from "lucide-react";
 import DeliveryOptions from "./DeliveryOption";
 import SavedAddress from "./SavedAddressDialog";
@@ -100,6 +101,13 @@ export default function AddressForm({
         <Save size={18} />
         Choose from saved Address
       </Button>
+      <div className="relative flex items-center my-1">
+        <Separator className="flex-grow border" />
+        <span className="mx-3 text-xs text-muted-foreground uppercase font-medium">
+          OR
+        </span>
+        <Separator className="flex-grow border" />
+      </div>
       {open ? (
         <SavedAddress
           setShippingDetails={setShippingDetails}
@@ -233,7 +241,6 @@ export default function AddressForm({
 
       <Label className="gap-0">Landmark (Optional)</Label>
       <Input
-        onBlur={handleInputBlur}
         type="text"
         value={shippingDetails.landmark}
         onChange={(e) => {

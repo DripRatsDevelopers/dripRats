@@ -38,6 +38,8 @@ const useCheckout = ({
   const { user, loading } = useAuth();
   const [currentStep, setCurrentStep] = useState<number>(1);
 
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+
   const searchParams = useSearchParams();
 
   const productId = searchParams.get("productId");
@@ -111,6 +113,10 @@ const useCheckout = ({
       currentStep,
       setCurrentStep,
       handleStepChange,
+    },
+    payment: {
+      isPaymentLoading,
+      setIsPaymentLoading,
     },
   };
 };

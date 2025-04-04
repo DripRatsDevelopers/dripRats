@@ -101,7 +101,6 @@ export default function OrderStatus() {
 
         if (success) {
           const status = data?.Status;
-
           setStatus(status);
           if ([PaymentStatusEnum.PAID, OrderEnum.CONFIRMED].includes(status)) {
             triggerTransition();
@@ -145,6 +144,9 @@ export default function OrderStatus() {
         },
       } = await res.json();
       setStatus(Status);
+      if ([PaymentStatusEnum.PAID, OrderEnum.CONFIRMED].includes(Status)) {
+        triggerTransition();
+      }
     } catch (error) {
       console.error(error);
       setStatus(PaymentStatusEnum.FAILED);

@@ -102,33 +102,34 @@ const useAddressForm = () => {
   const handleInputBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, placeholder } = e.target;
     const value = e.target.value?.trim();
-    if (!value || value?.length === 0) {
-      setError((prev) => ({ ...prev, [name]: `${placeholder} is required` }));
-    } else {
-      switch (name) {
-        case "pincode": {
-          if (value?.length !== 6) {
-            setError((prev) => ({ ...prev, [name]: `Enter valid Pincode` }));
-          } else {
-            if (error.hasOwnProperty(name)) {
-              const updatedErrorDetails = error;
-              delete updatedErrorDetails[name];
-              setError(updatedErrorDetails);
+    if (name !== "landmark")
+      if (!value || value?.length === 0) {
+        setError((prev) => ({ ...prev, [name]: `${placeholder} is required` }));
+      } else {
+        switch (name) {
+          case "pincode": {
+            if (value?.length !== 6) {
+              setError((prev) => ({ ...prev, [name]: `Enter valid Pincode` }));
+            } else {
+              if (error.hasOwnProperty(name)) {
+                const updatedErrorDetails = error;
+                delete updatedErrorDetails[name];
+                setError(updatedErrorDetails);
+              }
             }
+            break;
           }
-          break;
-        }
-        default: {
-          if (value || value?.length) {
-            if (error.hasOwnProperty(name)) {
-              const updatedErrorDetails = error;
-              delete updatedErrorDetails[name];
-              setError(updatedErrorDetails);
+          default: {
+            if (value || value?.length) {
+              if (error.hasOwnProperty(name)) {
+                const updatedErrorDetails = error;
+                delete updatedErrorDetails[name];
+                setError(updatedErrorDetails);
+              }
             }
           }
         }
       }
-    }
   };
 
   const handleDeliveryTypeChange = (value: DeliveryType) => {
@@ -154,15 +155,17 @@ const useAddressForm = () => {
   };
 
   const disableConfirm =
-    !shippingDetails?.fullName?.length ||
-    !shippingDetails?.phone?.length ||
-    !shippingDetails?.houseNumber?.length ||
-    !shippingDetails?.street?.length ||
-    !shippingDetails?.city?.length ||
-    !shippingDetails?.state?.length ||
-    !shippingDetails?.pincode?.length ||
-    !shippingDetails?.area?.length ||
-    Object.values(error)?.length ||
+    Boolean(
+      !shippingDetails?.fullName?.length ||
+        !shippingDetails?.phone?.length ||
+        !shippingDetails?.houseNumber?.length ||
+        !shippingDetails?.street?.length ||
+        !shippingDetails?.city?.length ||
+        !shippingDetails?.state?.length ||
+        !shippingDetails?.pincode?.length ||
+        !shippingDetails?.area?.length
+    ) ||
+    Boolean(Object.values(error)?.length) ||
     !isDeliveryAvailable;
 
   return {

@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { storePayment } from "@/lib/cookie";
 import { CartType } from "@/types/Cart";
 import { ShippingInfo } from "@/types/Order";
-import { useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 interface RazorpayButtonProps {
   amount: number;
@@ -16,6 +16,8 @@ interface RazorpayButtonProps {
   ) => void;
   shippingInfo: ShippingInfo;
   items: CartType[];
+  isLoading: boolean;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
 
 interface RazorpayWindow extends Window {
@@ -26,9 +28,10 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
   onPaymentUpdate,
   shippingInfo,
   items,
+  isLoading,
+  setIsLoading,
 }) => {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
   const amountInPaisa = Math.round(amount * 100);
 
   const isScriptLoaded =
@@ -80,19 +83,16 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
 
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      amount: Math.round(amount * 100), // Amount in paisa (1 INR = 100 paisa)
+      amount: Math.round(amount * 100),
       currency: "INR",
       name: "Driprats",
-      description: "Fashion Jewelry",
+      description: "Drip Fashion",
       image: "/logo.png",
       order_id: RazorpayOrderId,
       handler: async (response: {
         razorpay_payment_id: string;
         razorpay_signature: string;
       }) => {
-        setIsLoading(false);
-        // Verify the payment
-
         await storePayment(
           OrderId,
           response.razorpay_payment_id,
@@ -108,7 +108,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
         contact: "9999999999",
       },
       notes: {
-        address: "Driprats Corporate Office",
+        address: "Driprats Office",
       },
       theme: {
         color: "#528FF0",
@@ -125,6 +125,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
     razorpay.on(
       "payment.failed",
       (response: { error: { description: string } }) => {
+        console.log("payment failed");
         setIsLoading(false);
         onPaymentUpdate(OrderId, { error: response.error });
       }
@@ -143,7 +144,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
     <Button
       onClick={handlePayment}
       disabled={isLoading || !isScriptLoaded}
-      className="w-full mt-4"
+      className="w-full mt-4 bg-green-500"
     >
       {isLoading ? "Processing..." : "Pay Now"}
     </Button>
