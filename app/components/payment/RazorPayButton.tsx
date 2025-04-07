@@ -3,6 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { apiFetch } from "@/lib/apiClient";
 import { storePayment } from "@/lib/cookie";
 import { CartType } from "@/types/Cart";
 import { ShippingInfo } from "@/types/Order";
@@ -46,9 +47,9 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
 
     setIsLoading(true);
 
-    const response = await fetch("/api/order/create-order", {
+    const response = await apiFetch("/api/order/create-order", {
       method: "POST",
-      body: JSON.stringify({
+      body: {
         TotalAmount: amountInPaisa,
         UserId: user?.uid,
         ShippingAddress: JSON.stringify(shippingInfo),
@@ -57,29 +58,27 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
           Quantity: item.quantity,
           Price: item.Price,
         })),
-      }),
-      headers: { "Content-Type": "application/json" },
+      },
     });
 
     const {
       body: {
         data: { OrderId },
       },
-    } = await response.json();
+    } = response;
 
-    const paymentOrderResponse = await fetch("/api/payment/create-payment", {
+    const paymentOrderResponse = await apiFetch("/api/payment/create-payment", {
       method: "POST",
-      body: JSON.stringify({
+      body: {
         OrderId,
-      }),
-      headers: { "Content-Type": "application/json" },
+      },
     });
 
     const {
       body: {
         data: { RazorpayOrderId, PaymentId },
       },
-    } = await paymentOrderResponse.json();
+    } = paymentOrderResponse;
 
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,

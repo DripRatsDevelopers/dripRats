@@ -1,8 +1,19 @@
 import { apiResponse, db } from "@/lib/dynamoClient";
+import { verifyUser } from "@/lib/verifyUser";
 import { GetCommand } from "@aws-sdk/lib-dynamodb";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
+  try {
+    await verifyUser(req);
+  } catch {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      {
+        status: 401,
+      }
+    );
+  }
   try {
     const { searchParams } = new URL(req.url);
     const OrderId = searchParams.get("order_id");

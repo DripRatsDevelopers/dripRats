@@ -1,41 +1,22 @@
 import { useCart } from "@/hooks/useCart";
 import { fetchProduct } from "@/lib/productUtils";
 import { CartType } from "@/types/Cart";
-import { addressDetails, deliveryPartnerDetails } from "@/types/Order";
+import { deliveryPartnerDetails } from "@/types/Order";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const savedAddresses: addressDetails[] = [
-  {
-    id: "1",
-    houseNumber: "F1",
-    street: "JP Nagar",
-    area: "Surapet",
-    city: "Chennai",
-    landmark: "Behind Velammal School",
-    state: "Tamilnadu",
-    pincode: "600066",
-  },
-  {
-    id: "2",
-    houseNumber: "5",
-    street: "",
-    area: "Podavur",
-    city: "Kanchipuram",
-    state: "Tamilnadu",
-    pincode: "602108",
-  },
-];
-
 const useCheckout = ({
   deliveryDetails,
+  updateAddress,
 }: {
   deliveryDetails?: deliveryPartnerDetails;
+  updateAddress: () => Promise<void>;
 }) => {
   const { cart } = useCart();
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+  const [saveAddress, setSaveAddress] = useState(false);
 
   const searchParams = useSearchParams();
 
@@ -78,7 +59,10 @@ const useCheckout = ({
     });
   };
 
-  const handleStepChange = (direction: "next" | "prev") => {
+  const handleStepChange = async (direction: "next" | "prev") => {
+    if (direction === "next" && saveAddress) {
+      await updateAddress();
+    }
     setCurrentStep((prev) => (direction === "next" ? prev + 1 : prev - 1));
   };
 
@@ -98,7 +82,8 @@ const useCheckout = ({
     },
     shippingInfo: {
       deliveryCharge,
-      savedAddresses,
+      saveAddress,
+      setSaveAddress,
     },
     form: {
       currentStep,

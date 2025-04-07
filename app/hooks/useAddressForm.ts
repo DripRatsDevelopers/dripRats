@@ -1,9 +1,11 @@
+import { apiFetch } from "@/lib/apiClient";
 import {
+  addressDetails,
   deliveryPartnerDetails,
   DeliveryType,
   ShippingInfo,
 } from "@/types/Order";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import usePlacesAutocomplete, { getGeocode } from "use-places-autocomplete";
 
 interface placesTypes {
@@ -29,9 +31,26 @@ const useAddressForm = () => {
     deliveryType: DeliveryType.STANDARD,
   });
   const [open, setOpen] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState<addressDetails[]>([]);
 
   const [deliveryDetails, setDeliveryDetails] =
     useState<deliveryPartnerDetails>();
+
+  useEffect(() => {
+    const fetchAddress = async () => {
+      const response = await apiFetch("/api/user/get-saved-address");
+      const {
+        body: {
+          data: { savedAddress },
+          success,
+        },
+      } = response;
+      if (success) {
+        setSavedAddresses(savedAddress);
+      }
+    };
+    fetchAddress();
+  }, []);
 
   const { suggestions, setValue, clearSuggestions } = usePlacesAutocomplete({
     requestOptions: { componentRestrictions: { country: "IN" } },
@@ -154,6 +173,25 @@ const useAddressForm = () => {
     }
   };
 
+  const updateAddress = async () => {
+    const payload = {
+      address: JSON.stringify({
+        id: shippingDetails?.id,
+        houseNumber: shippingDetails?.houseNumber,
+        street: shippingDetails?.street,
+        landmark: shippingDetails?.landmark,
+        area: shippingDetails?.area,
+        city: shippingDetails?.city,
+        state: shippingDetails?.state,
+        pincode: shippingDetails?.pincode,
+      }),
+    };
+
+    await apiFetch("/api/user/update-address", {
+      method: "POST",
+      body: payload,
+    });
+  };
   const disableConfirm =
     Boolean(
       !shippingDetails?.fullName?.length ||
@@ -188,6 +226,9 @@ const useAddressForm = () => {
     handleDeliveryTypeChange,
     open,
     setOpen,
+    updateAddress,
+    savedAddresses,
+    setSavedAddresses,
   };
 };
 

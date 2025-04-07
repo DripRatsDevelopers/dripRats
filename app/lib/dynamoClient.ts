@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
 const client = new DynamoDBClient({
   region: process.env.AWS_REGION,
@@ -27,3 +27,15 @@ export function apiResponse({
     body: { success, data, error },
   };
 }
+
+export const getUserItem = async ({ UserId }: { UserId: string }) => {
+  const command = new GetCommand({
+    TableName: "Users",
+    Key: {
+      UserId,
+    },
+  });
+
+  const res = await db.send(command);
+  return res.Item ? res.Item : null;
+};

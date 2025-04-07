@@ -1,17 +1,13 @@
 import { CartType } from "@/types/Cart";
+import { apiFetch } from "./apiClient";
 
 export const fetchProduct = async (
   id: string
 ): Promise<CartType | undefined> => {
   try {
-    const response = await fetch(`/api/products/${id}`);
-    const data = await response.json();
-
-    if (response.ok) {
-      return data;
-    } else {
-      console.error("Error fetching product:", data.error);
-    }
+    const response = await apiFetch(`/api/products/${id}`);
+    const data = response;
+    return data;
   } catch (error) {
     console.error("Failed to fetch product:", error);
   }
@@ -19,14 +15,9 @@ export const fetchProduct = async (
 
 export const fetchAllProducts = async (): Promise<CartType[] | undefined> => {
   try {
-    const response = await fetch("/api/products");
-    const data = await response.json();
-
-    if (response.ok) {
-      return data;
-    } else {
-      console.error("Error fetching products:", data.error);
-    }
+    const response = await apiFetch("/api/products");
+    const data = response;
+    return data;
   } catch (error) {
     console.error("Failed to fetch products:", error);
   }

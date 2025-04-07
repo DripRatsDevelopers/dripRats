@@ -16,38 +16,18 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
 export const SELECTED_ADDRESS = "SELECTED_ADDRESS";
 
-const savedAddresses: addressDetails[] = [
-  {
-    id: "1",
-    houseNumber: "F1",
-    street: "JP Nagar",
-    area: "Surapet",
-    city: "Chennai",
-    landmark: "Behind Velammal School",
-    state: "Tamilnadu",
-    pincode: "600066",
-  },
-  {
-    id: "2",
-    houseNumber: "5",
-    street: "",
-    area: "Podavur",
-    city: "Kanchipuram",
-    state: "Tamilnadu",
-    pincode: "602108",
-  },
-];
-
 export default function SavedAddress({
   setShippingDetails,
   shippingDetails,
   open,
   setOpen,
+  savedAddresses,
 }: {
   setShippingDetails: Dispatch<SetStateAction<ShippingInfo>>;
   shippingDetails: ShippingInfo;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  savedAddresses: addressDetails[];
 }) {
   const [address, setAddress] = useState<addressDetails | undefined>({
     id: shippingDetails?.id,

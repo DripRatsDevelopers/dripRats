@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { apiFetch } from "@/lib/apiClient";
 import { OrderEnum, PaymentStatusEnum } from "@/types/Order";
 import { motion } from "framer-motion";
 import {
@@ -91,13 +92,13 @@ export default function OrderStatus() {
         if (!orderId) {
           return;
         }
-        const res = await fetch(
+        const res = await apiFetch(
           `/api/order/get-order-status?order_id=${orderId}`
         );
 
         const {
           body: { data, error, success },
-        } = await res.json();
+        } = res;
 
         if (success) {
           const status = data?.Status;
@@ -132,10 +133,10 @@ export default function OrderStatus() {
     setStatus(PaymentStatusEnum.VERIFYING);
 
     try {
-      const res = await fetch("/api/payment/verify", {
+      const res = await apiFetch("/api/payment/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId }),
+        body: { orderId },
       });
 
       const {

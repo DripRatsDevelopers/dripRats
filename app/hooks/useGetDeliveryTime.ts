@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/apiClient";
 import { deliveryDetails } from "@/types/Order";
 import { useCallback, useState } from "react";
 
@@ -8,10 +9,10 @@ const useGetDeliveryTime = () => {
   const checkDeliveryTime = useCallback(async (pincode: string) => {
     try {
       setLoading(true);
-      const response = await fetch(
+      const response = await apiFetch(
         `/api/delivery/get-delivery-time?pincode=${pincode}`
       );
-      const deliveryTime = await response.json();
+      const deliveryTime = response;
       const courierOptions = deliveryTime.data.available_courier_companies;
       // Sort by delivery time (fastest) and then by rating (highest)
       const expressSorted = [...courierOptions].sort((a, b) => {

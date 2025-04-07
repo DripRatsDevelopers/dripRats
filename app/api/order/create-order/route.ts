@@ -1,4 +1,5 @@
 import { apiResponse, db } from "@/lib/dynamoClient";
+import { verifyUser } from "@/lib/verifyUser";
 import { OrderEnum } from "@/types/Order";
 import { GetCommand, TransactWriteCommand } from "@aws-sdk/lib-dynamodb";
 import { NextResponse } from "next/server";
@@ -11,6 +12,16 @@ interface OrderItem {
 }
 
 export async function POST(req: Request) {
+  try {
+    await verifyUser(req);
+  } catch {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      {
+        status: 401,
+      }
+    );
+  }
   try {
     const { UserId, Items, TotalAmount, ShippingAddress } = await req.json();
     const OrderId = uuidv4();

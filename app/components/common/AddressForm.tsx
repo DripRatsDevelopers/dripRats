@@ -35,6 +35,7 @@ export default function AddressForm({
     setDeliveryDetails,
     open,
     setOpen,
+    savedAddresses,
   } = addressData;
 
   return (
@@ -91,29 +92,34 @@ export default function AddressForm({
           <p className="text-sm text-destructive">{error?.phone}</p>
         ) : null}
       </div>
-      <Button
-        variant="outline"
-        className="flex items-center gap-2"
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        <Save size={18} />
-        Choose from saved Address
-      </Button>
-      <div className="relative flex items-center my-1">
-        <Separator className="flex-grow border" />
-        <span className="mx-3 text-xs text-muted-foreground uppercase font-medium">
-          OR
-        </span>
-        <Separator className="flex-grow border" />
-      </div>
+      {savedAddresses?.length ? (
+        <>
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            <Save size={18} />
+            Choose from saved Address
+          </Button>
+          <div className="relative flex items-center my-1">
+            <Separator className="flex-grow border" />
+            <span className="mx-3 text-xs text-muted-foreground uppercase font-medium">
+              OR
+            </span>
+            <Separator className="flex-grow border" />
+          </div>
+        </>
+      ) : null}
       {open ? (
         <SavedAddress
           setShippingDetails={setShippingDetails}
           shippingDetails={shippingDetails}
           open={open}
           setOpen={setOpen}
+          savedAddresses={savedAddresses}
         />
       ) : null}
       <div className="space-y-2">
@@ -337,7 +343,6 @@ export default function AddressForm({
           ) : null}
         </div>
       </div>
-
       <div className="space-y-2">
         <Label className="gap-0">
           Pincode<span className="text-destructive">*</span>

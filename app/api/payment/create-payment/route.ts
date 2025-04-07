@@ -1,4 +1,5 @@
 import { apiResponse, db } from "@/lib/dynamoClient";
+import { verifyUser } from "@/lib/verifyUser";
 import { OrderEnum, PaymentStatusEnum } from "@/types/Order";
 import { GetCommand, TransactWriteCommand } from "@aws-sdk/lib-dynamodb";
 import { NextResponse } from "next/server";
@@ -12,6 +13,16 @@ const razorpay = new Razorpay({
 });
 
 export async function POST(req: Request) {
+  try {
+    await verifyUser(req);
+  } catch {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      {
+        status: 401,
+      }
+    );
+  }
   try {
     const { OrderId } = await req.json();
     const PaymentId = uuidv4();

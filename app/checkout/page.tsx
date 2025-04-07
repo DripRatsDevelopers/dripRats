@@ -3,6 +3,8 @@
 import AddressForm from "@/components/common/AddressForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import useAddressForm from "@/hooks/useAddressForm";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import Image from "next/image";
@@ -14,6 +16,7 @@ const CheckoutPage: React.FC = () => {
 
   const { items, shippingInfo, form, payment } = useCheckout({
     deliveryDetails: addressData?.deliveryDetails,
+    updateAddress: addressData?.updateAddress,
   });
 
   const { shippingDetails, deliveryDetails } = addressData;
@@ -30,7 +33,7 @@ const CheckoutPage: React.FC = () => {
 
   const { currentStep, setCurrentStep, handleStepChange } = form;
 
-  const { deliveryCharge } = shippingInfo;
+  const { deliveryCharge, saveAddress, setSaveAddress } = shippingInfo;
 
   if (isPaymentLoading) {
     return (
@@ -73,6 +76,18 @@ const CheckoutPage: React.FC = () => {
           <CardContent className="px-3">
             <div className="grid grid-cols-1 gap-5">
               <AddressForm addressData={addressData} />
+            </div>
+            <div className="flex items-center space-x-2 mt-4">
+              <Checkbox
+                id="save-address"
+                checked={saveAddress}
+                onCheckedChange={(val) => setSaveAddress(!!val)}
+              />
+              <Label htmlFor="save-address" className="text-sm font-normal">
+                {shippingDetails?.id
+                  ? "Save this address for future checkouts"
+                  : "Edit the selected address"}
+              </Label>
             </div>
           </CardContent>
         </Card>

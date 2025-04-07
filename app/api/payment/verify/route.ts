@@ -1,4 +1,5 @@
 import { apiResponse, db } from "@/lib/dynamoClient";
+import { verifyUser } from "@/lib/verifyUser";
 import { OrderEnum, PaymentStatusEnum } from "@/types/Order";
 import { GetCommand, TransactWriteCommand } from "@aws-sdk/lib-dynamodb";
 import crypto from "crypto";
@@ -6,6 +7,16 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  try {
+    await verifyUser(req);
+  } catch {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      {
+        status: 401,
+      }
+    );
+  }
   try {
     const { orderId } = await req.json();
 
