@@ -1,9 +1,8 @@
-import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import { fetchProduct } from "@/lib/productUtils";
 import { CartType } from "@/types/Cart";
 import { addressDetails, deliveryPartnerDetails } from "@/types/Order";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const savedAddresses: addressDetails[] = [
@@ -34,8 +33,6 @@ const useCheckout = ({
   deliveryDetails?: deliveryPartnerDetails;
 }) => {
   const { cart } = useCart();
-  const router = useRouter();
-  const { user, loading } = useAuth();
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
@@ -70,12 +67,6 @@ const useCheckout = ({
     (acc, item) => acc + item.Price * (item.quantity || 1),
     0
   );
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push(`/auth/login?redirect=${window.location.pathname}`);
-    }
-  }, [user, loading, router]);
 
   const handleQuantityChange = (id: string, increment: boolean) => {
     setCheckoutItems((prev) => {

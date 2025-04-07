@@ -4,6 +4,7 @@ import Script from "next/script";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
 import Navbar from "./components/common/NavBar";
+import AuthGuard from "./components/common/ProtectedRoutes";
 import "./globals.css";
 import Providers from "./Providers";
 
@@ -48,8 +49,10 @@ export default function RootLayout({
         <Suspense fallback={<>Loading...</>}>
           <Providers>
             <Navbar />
-            <div className="mt-3"> {children}</div>
-            <Toaster position="bottom-right" richColors />
+            <AuthGuard>
+              <div className="mt-3"> {children}</div>
+              <Toaster position="bottom-right" richColors />{" "}
+            </AuthGuard>
           </Providers>
         </Suspense>
       </body>

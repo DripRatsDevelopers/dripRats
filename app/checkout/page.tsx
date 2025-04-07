@@ -51,12 +51,11 @@ const CheckoutPage: React.FC = () => {
         {["Shipping", "Summary", "Payment"].map((step, index) => (
           <div key={index} className="flex items-center space-x-2">
             <div
-              className={`flex items-center justify-center h-8 w-8 rounded-full cursor-pointer ${
+              className={`flex items-center justify-center h-8 w-8 rounded-full ${
                 currentStep >= index + 1
                   ? "bg-black text-white"
                   : "bg-gray-200 text-gray-400"
               }`}
-              onClick={() => setCurrentStep(index + 1)}
             >
               {index + 1}
             </div>
