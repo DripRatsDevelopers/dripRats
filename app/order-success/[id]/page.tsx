@@ -135,7 +135,6 @@ export default function OrderStatus() {
     try {
       const res = await apiFetch("/api/payment/verify", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: { orderId },
       });
 
@@ -143,7 +142,7 @@ export default function OrderStatus() {
         body: {
           data: { Status },
         },
-      } = await res.json();
+      } = res;
       setStatus(Status);
       if ([PaymentStatusEnum.PAID, OrderEnum.CONFIRMED].includes(Status)) {
         triggerTransition();

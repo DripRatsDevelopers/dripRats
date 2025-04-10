@@ -6,7 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import useAddressForm from "@/hooks/useAddressForm";
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CircleAlert,
+  Loader2,
+  Trash2,
+  TriangleAlert,
+} from "lucide-react";
 import Image from "next/image";
 import CheckoutPayment from "./CheckoutPayment";
 import useCheckout from "./useCheckout";
@@ -17,6 +25,7 @@ const CheckoutPage: React.FC = () => {
   const { items, shippingInfo, form, payment } = useCheckout({
     deliveryDetails: addressData?.deliveryDetails,
     updateAddress: addressData?.updateAddress,
+    disableConfirm: addressData?.disableConfirm,
   });
 
   const { shippingDetails, deliveryDetails } = addressData;
@@ -29,9 +38,18 @@ const CheckoutPage: React.FC = () => {
     grandTotal,
     subtotal,
     savings,
+    productStocksMap,
+    isProductOutOfStock,
+    handleRemoveItem,
   } = items;
 
-  const { currentStep, setCurrentStep, handleStepChange } = form;
+  const {
+    currentStep,
+    setCurrentStep,
+    handleStepChange,
+    disableNext,
+    disableNavigation,
+  } = form;
 
   const { deliveryCharge, saveAddress, setSaveAddress } = shippingInfo;
 
@@ -85,8 +103,8 @@ const CheckoutPage: React.FC = () => {
               />
               <Label htmlFor="save-address" className="text-sm font-normal">
                 {shippingDetails?.id
-                  ? "Save this address for future checkouts"
-                  : "Edit the selected address"}
+                  ? "Edit the selected address"
+                  : "Save this address for future checkouts"}
               </Label>
             </div>
           </CardContent>
@@ -131,49 +149,95 @@ const CheckoutPage: React.FC = () => {
 
               {/* Product List */}
               <ul className="space-y-4">
-                {checkoutItemsList.map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex justify-between items-center p-4 border rounded-lg"
-                  >
-                    {/* Product Image */}
-                    <Image
-                      src={item.ImageUrls[0]}
-                      alt={item.Name}
-                      className="w-24 h-24 object-contain rounded"
-                      width={20}
-                      height={20}
-                    />
+                {checkoutItemsList.map((item) => {
+                  const isOutOfStock =
+                    !productStocksMap?.[item.id] ||
+                    productStocksMap?.[item.id] === 0;
 
-                    {/* Product Details */}
-                    <div className="flex-1 ml-4">
-                      <p className="font-semibold text-lg">{item.Name}</p>
-                      <p>₹{item.Price}</p>
+                  const isQuantityInStock =
+                    (productStocksMap?.[item.id] || 0) >= item.quantity;
+                  return (
+                    <li
+                      key={item.id}
+                      className={cn(
+                        "p-4 border rounded-lg relative",
+                        isOutOfStock ? "border-red-500" : ""
+                      )}
+                    >
+                      {isOutOfStock && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveItem(item.id)}
+                          className="mt-2 absolute right-1 text-red-500"
+                        >
+                          <Trash2 className="w-5 h-5" />{" "}
+                        </Button>
+                      )}
+                      <div
+                        className={cn(
+                          "flex justify-between items-center",
+                          isOutOfStock ? "opacity-50 pointer-events-none" : ""
+                        )}
+                      >
+                        <Image
+                          src={item.ImageUrls[0]}
+                          alt={item.Name}
+                          className="w-24 h-24 object-contain rounded"
+                          width={20}
+                          height={20}
+                        />
+                        {/* Product Details */}
+                        <div className="flex-1 ml-4">
+                          <p className="font-semibold text-md">{item.Name}</p>
+                          <p>₹{item.Price}</p>
 
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-2 mt-2">
-                        <button
-                          onClick={() => handleQuantityChange(item.id, false)}
-                          className="p-1 border rounded"
-                        >
-                          -
-                        </button>
-                        <span>{item.quantity}</span>
-                        <button
-                          onClick={() => handleQuantityChange(item.id, true)}
-                          className="p-1 border rounded"
-                        >
-                          +
-                        </button>
+                          {/* Quantity Controls */}
+                          <div className="flex items-center gap-2 mt-2">
+                            <button
+                              onClick={() =>
+                                handleQuantityChange(item.id, false)
+                              }
+                              className="p-1 border rounded"
+                            >
+                              -
+                            </button>
+                            <span>{item.quantity}</span>
+                            <button
+                              onClick={() =>
+                                handleQuantityChange(item.id, true)
+                              }
+                              className="p-1 border rounded"
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          {/* Item Total */}
+                          <p className="mt-1">
+                            Total: ₹{item.Price * item.quantity}
+                          </p>
+                        </div>
                       </div>
-
-                      {/* Item Total */}
-                      <p className="mt-1">
-                        Total: ₹{item.Price * item.quantity}
-                      </p>
-                    </div>
-                  </li>
-                ))}
+                      <div>
+                        {isOutOfStock && (
+                          <div className="text-red-500 text-sm justify-center mt-2 flex items-center gap-1">
+                            <TriangleAlert className="w-4 h-4" />
+                            Out of stock
+                          </div>
+                        )}
+                        {!isQuantityInStock && !isOutOfStock ? (
+                          <div className="text-yellow-500 text-sm mt-1 flex items-center justify-center gap-1">
+                            Only {productStocksMap?.[item.id]} items left.
+                            Reduce quantity.
+                          </div>
+                        ) : (
+                          <></>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
 
               {/* Price Details */}
@@ -186,6 +250,15 @@ const CheckoutPage: React.FC = () => {
                 <p className="font-bold text-lg">Grand Total: ₹{grandTotal}</p>
               </div>
             </div>
+            {isProductOutOfStock ? (
+              <div className="text-red-500 text-sm font-semibold justify-center mt-2 flex items-start md:items-center gap-1">
+                <CircleAlert className="w-6 h-6" />
+                <p>
+                  Some items chosen are not available, please remove those to
+                  proceed
+                </p>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       )}
@@ -206,16 +279,26 @@ const CheckoutPage: React.FC = () => {
         }`}
       >
         {currentStep > 1 && (
-          <Button onClick={() => handleStepChange("prev")} variant="outline">
+          <Button
+            onClick={() => handleStepChange("prev")}
+            variant="outline"
+            disabled={disableNavigation}
+          >
             <ArrowLeft /> Previous
           </Button>
         )}
         {currentStep < 3 && (
           <Button
             onClick={() => handleStepChange("next")}
-            disabled={currentStep === 1 && Boolean(addressData.disableConfirm)}
+            disabled={disableNext || disableNavigation}
           >
-            Next <ArrowRight />
+            {disableNavigation ? (
+              <>Loading...</>
+            ) : (
+              <>
+                Next <ArrowRight />
+              </>
+            )}
           </Button>
         )}
       </div>

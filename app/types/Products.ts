@@ -6,3 +6,8 @@ export interface Product {
   Category?: string;
   Description: string;
 }
+
+export interface InventoryItem {
+  ProductId: string;
+  Stock: number;
+}

@@ -7,8 +7,9 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  let userId;
   try {
-    await verifyUser(req);
+    userId = await verifyUser(req);
   } catch {
     return NextResponse.json(
       { error: "Unauthorized" },
@@ -38,13 +39,28 @@ export async function POST(req: Request) {
       })
     );
 
-    if (!paymentData.Item) {
+    const orderData = await db.send(
+      new GetCommand({
+        TableName: "Orders",
+        Key: { OrderId: orderId },
+      })
+    );
+
+    if (!paymentData.Item || !orderData.Item) {
       return NextResponse.json(
-        apiResponse({ success: false, error: "Payment not found", status: 404 })
+        apiResponse({
+          success: false,
+          error: "Payment/order not found",
+          status: 404,
+        })
       );
     }
 
     const { RazorpayOrderId, OrderId } = paymentData.Item;
+    const items = orderData.Item.Items as {
+      ProductId: string;
+      Quantity: number;
+    }[];
 
     // Step 2: Verify Razorpay Signature
     const generatedSignature = crypto
@@ -63,6 +79,17 @@ export async function POST(req: Request) {
     await db.send(
       new TransactWriteCommand({
         TransactItems: [
+          ...items.map(({ ProductId, Quantity }) => ({
+            Update: {
+              TableName: "Inventory",
+              Key: { ProductId },
+              UpdateExpression: "SET Stock = Stock - :q",
+              ConditionExpression: "Stock >= :q",
+              ExpressionAttributeValues: {
+                ":q": Quantity,
+              },
+            },
+          })),
           {
             Update: {
               TableName: "Payments",
@@ -93,6 +120,15 @@ export async function POST(req: Request) {
               },
             },
           },
+          ...items.map(({ ProductId }) => ({
+            Delete: {
+              TableName: "ReservedItems",
+              Key: {
+                UserId: userId,
+                ProductId: ProductId,
+              },
+            },
+          })),
         ],
       })
     );

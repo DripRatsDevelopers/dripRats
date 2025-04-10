@@ -5,12 +5,6 @@ import { GetCommand, TransactWriteCommand } from "@aws-sdk/lib-dynamodb";
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
-interface OrderItem {
-  ProductId: string;
-  Quantity: number;
-  Price: number;
-}
-
 export async function POST(req: Request) {
   try {
     await verifyUser(req);
@@ -58,36 +52,24 @@ export async function POST(req: Request) {
       }
     }
 
-    // Transaction: Create Order + Reduce Inventory Stock
-    const transactItems = Items.map((item: OrderItem) => ({
-      Update: {
-        TableName: "Inventory",
-        Key: { ProductId: item.ProductId },
-        UpdateExpression:
-          "SET Stock = Stock - :quantity, UpdatedAt = :updatedAt",
-        ConditionExpression: "Stock >= :quantity",
-        ExpressionAttributeValues: {
-          ":quantity": item.Quantity,
-          ":updatedAt": UpdatedAt,
+    // Transaction: Create Order
+    const transactItems = [
+      {
+        Put: {
+          TableName: "Orders",
+          Item: {
+            OrderId,
+            UserId,
+            Items,
+            TotalAmount,
+            ShippingAddress,
+            Status: OrderEnum.PENDING,
+            CreatedAt,
+            UpdatedAt,
+          },
         },
       },
-    }));
-
-    transactItems.push({
-      Put: {
-        TableName: "Orders",
-        Item: {
-          OrderId,
-          UserId,
-          Items,
-          TotalAmount,
-          ShippingAddress,
-          Status: OrderEnum.PENDING,
-          CreatedAt,
-          UpdatedAt,
-        },
-      },
-    });
+    ];
 
     await db.send(new TransactWriteCommand({ TransactItems: transactItems }));
 

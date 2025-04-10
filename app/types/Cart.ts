@@ -6,4 +6,5 @@ export interface CartType extends Product {
   price: number;
   images: string[];
   quantity: number;
+  Stock?: number;
 }

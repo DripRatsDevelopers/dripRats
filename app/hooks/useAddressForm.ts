@@ -6,17 +6,14 @@ import {
   ShippingInfo,
 } from "@/types/Order";
 import { useEffect, useState } from "react";
-import usePlacesAutocomplete, { getGeocode } from "use-places-autocomplete";
 
 interface placesTypes {
-  description?: string;
-  address_components?: google.maps.GeocoderAddressComponent[];
-  formatted_address?: string;
+  address_components: google.maps.GeocoderAddressComponent[];
+  formatted_address: string;
 }
 
 const useAddressForm = () => {
   const [error, setError] = useState<Record<string, string>>({});
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [shippingDetails, setShippingDetails] = useState<ShippingInfo>({
     address: "",
     houseNumber: "",
@@ -52,21 +49,9 @@ const useAddressForm = () => {
     fetchAddress();
   }, []);
 
-  const { suggestions, setValue, clearSuggestions } = usePlacesAutocomplete({
-    requestOptions: { componentRestrictions: { country: "IN" } },
-  });
-
   const handleSelect = async (place: placesTypes) => {
-    if (place.description) {
-      setValue(place.description, false);
-      clearSuggestions();
-    }
-    const address = place?.description || place?.formatted_address;
-
-    const components = place.address_components?.length
-      ? place.address_components
-      : (await getGeocode({ address: place.description }))?.[0]
-          ?.address_components;
+    const address = place?.formatted_address;
+    const components = place.address_components;
 
     const getComponent = (type: string) =>
       components.find((comp) => comp.types.includes(type))?.long_name || "";
@@ -94,10 +79,8 @@ const useAddressForm = () => {
       landmark,
       area,
     });
-    // Pass data to parent component
   };
 
-  // Get current location using Geolocation API
   const getCurrentLocation = async () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(async (position) => {
@@ -157,14 +140,6 @@ const useAddressForm = () => {
 
   const isDeliveryAvailable = typeof deliveryDetails === "object";
 
-  const handleClear = () => {
-    setShippingDetails((prev) => ({
-      ...prev,
-      address: "",
-    }));
-    setShowSuggestions(false);
-  };
-
   const removeErrorIfExists = (name: string) => {
     if (error.hasOwnProperty(name)) {
       const updatedErrorDetails = error;
@@ -211,17 +186,12 @@ const useAddressForm = () => {
     setDeliveryDetails,
     shippingDetails,
     setShippingDetails,
-    showSuggestions,
-    suggestions,
-    setShowSuggestions,
     disableConfirm,
     handleSelect,
     handleInputBlur,
-    handleClear,
     error,
     setError,
     getCurrentLocation,
-    setValue,
     removeErrorIfExists,
     handleDeliveryTypeChange,
     open,

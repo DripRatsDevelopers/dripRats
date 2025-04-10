@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import useAddressForm from "@/hooks/useAddressForm";
 import { deliveryPartnerDetails, DeliveryType } from "@/types/Order";
 import { Separator } from "@radix-ui/react-select";
-import { MapPin, Save, X } from "lucide-react";
+import { MapPin, NotepadText, Save } from "lucide-react";
 import DeliveryOptions from "./DeliveryOption";
 import SavedAddress from "./SavedAddressDialog";
 
@@ -20,15 +20,9 @@ export default function AddressForm({
   const {
     shippingDetails,
     setShippingDetails,
-    showSuggestions,
-    suggestions,
-    setShowSuggestions,
-    handleSelect,
     handleInputBlur,
-    handleClear,
     error,
     getCurrentLocation,
-    setValue,
     removeErrorIfExists,
     deliveryDetails,
     handleDeliveryTypeChange,
@@ -123,67 +117,18 @@ export default function AddressForm({
         />
       ) : null}
       <div className="space-y-2">
-        <Label>Search Address</Label>
-        <div className="flex justify-between space-x-3 divide-x-2">
-          <div className="relative w-[90%] pr-2">
-            <Input
-              type="text"
-              value={shippingDetails?.address}
-              onChange={(e) => {
-                setValue(e.target.value);
-                setShippingDetails((prev) => ({
-                  ...prev,
-                  address: e.target.value,
-                }));
-              }}
-              placeholder="Search Address...."
-              onBlur={() => {
-                setShowSuggestions(false);
-              }}
-              onFocus={() => {
-                setShowSuggestions(true);
-              }}
-              className="text-sm"
-            />
-            {shippingDetails?.address && (
-              <Button
-                variant="link"
-                onClick={handleClear}
-                className="absolute cursor-pointer bg-white dark:bg-black right-3 top-1/2 -translate-y-1/2 px-0 p-0! w-[fit-content] h-[fit-content]"
-              >
-                <X className="w-2 h-1" />
-              </Button>
-            )}
-          </div>
-          <Button
-            onClick={getCurrentLocation}
-            variant="outline"
-            className="flex items-center gap-2 "
-            title="Use Current Location"
-          >
-            <MapPin size={18} />
-            <span className="hidden md:block">Use Current Location</span>
-          </Button>
-        </div>
-
-        {suggestions.status === "OK" && showSuggestions && (
-          <ul
-            className="bg-white dark:bg-black border rounded shadow-md mt-1 max-h-40 overflow-y-auto absolute shadow-sm suggestions-list"
-            onMouseDown={(e) => e.preventDefault()}
-          >
-            {suggestions.data.map((suggestion) => (
-              <li
-                key={suggestion.place_id}
-                className="p-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleSelect(suggestion)}
-              >
-                {suggestion.description}
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="text-xs text-muted-foreground">
-          Can&#39;t find your address? You can still enter it manually below.
+        <Button
+          onClick={getCurrentLocation}
+          variant="outline"
+          className="w-full"
+          title="Use Current Location"
+        >
+          <MapPin size={18} />
+          Use Current Location
+        </Button>
+        <p className="text-xs text-muted-foreground text-center flex items-center gap-1 justify-center">
+          <NotepadText size={18} /> You can still enter / update it manually
+          below.
         </p>
       </div>
       <div className="grid grid-cols-2 gap-5">
