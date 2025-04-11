@@ -35,7 +35,9 @@ const useCheckout = ({
     {}
   );
   const [stocks, setStocks] = useState<InventoryItem[]>();
-  const [isStockReserved, setIsStockReserved] = useState(false);
+  const [reservedItems, setReservedItems] = useState<
+    { ProductId: string; Quantity: number }[]
+  >([]);
 
   useEffect(() => {
     if (productId) {
@@ -93,9 +95,30 @@ const useCheckout = ({
       ProductId: item.id,
       Quantity: item.quantity,
     }));
-    const isReserved = await reserveItems(reservePayload);
-    setIsStockReserved(isReserved);
+    const reservedItems = await reserveItems(reservePayload);
+    if (reservedItems?.length) {
+      setReservedItems(reservedItems);
+    } else {
+      setReservedItems([]);
+    }
   };
+
+  const reservedItemsMap: Record<string, number> = reservedItems.reduce(
+    (
+      acc: Record<string, number>,
+      cur: { ProductId: string; Quantity: number }
+    ) => {
+      acc[cur.ProductId] = cur.Quantity;
+      return acc;
+    },
+    {}
+  );
+
+  const isStockReserved = reservedItems?.length
+    ? checkoutItemsList?.filter(
+        ({ id, quantity }) => reservedItemsMap[id] !== quantity
+      )?.length === 0
+    : false;
 
   const handleStepChange = async (direction: "next" | "prev") => {
     switch (direction) {
@@ -104,39 +127,42 @@ const useCheckout = ({
         break;
       }
       case "next": {
-        switch (currentStep) {
-          case 1: {
-            try {
-              setDisableNavigation(true);
-              await updateAddress();
-              await reserveStockItems();
-              setCurrentStep((prev) => prev + 1);
-            } catch (error) {
-              console.error(error);
-              toast.error("Something went wrong", {
-                description: "Something went wrong,please try again",
-              });
-            }
-            setDisableNavigation(false);
-            break;
-          }
-          case 2: {
-            try {
-              if (!isStockReserved) {
+        if (!disableNext)
+          switch (currentStep) {
+            case 1: {
+              try {
                 setDisableNavigation(true);
-                await reserveStockItems();
+                await updateAddress();
+                if (!isStockReserved) {
+                  await reserveStockItems();
+                }
+                setCurrentStep((prev) => prev + 1);
+              } catch (error) {
+                console.error(error);
+                toast.error("Something went wrong", {
+                  description: "Something went wrong, please try again",
+                });
               }
               setDisableNavigation(false);
-              setCurrentStep((prev) => prev + 1);
-            } catch (error) {
-              console.error(error);
-              toast.error("Something went wrong", {
-                description: "Something went wrong,please try again",
-              });
+              break;
             }
-            break;
+            case 2: {
+              try {
+                if (!isStockReserved) {
+                  setDisableNavigation(true);
+                  await reserveStockItems();
+                }
+                setDisableNavigation(false);
+                setCurrentStep((prev) => prev + 1);
+              } catch (error) {
+                console.error(error);
+                toast.error("Something went wrong", {
+                  description: "Something went wrong,please try again",
+                });
+              }
+              break;
+            }
           }
-        }
       }
     }
   };
@@ -170,7 +196,7 @@ const useCheckout = ({
         return false;
       }
       case 2: {
-        if (isProductOutOfStock) {
+        if (isProductOutOfStock || !checkoutItemsList?.length) {
           return true;
         }
         return false;

@@ -1,6 +1,8 @@
 import { CartType } from "@/types/Cart";
 import { InventoryItem } from "@/types/Products";
+import { QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { apiFetch } from "./apiClient";
+import { db } from "./dynamoClient";
 
 export const fetchProduct = async (
   id: string
@@ -64,4 +66,42 @@ export const isAnyProductOutOfStock = (
     }
   });
   return isOutOfStock;
+};
+
+export const getReservedStock = async (
+  products: string[]
+): Promise<Record<string, number>> => {
+  const reservedCounts: Record<string, number> = {};
+
+  await Promise.all(
+    products.map(async (ProductId) => {
+      const res = await db.send(
+        new QueryCommand({
+          TableName: "ReservedItems",
+          IndexName: "GSI_ProductId",
+          KeyConditionExpression: "ProductId = :sk",
+          ExpressionAttributeValues: {
+            ":sk": ProductId,
+          },
+          ProjectionExpression: "Quantity, #ttl",
+          ExpressionAttributeNames: {
+            "#ttl": "ttl",
+          },
+        })
+      );
+
+      const now = Math.floor(Date.now() / 1000);
+
+      const totalReserved =
+        res.Items?.reduce((sum, item) => {
+          if (item.ttl > now) {
+            return sum + (item.Quantity ?? 0);
+          }
+          return sum;
+        }, 0) ?? 0;
+
+      reservedCounts[ProductId] = totalReserved;
+    })
+  );
+  return reservedCounts;
 };

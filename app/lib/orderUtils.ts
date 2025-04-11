@@ -17,5 +17,5 @@ export async function reserveItems(
         "Some items in your cart are out of stock. Please update and try again",
     });
   }
-  return success;
+  return body?.data?.reservedItems;
 }

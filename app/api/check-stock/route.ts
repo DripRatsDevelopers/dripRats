@@ -1,5 +1,6 @@
 import { apiResponse, db } from "@/lib/dynamoClient";
-import { BatchGetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { getReservedStock } from "@/lib/productUtils";
+import { BatchGetCommand } from "@aws-sdk/lib-dynamodb";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -26,37 +27,8 @@ export async function POST(req: NextRequest) {
     const result = await db.send(command);
     const stocks = result.Responses?.Inventory ?? [];
 
-    const reservedCounts: Record<string, number> = {};
-
-    await Promise.all(
-      products.map(async (ProductId) => {
-        const res = await db.send(
-          new QueryCommand({
-            TableName: "ReservedItems",
-            IndexName: "GSI_ProductId",
-            KeyConditionExpression: "ProductId = :sk",
-            ExpressionAttributeValues: {
-              ":sk": ProductId,
-            },
-            ProjectionExpression: "Quantity, #ttl",
-            ExpressionAttributeNames: {
-              "#ttl": "ttl",
-            },
-          })
-        );
-
-        const now = Math.floor(Date.now() / 1000);
-
-        const totalReserved =
-          res.Items?.reduce((sum, item) => {
-            if (item.ttl > now) {
-              return sum + (item.Quantity ?? 0);
-            }
-            return sum;
-          }, 0) ?? 0;
-
-        reservedCounts[ProductId] = totalReserved;
-      })
+    const reservedCounts: Record<string, number> = await getReservedStock(
+      products
     );
 
     const updatedStocks = stocks?.map(({ ProductId, Stock }) => ({

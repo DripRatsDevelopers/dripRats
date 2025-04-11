@@ -1,4 +1,5 @@
 import { apiResponse, db } from "@/lib/dynamoClient";
+import { getReservedStock } from "@/lib/productUtils";
 import { verifyUser } from "@/lib/verifyUser";
 import { OrderEnum } from "@/types/Order";
 import { GetCommand, TransactWriteCommand } from "@aws-sdk/lib-dynamodb";
@@ -32,6 +33,10 @@ export async function POST(req: Request) {
       );
     }
 
+    const reservedCounts: Record<string, number> = await getReservedStock(
+      (Items as { ProductId: string }[])?.map(({ ProductId }) => ProductId)
+    );
+
     // Check stock for all items
     for (const item of Items) {
       const stockData = await db.send(
@@ -41,7 +46,10 @@ export async function POST(req: Request) {
         })
       );
 
-      if (!stockData.Item || stockData.Item.Stock < item.Quantity) {
+      const availableStock =
+        stockData.Item?.Stock - reservedCounts[item.ProductId];
+
+      if (!stockData.Item || availableStock < item.Quantity) {
         return NextResponse.json(
           apiResponse({
             success: false,

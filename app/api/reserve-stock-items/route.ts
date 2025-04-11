@@ -1,4 +1,5 @@
 import { apiResponse, db } from "@/lib/dynamoClient";
+import { getReservedStock } from "@/lib/productUtils";
 import { verifyUser } from "@/lib/verifyUser";
 import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { NextRequest, NextResponse } from "next/server";
@@ -26,6 +27,10 @@ export async function POST(req: NextRequest) {
 
     const unavailable: string[] = [];
 
+    const reservedCounts: Record<string, number> = await getReservedStock(
+      (items as { ProductId: string }[])?.map(({ ProductId }) => ProductId)
+    );
+
     for (const item of items) {
       const result = await db.send(
         new GetCommand({
@@ -34,7 +39,7 @@ export async function POST(req: NextRequest) {
         })
       );
 
-      const stock = result.Item?.Stock ?? 0;
+      const stock = (result.Item?.Stock ?? 0) - reservedCounts[item.ProductId];
 
       if (stock < item.Quantity) {
         unavailable.push(item.ProductId);
@@ -69,6 +74,7 @@ export async function POST(req: NextRequest) {
       apiResponse({
         success: true,
         status: 200,
+        data: { reservedItems: items },
       })
     );
   } catch (err) {

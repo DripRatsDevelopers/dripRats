@@ -1,0 +1,187 @@
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+
+import { cn } from "@/lib/utils";
+import { CartType } from "@/types/Cart";
+import { deliveryPartnerDetails, ShippingInfo } from "@/types/Order";
+import { CircleAlert, Trash2, TriangleAlert } from "lucide-react";
+import Image from "next/image";
+import { Button } from "../ui/button";
+
+interface OrderSummary {
+  shippingDetails: ShippingInfo;
+  deliveryDetails?: deliveryPartnerDetails;
+  checkoutItemsList: CartType[];
+  isProductOutOfStock: boolean;
+  setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
+  productStocksMap?: Record<string, number>;
+  savings: number;
+  subtotal: number;
+  deliveryCharge: number;
+  grandTotal: number;
+  handleRemoveItem: (id: string) => void;
+  handleQuantityChange: (id: string, increment: boolean) => void;
+}
+
+const OrderSummary = ({
+  shippingDetails,
+  deliveryDetails,
+  checkoutItemsList,
+  isProductOutOfStock,
+  setCurrentStep,
+  productStocksMap,
+  savings,
+  subtotal,
+  deliveryCharge,
+  grandTotal,
+  handleRemoveItem,
+  handleQuantityChange,
+}: OrderSummary) => {
+  return (
+    <Card className="p-4 shadow-lg">
+      <CardHeader>
+        <CardTitle>Order Summary</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {/* Shipping Address */}
+          <div className="p-4 border rounded-lg">
+            <h3 className="font-semibold mb-2">Shipping Address</h3>
+            <p>{shippingDetails.fullName}</p>
+            <p>
+              {shippingDetails.houseNumber}, {shippingDetails.street}
+            </p>
+            <p>
+              {shippingDetails.city}, {shippingDetails.state} -{" "}
+              {shippingDetails.pincode}
+            </p>
+            <p>Phone: {shippingDetails.phone}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={() => setCurrentStep(1)}
+            >
+              Edit Address
+            </Button>
+          </div>
+
+          {deliveryDetails?.etd &&
+          !isProductOutOfStock &&
+          checkoutItemsList?.length ? (
+            <p className="text-orange-600 text-center font-md font-bold">
+              Arriving By {deliveryDetails?.etd}
+            </p>
+          ) : null}
+
+          {/* Product List */}
+          <ul className="space-y-4">
+            {checkoutItemsList.map((item) => {
+              const isOutOfStock =
+                !productStocksMap?.[item.id] ||
+                productStocksMap?.[item.id] === 0;
+
+              const isQuantityInStock =
+                (productStocksMap?.[item.id] || 0) >= item.quantity;
+              return (
+                <li
+                  key={item.id}
+                  className={cn(
+                    "p-4 border rounded-lg relative",
+                    isOutOfStock ? "border-red-500" : ""
+                  )}
+                >
+                  {isOutOfStock && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveItem(item.id)}
+                      className="mt-2 absolute right-1 text-red-500"
+                    >
+                      <Trash2 className="w-5 h-5" />{" "}
+                    </Button>
+                  )}
+                  <div
+                    className={cn(
+                      "flex justify-between items-center",
+                      isOutOfStock ? "opacity-50 pointer-events-none" : ""
+                    )}
+                  >
+                    <Image
+                      src={item.ImageUrls[0]}
+                      alt={item.Name}
+                      className="w-24 h-24 object-contain rounded"
+                      width={20}
+                      height={20}
+                    />
+                    {/* Product Details */}
+                    <div className="flex-1 ml-4">
+                      <p className="font-semibold text-md">{item.Name}</p>
+                      <p>₹{item.Price}</p>
+
+                      {/* Quantity Controls */}
+                      <div className="flex items-center gap-2 mt-2">
+                        <button
+                          onClick={() => handleQuantityChange(item.id, false)}
+                          className="p-1 border rounded"
+                        >
+                          -
+                        </button>
+                        <span>{item.quantity}</span>
+                        <button
+                          onClick={() => handleQuantityChange(item.id, true)}
+                          className="p-1 border rounded"
+                        >
+                          +
+                        </button>
+                      </div>
+
+                      {/* Item Total */}
+                      <p className="mt-1">
+                        Total: ₹{item.Price * item.quantity}
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    {isOutOfStock && (
+                      <div className="text-red-500 text-sm justify-center mt-2 flex items-center gap-1">
+                        <TriangleAlert className="w-4 h-4" />
+                        Out of stock
+                      </div>
+                    )}
+                    {!isQuantityInStock && !isOutOfStock ? (
+                      <div className="text-yellow-500 text-sm mt-1 flex items-center justify-center gap-1">
+                        Only {productStocksMap?.[item.id]} items left. Reduce
+                        quantity.
+                      </div>
+                    ) : (
+                      <></>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* Price Details */}
+          <div className="p-4 border rounded-lg bg-gray-50 space-y-2">
+            <p>Subtotal: ₹{subtotal}</p>
+            <p className="text-green-600">Savings: -₹{savings.toFixed(2)}</p>
+            <p>Delivery Charge: ₹{deliveryCharge}</p>
+            <p className="font-bold text-lg">Grand Total: ₹{grandTotal}</p>
+          </div>
+        </div>
+        {isProductOutOfStock ? (
+          <div className="text-red-500 text-sm font-semibold justify-center mt-2 flex items-start md:items-center gap-1">
+            <CircleAlert className="w-6 h-6" />
+            <p>
+              Some items chosen are not available, please remove those to
+              proceed
+            </p>
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default OrderSummary;

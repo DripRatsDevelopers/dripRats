@@ -8,6 +8,7 @@ import { storePayment } from "@/lib/cookie";
 import { CartType } from "@/types/Cart";
 import { ShippingInfo } from "@/types/Order";
 import { Dispatch, SetStateAction } from "react";
+import { toast } from "sonner";
 
 interface RazorpayButtonProps {
   amount: number;
@@ -64,78 +65,105 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
     const {
       body: {
         data: { OrderId },
+        success: orderCreationSuccess,
       },
     } = response;
 
-    const paymentOrderResponse = await apiFetch("/api/payment/create-payment", {
-      method: "POST",
-      body: {
-        OrderId,
-      },
-    });
+    if (orderCreationSuccess) {
+      const paymentOrderResponse = await apiFetch(
+        "/api/payment/create-payment",
+        {
+          method: "POST",
+          body: {
+            OrderId,
+          },
+        }
+      );
 
-    const {
-      body: {
-        data: { RazorpayOrderId, PaymentId },
-      },
-    } = paymentOrderResponse;
+      const {
+        body: {
+          data: { RazorpayOrderId, PaymentId },
+          success: paymentCreationSuccess,
+        },
+      } = paymentOrderResponse;
 
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      amount: Math.round(amount * 100),
-      currency: "INR",
-      name: "Driprats",
-      description: "Drip Fashion",
-      image: "/logo.png",
-      order_id: RazorpayOrderId,
-      handler: async (response: {
-        razorpay_payment_id: string;
-        razorpay_signature: string;
-      }) => {
-        await storePayment(
-          OrderId,
-          response.razorpay_payment_id,
-          response.razorpay_signature,
-          PaymentId
+      if (paymentCreationSuccess) {
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+          amount: Math.round(amount * 100),
+          currency: "INR",
+          name: "Driprats",
+          description: "Drip Fashion",
+          image: "/logo.png",
+          order_id: RazorpayOrderId,
+          handler: async (response: {
+            razorpay_payment_id: string;
+            razorpay_signature: string;
+          }) => {
+            await storePayment(
+              OrderId,
+              response.razorpay_payment_id,
+              response.razorpay_signature,
+              PaymentId
+            );
+
+            onPaymentUpdate(OrderId);
+          },
+          prefill: {
+            name: "John Doe",
+            email: "john@example.com",
+            contact: "9999999999",
+          },
+          notes: {
+            address: "Driprats Office",
+          },
+          theme: {
+            color: "#528FF0",
+          },
+          modal: {
+            escape: false,
+            ondismiss: () => {
+              setIsLoading(false);
+              toast.error("Payment Failed", {
+                description: "Payment not completed. Please try again.",
+              });
+            },
+          },
+        };
+
+        const razorpay = new (window as unknown as RazorpayWindow).Razorpay(
+          options
         );
 
-        onPaymentUpdate(OrderId);
-      },
-      prefill: {
-        name: "John Doe",
-        email: "john@example.com",
-        contact: "9999999999",
-      },
-      notes: {
-        address: "Driprats Office",
-      },
-      theme: {
-        color: "#528FF0",
-      },
-      modal: {
-        escape: false,
-      },
-    };
+        razorpay.on(
+          "payment.failed",
+          (response: { error: { description: string } }) => {
+            console.error("payment failed", response);
+            setIsLoading(false);
+            toast.error("Payment Interrupted", {
+              description: "Payment Failed. Please try again.",
+            });
+          }
+        );
 
-    const razorpay = new (window as unknown as RazorpayWindow).Razorpay(
-      options
-    );
-
-    razorpay.on(
-      "payment.failed",
-      (response: { error: { description: string } }) => {
-        console.log("payment failed");
-        setIsLoading(false);
-        onPaymentUpdate(OrderId, { error: response.error });
+        try {
+          razorpay.open();
+        } catch (error) {
+          console.error(error);
+          setIsLoading(false);
+          alert("Payment process interrupted. Please try again.");
+        }
+      } else {
+        toast.error("Something went wrong", {
+          description:
+            "Something went wrong while initiating payment, please try again",
+        });
       }
-    );
-
-    try {
-      razorpay.open();
-    } catch (error) {
-      console.error(error);
-      setIsLoading(false);
-      alert("Payment process interrupted. Please try again.");
+    } else {
+      toast.error("Something went wrong", {
+        description:
+          "Something went wrong while creating order, please try again",
+      });
     }
   };
 
