@@ -37,10 +37,28 @@ export async function POST(req: NextRequest) {
   const razorpayPaymentId = payload.id;
   console.log({ payload, razorpayOrderId, razorpayPaymentId });
   // 2. ✅ Fetch the order using RazorpayOrderId
+
+  const PaymentRes = await db.send(
+    new QueryCommand({
+      TableName: "Payments",
+      IndexName: "RazorpayOrderId-UpdatedAt-index",
+      KeyConditionExpression: "RazorpayOrderId = :razorpayOrderId",
+      ExpressionAttributeValues: {
+        ":razorpayOrderId": razorpayOrderId,
+      },
+    })
+  );
+
+  const payment = PaymentRes.Items?.[0];
+  if (!payment) return new Response("Payment not found", { status: 404 });
+
+  const UserId = payment.UserId;
+  const orderId = payment.OrderId;
+
   const orderRes = await db.send(
     new GetCommand({
       TableName: "Orders",
-      Key: { RazorpayOrderId: razorpayOrderId },
+      Key: { OrderId: orderId },
     })
   );
 
@@ -54,26 +72,10 @@ export async function POST(req: NextRequest) {
     return new Response("Already confirmed", { status: 200 });
   }
 
-  const UserId = order.UserId;
-  const orderId = order.OrderId;
   const Items = order.Items;
   const UpdatedAt = new Date().toISOString();
 
   console.log({ UserId, orderId, Items, UpdatedAt });
-
-  const PaymentRes = await db.send(
-    new QueryCommand({
-      TableName: "Payments",
-      IndexName: "OrderId-CreatedAt-index",
-      KeyConditionExpression: "order_id = :orderId",
-      ExpressionAttributeValues: {
-        ":orderId": orderId,
-      },
-    })
-  );
-
-  const payment = PaymentRes.Items?.[0];
-  if (!payment) return new Response("Payment not found", { status: 404 });
 
   // 4. ✅ Construct transaction items
   const transactItems = Items.map(
