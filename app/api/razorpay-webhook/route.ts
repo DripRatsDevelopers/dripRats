@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     return new Response("Event not handled", { status: 200 });
   }
 
-  const payload = event.payload.payment.entity;
+  const payload = event.payload.payment;
   const razorpayOrderId = payload.order_id;
   const razorpayPaymentId = payload.id;
   console.log({ payload, razorpayOrderId, razorpayPaymentId });
