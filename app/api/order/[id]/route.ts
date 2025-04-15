@@ -4,11 +4,14 @@ import { verifyUser } from "@/lib/verifyUser";
 import { GetCommand } from "@aws-sdk/lib-dynamodb";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const { id: OrderId } = params;
+type Props = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+export async function GET(req: NextRequest, props: Props) {
+  const OrderId = (await props.params)?.id;
 
   try {
     await verifyUser(req);
