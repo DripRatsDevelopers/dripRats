@@ -15,3 +15,15 @@ export const getInitials = (name: string) => {
     .map((part) => part[0]?.toUpperCase())
     .join("");
 };
+
+export const formatDate = (timestamp: number | string | Date) => {
+  const date = new Date(timestamp);
+  return `${date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  })} at ${date.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
+};

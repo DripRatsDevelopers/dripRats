@@ -1,5 +1,5 @@
 import { CartType } from "@/types/Cart";
-import { InventoryItem } from "@/types/Products";
+import { InventoryItem, Product } from "@/types/Products";
 import { QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { apiFetch } from "./apiClient";
 import { db } from "./dynamoClient";
@@ -14,6 +14,24 @@ export const fetchProduct = async (
   } catch (error) {
     console.error("Failed to fetch product:", error);
   }
+};
+
+export const fetchMultipleProducts = async (productIds: string[]) => {
+  const res = await apiFetch("/api/products/getMultipleProducts", {
+    method: "POST",
+    body: productIds,
+  });
+
+  const {
+    body: { success },
+  } = res;
+
+  if (!success) {
+    return {};
+  }
+
+  const data = res?.body?.data;
+  return data as Record<string, Product>;
 };
 
 export const fetchAllProducts = async (): Promise<CartType[] | undefined> => {

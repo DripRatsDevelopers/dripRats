@@ -177,7 +177,7 @@ export default function OrderStatus() {
             Your order is on its way and will reach you soon
           </p>
           <div className="mt-6 flex space-x-4">
-            <Button onClick={() => router.replace(`/order-details/${orderId}`)}>
+            <Button onClick={() => router.replace(`/orders/${orderId}`)}>
               View Order Details
             </Button>
             <Button variant="outline" onClick={() => router.replace("/")}>

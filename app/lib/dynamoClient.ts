@@ -24,7 +24,7 @@ export function apiResponse({
 }) {
   return {
     status,
-    body: { success, data, error },
+    body: { success: success ?? false, data, error },
   };
 }
 
