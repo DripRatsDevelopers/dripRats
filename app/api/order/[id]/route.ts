@@ -2,10 +2,10 @@
 import { apiResponse, db } from "@/lib/dynamoClient";
 import { verifyUser } from "@/lib/verifyUser";
 import { GetCommand } from "@aws-sdk/lib-dynamodb";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const { id: OrderId } = params;
