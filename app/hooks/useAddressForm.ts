@@ -1,11 +1,7 @@
 import { apiFetch } from "@/lib/apiClient";
-import {
-  addressDetails,
-  deliveryPartnerDetails,
-  DeliveryType,
-  ShippingInfo,
-} from "@/types/Order";
+import { addressDetails, ShippingInfo } from "@/types/Order";
 import { useEffect, useState } from "react";
+import useGetDeliveryTime from "./useGetDeliveryTime";
 
 interface placesTypes {
   address_components: google.maps.GeocoderAddressComponent[];
@@ -25,13 +21,19 @@ const useAddressForm = () => {
     pincode: "",
     fullName: "",
     phone: "",
-    deliveryType: DeliveryType.STANDARD,
   });
   const [open, setOpen] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState<addressDetails[]>([]);
 
-  const [deliveryDetails, setDeliveryDetails] =
-    useState<deliveryPartnerDetails>();
+  const { checkDeliveryTime, deliveryOptions, loading, setDeliveryOptions } =
+    useGetDeliveryTime();
+
+  useEffect(() => {
+    const deliveryPincode = shippingDetails.pincode;
+    if (deliveryPincode && deliveryPincode?.length === 6 && !deliveryOptions) {
+      checkDeliveryTime(deliveryPincode);
+    }
+  }, [checkDeliveryTime, shippingDetails.pincode, deliveryOptions]);
 
   useEffect(() => {
     const fetchAddress = async () => {
@@ -134,11 +136,7 @@ const useAddressForm = () => {
       }
   };
 
-  const handleDeliveryTypeChange = (value: DeliveryType) => {
-    setShippingDetails({ ...shippingDetails, deliveryType: value });
-  };
-
-  const isDeliveryAvailable = typeof deliveryDetails === "object";
+  const isDeliveryAvailable = !loading && deliveryOptions?.etd;
 
   const removeErrorIfExists = (name: string) => {
     if (error.hasOwnProperty(name)) {
@@ -182,8 +180,6 @@ const useAddressForm = () => {
     !isDeliveryAvailable;
 
   return {
-    deliveryDetails,
-    setDeliveryDetails,
     shippingDetails,
     setShippingDetails,
     disableConfirm,
@@ -193,12 +189,14 @@ const useAddressForm = () => {
     setError,
     getCurrentLocation,
     removeErrorIfExists,
-    handleDeliveryTypeChange,
     open,
     setOpen,
     updateAddress,
     savedAddresses,
     setSavedAddresses,
+    deliveryOptions,
+    setDeliveryOptions,
+    fetchingDeliveryTime: loading,
   };
 };
 

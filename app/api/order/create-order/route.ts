@@ -18,7 +18,8 @@ export async function POST(req: Request) {
     );
   }
   try {
-    const { UserId, Items, TotalAmount, ShippingAddress } = await req.json();
+    const { UserId, Items, TotalAmount, ShippingAddress, Email } =
+      await req.json();
     const OrderId = uuidv4();
     const CreatedAt = new Date().toISOString();
     const UpdatedAt = CreatedAt;
@@ -74,6 +75,7 @@ export async function POST(req: Request) {
             Status: OrderEnum.PENDING,
             CreatedAt,
             UpdatedAt,
+            Email,
           },
         },
       },

@@ -38,7 +38,7 @@ const CheckoutPayment = ({
     <Card>
       <CardContent>
         <h2 className="text-xl font-bold mb-4">Complete Your Payment</h2>
-        <p className="mb-2">Total Amount: ₹{totalAmount}</p>
+        <p className="mb-2">Total Amount: ₹{totalAmount.toFixed(2)}</p>
         <RazorpayButton
           amount={totalAmount}
           onPaymentUpdate={onPaymentUpdate}

@@ -1,3 +1,7 @@
+import {
+  FLAT_SHIPPING_COSTS,
+  FREE_DELIVERY_MINIMUM_AMOUNT,
+} from "@/constants/DeliveryConstants";
 import { useCart } from "@/hooks/useCart";
 import { reserveItems } from "@/lib/orderUtils";
 import {
@@ -6,18 +10,15 @@ import {
   isAnyProductOutOfStock,
 } from "@/lib/productUtils";
 import { CartType } from "@/types/Cart";
-import { deliveryPartnerDetails } from "@/types/Order";
 import { InventoryItem } from "@/types/Products";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const useCheckout = ({
-  deliveryDetails,
   updateAddress,
   disableConfirm,
 }: {
-  deliveryDetails?: deliveryPartnerDetails;
   updateAddress: () => Promise<void>;
   disableConfirm: boolean;
 }) => {
@@ -132,7 +133,9 @@ const useCheckout = ({
             case 1: {
               try {
                 setDisableNavigation(true);
-                await updateAddress();
+                if (saveAddress) {
+                  await updateAddress();
+                }
                 if (!isStockReserved) {
                   await reserveStockItems();
                 }
@@ -168,9 +171,20 @@ const useCheckout = ({
   };
 
   const savings = subtotal * 0.1;
-  const deliveryCharge = deliveryDetails?.price || 0;
+  const deliveryCharge =
+    subtotal - savings >= FREE_DELIVERY_MINIMUM_AMOUNT
+      ? 0
+      : FLAT_SHIPPING_COSTS;
+
+  const deliveryDiscount =
+    subtotal - savings >= FREE_DELIVERY_MINIMUM_AMOUNT
+      ? FLAT_SHIPPING_COSTS
+      : 0;
 
   const grandTotal = subtotal - savings + deliveryCharge;
+  const amountLeftForFreeShipping = (
+    FREE_DELIVERY_MINIMUM_AMOUNT - grandTotal
+  ).toFixed(2);
 
   const productStocksMap = stocks?.reduce(
     (acc: Record<string, number>, cur: InventoryItem) => {
@@ -223,9 +237,10 @@ const useCheckout = ({
       handleRemoveItem,
     },
     shippingInfo: {
-      deliveryCharge,
       saveAddress,
       setSaveAddress,
+      deliveryDiscount,
+      amountLeftForFreeShipping,
     },
     form: {
       currentStep,

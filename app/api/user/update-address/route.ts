@@ -1,3 +1,4 @@
+import { MAX_SAVED_ADDRESS } from "@/constants/DeliveryConstants";
 import { apiResponse, db } from "@/lib/dynamoClient";
 import { verifyUser } from "@/lib/verifyUser";
 import { addressDetails } from "@/types/Order";
@@ -55,15 +56,26 @@ export async function POST(req: NextRequest) {
       address,
     ];
 
-    await db.send(
-      new PutCommand({
-        TableName: "Users",
-        Item: {
-          ...existing,
-          Addresses: updatedAddresses,
-        },
-      })
-    );
+    if (!existing && addresses?.length >= MAX_SAVED_ADDRESS) {
+      return NextResponse.json(
+        apiResponse({
+          success: false,
+          data: { message: "Cannot save more that 5 addresses" },
+          status: 400,
+        })
+      );
+    }
+
+    if (existing || addresses?.length < 5)
+      await db.send(
+        new PutCommand({
+          TableName: "Users",
+          Item: {
+            ...existing,
+            Addresses: updatedAddresses,
+          },
+        })
+      );
 
     return NextResponse.json({ success: true, address });
   } catch (err) {

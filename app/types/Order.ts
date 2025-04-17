@@ -14,6 +14,34 @@ export enum PaymentStatusEnum {
   FAILED = "FAILED",
 }
 
+export interface OrderItem {
+  ProductId: string;
+  Quantity: number;
+  Price: number;
+  Name: string;
+}
+
+export type ShiprocketOrderInput = {
+  OrderId: string;
+  CreatedAt: string;
+  fullName: string;
+  ShippingAddress: string;
+  TotalAmount: number;
+  Items: OrderItem[];
+  Email: string;
+};
+
+export type ShipmentTrackingData = {
+  awb_code: string;
+  courier_name: string;
+  tracking_data?: {
+    shipment_track_activities: {
+      date: string;
+      activity: string;
+    }[];
+  };
+};
+
 export interface addressDetails {
   id?: string;
   address?: string;
@@ -29,7 +57,6 @@ export interface addressDetails {
 export interface UserShippingData {
   fullName: string;
   phone: string;
-  deliveryType: DeliveryType;
 }
 
 export interface ShippingInfo extends addressDetails, UserShippingData {}

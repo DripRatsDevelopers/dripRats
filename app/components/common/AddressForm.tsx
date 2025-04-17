@@ -4,10 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useAddressForm from "@/hooks/useAddressForm";
-import { deliveryPartnerDetails, DeliveryType } from "@/types/Order";
 import { Separator } from "@radix-ui/react-select";
-import { MapPin, NotepadText, Save } from "lucide-react";
-import DeliveryOptions from "./DeliveryOption";
+import { Check, Loader2, MapPin, NotepadText, Save } from "lucide-react";
 import SavedAddress from "./SavedAddressDialog";
 
 export const SELECTED_ADDRESS = "SELECTED_ADDRESS";
@@ -24,12 +22,12 @@ export default function AddressForm({
     error,
     getCurrentLocation,
     removeErrorIfExists,
-    deliveryDetails,
-    handleDeliveryTypeChange,
-    setDeliveryDetails,
     open,
     setOpen,
     savedAddresses,
+    deliveryOptions,
+    fetchingDeliveryTime,
+    setDeliveryOptions,
   } = addressData;
 
   return (
@@ -292,45 +290,45 @@ export default function AddressForm({
         <Label className="gap-0">
           Pincode<span className="text-destructive">*</span>
         </Label>
-        <Input
-          onBlur={handleInputBlur}
-          type="text"
-          value={shippingDetails.pincode}
-          onChange={(e) => {
-            const value = e.target.value.trim();
-            setShippingDetails((prev) => ({
-              ...prev,
-              pincode: e.target.value,
-            }));
-            if (value?.length) {
-              removeErrorIfExists("pincode");
-            }
-          }}
-          placeholder="Pincode"
-          name="pincode"
-          required
-          className="text-sm"
-        />
+        <div className="relative">
+          <Input
+            onBlur={handleInputBlur}
+            type="text"
+            value={shippingDetails.pincode}
+            onChange={(e) => {
+              const value = e.target.value.trim();
+              setShippingDetails((prev) => ({
+                ...prev,
+                pincode: e.target.value,
+              }));
+              setDeliveryOptions(undefined);
+              if (value?.length) {
+                removeErrorIfExists("pincode");
+              }
+            }}
+            placeholder="Pincode"
+            name="pincode"
+            required
+            className="text-sm"
+          />
+          {fetchingDeliveryTime ? (
+            <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+          ) : null}
+          {deliveryOptions?.etd ? (
+            <Check className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full p-1 text-white bg-green-500" />
+          ) : null}
+        </div>
+
         {error?.pincode ? (
           <p className="text-sm text-destructive">{error?.pincode}</p>
         ) : null}
+        {!error?.pincode &&
+        !fetchingDeliveryTime &&
+        !deliveryOptions?.etd &&
+        shippingDetails.pincode?.length === 6 ? (
+          <p className="text-sm text-destructive">Pincode not serviceable</p>
+        ) : null}
       </div>
-
-      {shippingDetails?.pincode && shippingDetails?.pincode?.length === 6 ? (
-        <DeliveryOptions
-          deliveryPincode={shippingDetails?.pincode}
-          onSelect={(
-            deliveryType: DeliveryType,
-            deliveryDetails?: deliveryPartnerDetails | string
-          ) => {
-            handleDeliveryTypeChange(deliveryType);
-            if (deliveryDetails && typeof deliveryDetails === "object")
-              setDeliveryDetails(deliveryDetails);
-          }}
-          selectedDeliveryType={shippingDetails?.deliveryType}
-          deliveryDetails={deliveryDetails}
-        />
-      ) : null}
     </div>
   );
 }

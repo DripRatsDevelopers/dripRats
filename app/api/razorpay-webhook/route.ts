@@ -1,5 +1,10 @@
 import { db } from "@/lib/dynamoClient";
-import { OrderEnum, PaymentStatusEnum } from "@/types/Order";
+import { createShiprocketOrder } from "@/lib/orderUtils";
+import {
+  OrderEnum,
+  PaymentStatusEnum,
+  ShiprocketOrderInput,
+} from "@/types/Order";
 import {
   GetCommand,
   QueryCommand,
@@ -35,7 +40,7 @@ export async function POST(req: NextRequest) {
   const payload = event.payload.payment.entity;
   const razorpayOrderId = payload.order_id;
   const razorpayPaymentId = payload.id;
-  console.log({ payload, razorpayOrderId, razorpayPaymentId });
+
   // 2. ✅ Fetch the order using RazorpayOrderId
 
   const PaymentRes = await db.send(
@@ -65,8 +70,6 @@ export async function POST(req: NextRequest) {
   const order = orderRes.Item;
   if (!order) return new Response("Order not found", { status: 404 });
 
-  console.log({ order });
-
   // 3. ✅ Skip if already confirmed
   if (order.Status !== OrderEnum.PENDING) {
     return new Response("Already confirmed", { status: 200 });
@@ -74,8 +77,6 @@ export async function POST(req: NextRequest) {
 
   const Items = order.Items;
   const UpdatedAt = new Date().toISOString();
-
-  console.log({ UserId, orderId, Items, UpdatedAt });
 
   // 4. ✅ Construct transaction items
   const transactItems = Items.map(
@@ -150,6 +151,8 @@ export async function POST(req: NextRequest) {
         TransactItems: transactItems,
       })
     );
+    createShiprocketOrder(orderRes.Item as ShiprocketOrderInput);
+
     return new Response("Stock reduced and order confirmed", { status: 200 });
   } catch (err) {
     console.error("Webhook transaction failed:", err);

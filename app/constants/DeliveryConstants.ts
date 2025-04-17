@@ -1,0 +1,3 @@
+export const FLAT_SHIPPING_COSTS = 49;
+export const FREE_DELIVERY_MINIMUM_AMOUNT = 1499;
+export const MAX_SAVED_ADDRESS = 5;

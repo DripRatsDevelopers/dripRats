@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     const { TotalAmount, UserId } = orderData.Item;
 
     const razorpayOrder = await razorpay.orders.create({
-      amount: TotalAmount,
+      amount: Math.round(TotalAmount * 100),
       currency: "INR",
       receipt: OrderId,
     });

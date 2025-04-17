@@ -1,6 +1,11 @@
 import { apiResponse, db } from "@/lib/dynamoClient";
+import { createShiprocketOrder } from "@/lib/orderUtils";
 import { verifyUser } from "@/lib/verifyUser";
-import { OrderEnum, PaymentStatusEnum } from "@/types/Order";
+import {
+  OrderEnum,
+  PaymentStatusEnum,
+  ShiprocketOrderInput,
+} from "@/types/Order";
 import { GetCommand, TransactWriteCommand } from "@aws-sdk/lib-dynamodb";
 import crypto from "crypto";
 import { cookies } from "next/headers";
@@ -132,6 +137,8 @@ export async function POST(req: Request) {
         ],
       })
     );
+
+    createShiprocketOrder(orderData.Item as ShiprocketOrderInput);
 
     return NextResponse.json(
       apiResponse({

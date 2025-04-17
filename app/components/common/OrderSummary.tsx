@@ -1,10 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
+import { FLAT_SHIPPING_COSTS } from "@/constants/DeliveryConstants";
 import { cn } from "@/lib/utils";
 import { CartType } from "@/types/Cart";
 import { deliveryPartnerDetails, ShippingInfo } from "@/types/Order";
+import { Separator } from "@radix-ui/react-select";
 import { CircleAlert, Trash2, TriangleAlert } from "lucide-react";
 import Image from "next/image";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 
 interface OrderSummary {
@@ -16,8 +19,9 @@ interface OrderSummary {
   productStocksMap?: Record<string, number>;
   savings: number;
   subtotal: number;
-  deliveryCharge: number;
+  deliveryDiscount: number;
   grandTotal: number;
+  amountLeftForFreeShipping: string;
   handleRemoveItem: (id: string) => void;
   handleQuantityChange: (id: string, increment: boolean) => void;
 }
@@ -31,8 +35,9 @@ const OrderSummary = ({
   productStocksMap,
   savings,
   subtotal,
-  deliveryCharge,
+  deliveryDiscount,
   grandTotal,
+  amountLeftForFreeShipping,
   handleRemoveItem,
   handleQuantityChange,
 }: OrderSummary) => {
@@ -161,13 +166,47 @@ const OrderSummary = ({
               );
             })}
           </ul>
-
+          {deliveryDiscount > 0 ? (
+            <Badge
+              variant="default"
+              className="bg-green-100 text-green-700 w-full text-sm"
+            >
+              🎉 You’ve unlocked Free Shipping!
+            </Badge>
+          ) : (
+            <Badge
+              variant="default"
+              className="text-muted-foreground w-full text-sm bg-secondary -background"
+            >
+              Purchase for <b>₹{amountLeftForFreeShipping}</b> more to unlock
+              free shipping 🚚
+            </Badge>
+          )}
           {/* Price Details */}
-          <div className="p-4 border rounded-lg bg-gray-50 space-y-2">
-            <p>Subtotal: ₹{subtotal}</p>
-            <p className="text-green-600">Savings: -₹{savings.toFixed(2)}</p>
-            <p>Delivery Charge: ₹{deliveryCharge}</p>
-            <p className="font-bold text-lg">Grand Total: ₹{grandTotal}</p>
+          <div className="p-4 border rounded-lg bg-gray-50 space-y-1 text-sm">
+            <div className="flex items-center justify-between">
+              <p>Subtotal:</p>
+              <p className="font-semibold"> ₹{subtotal.toFixed(2)}</p>
+            </div>
+            <div className="flex items-center justify-between text-green-600">
+              <p>Savings:</p>
+              <p className="font-semibold"> - ₹{savings.toFixed(2)}</p>
+            </div>
+            <div className="flex items-center justify-between">
+              <p>Shipping Charges:</p>
+              <p className="font-semibold">
+                + ₹{FLAT_SHIPPING_COSTS.toFixed(2)}
+              </p>
+            </div>
+            <div className="flex items-center justify-between text-green-600">
+              <p>Shipping discount:</p>
+              <p className="font-semibold">- ₹{deliveryDiscount.toFixed(2)}</p>
+            </div>
+            <Separator className="border" />
+            <div className="flex items-center justify-between">
+              <p className="font-bold text-lg">Grand Total:</p>
+              <p className="font-semibold"> ₹{grandTotal.toFixed(2)}</p>
+            </div>
           </div>
         </div>
         {isProductOutOfStock ? (

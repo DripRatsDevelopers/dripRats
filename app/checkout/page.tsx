@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { MAX_SAVED_ADDRESS } from "@/constants/DeliveryConstants";
 import useAddressForm from "@/hooks/useAddressForm";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import CheckoutPayment from "./CheckoutPayment";
@@ -15,12 +16,11 @@ const CheckoutPage: React.FC = () => {
   const addressData = useAddressForm();
 
   const { items, shippingInfo, form, payment } = useCheckout({
-    deliveryDetails: addressData?.deliveryDetails,
     updateAddress: addressData?.updateAddress,
     disableConfirm: addressData?.disableConfirm,
   });
 
-  const { shippingDetails, deliveryDetails } = addressData;
+  const { shippingDetails, deliveryOptions } = addressData;
 
   const { isPaymentLoading } = payment;
 
@@ -43,7 +43,12 @@ const CheckoutPage: React.FC = () => {
     disableNavigation,
   } = form;
 
-  const { deliveryCharge, saveAddress, setSaveAddress } = shippingInfo;
+  const {
+    saveAddress,
+    setSaveAddress,
+    deliveryDiscount,
+    amountLeftForFreeShipping,
+  } = shippingInfo;
 
   if (isPaymentLoading) {
     return (
@@ -87,18 +92,21 @@ const CheckoutPage: React.FC = () => {
             <div className="grid grid-cols-1 gap-5">
               <AddressForm addressData={addressData} />
             </div>
-            <div className="flex items-center space-x-2 mt-4">
-              <Checkbox
-                id="save-address"
-                checked={saveAddress}
-                onCheckedChange={(val) => setSaveAddress(!!val)}
-              />
-              <Label htmlFor="save-address" className="text-sm font-normal">
-                {shippingDetails?.id
-                  ? "Edit the selected address"
-                  : "Save this address for future checkouts"}
-              </Label>
-            </div>
+            {shippingDetails?.id || addressData?.savedAddresses?.length < 5 ? (
+              <div className="flex items-center space-x-2 mt-4">
+                <Checkbox
+                  id="save-address"
+                  checked={saveAddress}
+                  onCheckedChange={(val) => setSaveAddress(!!val)}
+                />
+                <Label htmlFor="save-address" className="text-sm font-normal">
+                  {shippingDetails?.id ? "Edit the selected address" : null}
+                  {addressData?.savedAddresses?.length < MAX_SAVED_ADDRESS
+                    ? "Save this address for future checkouts"
+                    : null}
+                </Label>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       )}
@@ -107,17 +115,18 @@ const CheckoutPage: React.FC = () => {
       {currentStep === 2 && (
         <OrderSummary
           shippingDetails={shippingDetails}
-          deliveryDetails={deliveryDetails}
+          deliveryDetails={deliveryOptions}
           checkoutItemsList={checkoutItemsList}
           isProductOutOfStock={isProductOutOfStock}
           setCurrentStep={setCurrentStep}
           productStocksMap={productStocksMap}
           savings={savings}
           subtotal={subtotal}
-          deliveryCharge={deliveryCharge}
           grandTotal={grandTotal}
           handleRemoveItem={handleRemoveItem}
           handleQuantityChange={handleQuantityChange}
+          deliveryDiscount={deliveryDiscount}
+          amountLeftForFreeShipping={amountLeftForFreeShipping}
         />
       )}
 

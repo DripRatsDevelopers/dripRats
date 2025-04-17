@@ -51,14 +51,16 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
     const response = await apiFetch("/api/order/create-order", {
       method: "POST",
       body: {
-        TotalAmount: amountInPaisa,
+        TotalAmount: amount,
         UserId: user?.uid,
         ShippingAddress: JSON.stringify(shippingInfo),
         Items: items?.map((item) => ({
           ProductId: item.id,
           Quantity: item.quantity,
           Price: item.Price,
+          Name: item.Name,
         })),
+        Email: user?.email,
       },
     });
 
@@ -90,7 +92,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
       if (paymentCreationSuccess) {
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-          amount: Math.round(amount * 100),
+          amount: amountInPaisa,
           currency: "INR",
           name: "Driprats",
           description: "Drip Fashion",

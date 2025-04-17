@@ -1,6 +1,7 @@
 "use client";
 
 import OrderStatusTimeline from "@/components/common/OrderStatusTimeline";
+import { ShipmentTrackingModal } from "@/components/common/ShippingTrackInfoModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,13 +27,16 @@ interface OrderDetails {
   ShippingAddress: string;
   TotalAmount: number;
   CreatedAt: string;
+  ShiprocketOrderId: string;
+  ShiprocketShipmentId: string;
+  ShiprocketAwb: string;
+  CourierName: string;
 }
 
 export default function OrderDetailsPage() {
   const { id: orderId } = useParams();
   const router = useRouter();
 
-  console.log(useParams());
   const [order, setOrder] = useState<OrderDetails | null>(null);
   const [items, setItems] = useState<Record<string, Product>>();
   const [loading, setLoading] = useState(true);
@@ -102,11 +106,14 @@ export default function OrderDetailsPage() {
           <CardContent className="p-3 py-3 space-y-3">
             <div className="space-y-2">
               <h3 className="font-medium text-muted-foreground">Status</h3>
-              <OrderStatusTimeline currentStatus={OrderEnum.OUTFORDELIVERY} />
+              <OrderStatusTimeline currentStatus={order.Status} />
             </div>
             <p className="text-sm text-muted-foreground">
-              Placed on {formatDate(order.CreatedAt)}
+              Order placed on {formatDate(order.CreatedAt)}
             </p>
+            <div className="w-full flex justify-center">
+              <ShipmentTrackingModal shipmentId={order.ShiprocketShipmentId} />
+            </div>
           </CardContent>
         </Card>
         <Card>

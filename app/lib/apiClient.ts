@@ -29,7 +29,7 @@ export async function apiFetch<T = any>(
 
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.message || "API Error");
+    throw new Error(error.message || error?.data?.message || "API Error");
   }
 
   return res.json();
