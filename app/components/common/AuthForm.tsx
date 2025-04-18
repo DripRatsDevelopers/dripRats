@@ -24,7 +24,11 @@ export default function AuthForm({ isSignUp = false }: { isSignUp?: boolean }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectPath = searchParams.get("redirect") || "/";
+  const redirectPath = searchParams.get("redirect");
+
+  const parsedRedirectpath = redirectPath
+    ? decodeURIComponent(redirectPath)
+    : "/";
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +65,8 @@ export default function AuthForm({ isSignUp = false }: { isSignUp?: boolean }) {
       const token = await userCredential.user.getIdToken();
 
       setCookie("authToken", token);
-      router.push(redirectPath);
+
+      router.push(parsedRedirectpath);
     } catch (error: unknown) {
       toast.error((error as FirebaseError).message || "Authentication failed!");
     } finally {
@@ -76,7 +81,7 @@ export default function AuthForm({ isSignUp = false }: { isSignUp?: boolean }) {
       const token = await userCredential.user.getIdToken();
 
       setCookie("authToken", token);
-      router.push(redirectPath);
+      router.push(parsedRedirectpath);
     } catch (error) {
       console.error(error);
 

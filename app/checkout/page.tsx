@@ -98,6 +98,8 @@ const CheckoutPage: React.FC = () => {
             <OrderSummaryPanel
               products={checkoutItemsList}
               productStocksMap={productStocksMap}
+              subTotal={subtotal}
+              savings={savings}
             />
           </div>
         </div>

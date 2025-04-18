@@ -14,12 +14,14 @@ const AuthGuard = ({ children }: { children: React.ReactNode }) => {
   const isProtectedPath = protectedRoutes.some((path) =>
     pathname.startsWith(path)
   );
+  const updatedSearch = search.size ? encodeURIComponent(`?${search}`) : "";
+
   useEffect(() => {
     if (isProtectedPath)
       if (!loading && !user) {
-        router.push(`/auth/login?redirect=${pathname}${search}`);
+        router.push(`/auth/login?redirect=${pathname}${updatedSearch}`);
       }
-  }, [isProtectedPath, loading, pathname, router, search, user]);
+  }, [isProtectedPath, loading, pathname, router, updatedSearch, user]);
 
   if ((loading || !user) && isProtectedPath) {
     return <div className="text-center p-4">Loading...</div>;
