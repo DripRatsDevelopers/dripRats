@@ -1,12 +1,12 @@
 "use client";
 
-import { useCartContext } from "@/context/CartContext";
-import { useWishlistContext } from "@/context/WishlistContext";
+import { cartKey, wishlistKey } from "@/constants/UserConstants";
+import { useUser } from "@/context/UserContext";
 import { Product } from "@/types/Products";
 
 export const useWishlist = () => {
-  const { wishlist, setWishlist } = useWishlistContext();
-  const { cart, setCart } = useCartContext();
+  const { wishlist, setWishlist } = useUser();
+  const { cart, setCart } = useUser();
 
   const addToWishlist = (product: Product) => {
     if (!isInWishlist(product.id)) {
@@ -26,16 +26,16 @@ export const useWishlist = () => {
     // if (!user) {
     setWishlist((prev) => {
       const updatedWishlist = isInWishlist(product.id)
-        ? prev.filter((item) => product.id !== item.id)
+        ? prev.filter((item: Product) => product.id !== item.id)
         : [...prev, product];
 
-      localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+      localStorage.setItem(wishlistKey, JSON.stringify(updatedWishlist));
       return updatedWishlist as Product[];
     });
     return;
     // }
 
-    // const wishlistRef = doc(db, "users", user.uid, "wishlist", productId);
+    // const wishlistRef = doc(db, "users", user.uid, wishlistKey, productId);
 
     // if (wishlist.includes(productId)) {
     //   await deleteDoc(wishlistRef);
@@ -49,10 +49,10 @@ export const useWishlist = () => {
   const moveToWishlist = (product: Product) => {
     const updatedCart = cart.filter((p) => p.id !== product.id);
     setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    localStorage.setItem(wishlistKey, JSON.stringify(updatedCart));
     const updatedWishlist = [...wishlist, product];
     setWishlist(updatedWishlist);
-    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+    localStorage.setItem(cartKey, JSON.stringify(updatedWishlist));
   };
 
   return {

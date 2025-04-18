@@ -11,22 +11,16 @@ import {
 } from "@/lib/productUtils";
 import { CartType } from "@/types/Cart";
 import { InventoryItem } from "@/types/Products";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-const useCheckout = ({
-  updateAddress,
-  disableConfirm,
-}: {
-  updateAddress: () => Promise<void>;
-  disableConfirm: boolean;
-}) => {
+const useCheckout = () => {
   const { cart } = useCart();
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
-  const [saveAddress, setSaveAddress] = useState(false);
+  const [fetchingProductDetails, setFetchingProductDetails] = useState(true);
   const [disableNavigation, setDisableNavigation] = useState(false);
   const searchParams = useSearchParams();
 
@@ -39,6 +33,7 @@ const useCheckout = ({
   const [reservedItems, setReservedItems] = useState<
     { ProductId: string; Quantity: number }[]
   >([]);
+  const router = useRouter();
 
   useEffect(() => {
     if (productId) {
@@ -47,12 +42,14 @@ const useCheckout = ({
         if (productdata) {
           setCheckoutItems({ [productdata.id]: { ...productdata, quantity } });
         }
+        setFetchingProductDetails(false);
       };
       fetchData();
     } else {
       setCheckoutItems(
         cart.reduce((acc, item) => ({ ...acc, [item.id]: item }), {})
       );
+      setFetchingProductDetails(false);
     }
   }, [cart, productId, quantity]);
 
@@ -133,9 +130,6 @@ const useCheckout = ({
             case 1: {
               try {
                 setDisableNavigation(true);
-                if (saveAddress) {
-                  await updateAddress();
-                }
                 if (!isStockReserved) {
                   await reserveStockItems();
                 }
@@ -170,6 +164,12 @@ const useCheckout = ({
     }
   };
 
+  useEffect(() => {
+    if (checkoutItemsList?.length === 0 && !fetchingProductDetails) {
+      router.back();
+    }
+  }, [checkoutItemsList, router, fetchingProductDetails]);
+
   const savings = subtotal * 0.1;
   const deliveryCharge =
     subtotal - savings >= FREE_DELIVERY_MINIMUM_AMOUNT
@@ -203,12 +203,6 @@ const useCheckout = ({
 
   const disableProceed = () => {
     switch (currentStep) {
-      case 1: {
-        if (Boolean(disableConfirm)) {
-          return true;
-        }
-        return false;
-      }
       case 2: {
         if (isProductOutOfStock || !checkoutItemsList?.length) {
           return true;
@@ -237,8 +231,6 @@ const useCheckout = ({
       handleRemoveItem,
     },
     shippingInfo: {
-      saveAddress,
-      setSaveAddress,
       deliveryDiscount,
       amountLeftForFreeShipping,
     },

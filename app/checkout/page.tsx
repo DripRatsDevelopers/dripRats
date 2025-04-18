@@ -1,24 +1,20 @@
 "use client";
 
-import AddressForm from "@/components/common/AddressForm";
 import OrderSummary from "@/components/common/OrderSummary";
+import { OrderSummaryPanel } from "@/components/common/OrderSummaryPanel";
+import ShippingForm from "@/components/common/ShippingForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { MAX_SAVED_ADDRESS } from "@/constants/DeliveryConstants";
-import useAddressForm from "@/hooks/useAddressForm";
+import useShippingForm from "@/hooks/useShippingForm";
+import { cn } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import CheckoutPayment from "./CheckoutPayment";
 import useCheckout from "./useCheckout";
 
 const CheckoutPage: React.FC = () => {
-  const addressData = useAddressForm();
+  const addressData = useShippingForm();
 
-  const { items, shippingInfo, form, payment } = useCheckout({
-    updateAddress: addressData?.updateAddress,
-    disableConfirm: addressData?.disableConfirm,
-  });
+  const { items, shippingInfo, form, payment } = useCheckout();
 
   const { shippingDetails, deliveryOptions } = addressData;
 
@@ -43,12 +39,7 @@ const CheckoutPage: React.FC = () => {
     disableNavigation,
   } = form;
 
-  const {
-    saveAddress,
-    setSaveAddress,
-    deliveryDiscount,
-    amountLeftForFreeShipping,
-  } = shippingInfo;
+  const { deliveryDiscount, amountLeftForFreeShipping } = shippingInfo;
 
   if (isPaymentLoading) {
     return (
@@ -63,7 +54,12 @@ const CheckoutPage: React.FC = () => {
     );
   }
   return (
-    <div className="p-6 space-y-6 max-w-3xl mx-auto">
+    <div
+      className={cn(
+        "p-6 space-y-6 max-w-3xl mx-auto",
+        currentStep === 1 ? "mt-6 md:mt-0 " : ""
+      )}
+    >
       {/* Step Navigation */}
       <div className="flex justify-center items-center mb-6 space-x-4">
         {["Shipping", "Summary", "Payment"].map((step, index) => (
@@ -84,31 +80,27 @@ const CheckoutPage: React.FC = () => {
       </div>
 
       {currentStep === 1 && (
-        <Card className="py-4 px-2 shadow-lg">
-          <CardHeader className="px-3">
-            <CardTitle>Shipping Information</CardTitle>
-          </CardHeader>
-          <CardContent className="px-3">
-            <div className="grid grid-cols-1 gap-5">
-              <AddressForm addressData={addressData} />
-            </div>
-            {shippingDetails?.id || addressData?.savedAddresses?.length < 5 ? (
-              <div className="flex items-center space-x-2 mt-4">
-                <Checkbox
-                  id="save-address"
-                  checked={saveAddress}
-                  onCheckedChange={(val) => setSaveAddress(!!val)}
+        <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+          <Card className="py-2 md:py-4 px-1 md:px-2 shadow-lg w-full flex-1">
+            <CardHeader className="px-3">
+              <CardTitle>Shipping Information</CardTitle>
+            </CardHeader>
+            <CardContent className="px-1 md:px-3">
+              <div className="grid grid-cols-1 gap-5">
+                <ShippingForm
+                  addressData={addressData}
+                  handleStepChange={handleStepChange}
                 />
-                <Label htmlFor="save-address" className="text-sm font-normal">
-                  {shippingDetails?.id ? "Edit the selected address" : null}
-                  {addressData?.savedAddresses?.length < MAX_SAVED_ADDRESS
-                    ? "Save this address for future checkouts"
-                    : null}
-                </Label>
               </div>
-            ) : null}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+          <div className="block absolute w-full right-0 md:right-10 top-[3.5rem] md:top-[9.5rem] md:w-[300px]">
+            <OrderSummaryPanel
+              products={checkoutItemsList}
+              productStocksMap={productStocksMap}
+            />
+          </div>
+        </div>
       )}
 
       {/* Step 2: Order Summary */}
@@ -154,7 +146,7 @@ const CheckoutPage: React.FC = () => {
             <ArrowLeft /> Previous
           </Button>
         )}
-        {currentStep < 3 && (
+        {currentStep === 2 && (
           <Button
             onClick={() => handleStepChange("next")}
             disabled={disableNext || disableNavigation}

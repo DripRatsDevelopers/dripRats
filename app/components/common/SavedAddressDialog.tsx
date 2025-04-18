@@ -1,125 +1,146 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { addressDetails, ShippingInfo } from "@/types/Order";
-import { Separator } from "@radix-ui/react-select";
-import { Dispatch, SetStateAction, useState } from "react";
+import { NEW_ADRESS_ID } from "@/constants/DeliveryConstants";
+import { ShippingInfo } from "@/types/Order";
+import { NotepadText } from "lucide-react";
+import { Dispatch, SetStateAction } from "react";
+import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import AddressForm from "./AddressForm";
+import AddressSummary from "./AddressSummary";
 
 export const SELECTED_ADDRESS = "SELECTED_ADDRESS";
 
 export default function SavedAddress({
   setShippingDetails,
   shippingDetails,
-  open,
-  setOpen,
   savedAddresses,
+  setOpen,
+  open,
+  handleStepChange,
 }: {
   setShippingDetails: Dispatch<SetStateAction<ShippingInfo>>;
   shippingDetails: ShippingInfo;
-  open: boolean;
+  savedAddresses?: ShippingInfo[];
   setOpen: Dispatch<SetStateAction<boolean>>;
-  savedAddresses: addressDetails[];
+  open: boolean;
+  handleStepChange: (direction: "next" | "prev") => void;
 }) {
-  const [address, setAddress] = useState<addressDetails | undefined>({
-    id: shippingDetails?.id,
-    address: shippingDetails?.address,
-    houseNumber: shippingDetails?.houseNumber,
-    street: shippingDetails?.street,
-    landmark: shippingDetails?.landmark,
-    area: shippingDetails?.area,
-    city: shippingDetails?.city,
-    state: shippingDetails?.state,
-    pincode: shippingDetails?.pincode,
-  });
-
-  return (
-    <div className="flex flex-col justify-center w-full space-y-3 mt-2">
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild></DialogTrigger>
-
-        <DialogContent className="max-w-md p-6">
-          <DialogTitle className="mb-3">Saved Addresses</DialogTitle>
-
-          <div className="space-y-3">
-            <RadioGroup
-              onValueChange={(value) => {
-                const address = savedAddresses.find(
-                  (addr) => addr.id === value
-                );
-                setAddress(address);
-              }}
-            >
-              <div className="overflow-y-auto flex flex-col w-full items-center gap-4">
-                {savedAddresses.map((addr) => (
-                  <Label className="font-normal" key={addr.id}>
-                    <Card
-                      key={addr.id}
-                      className={`py-3 px-2 min-w-[200px] max-w-[250px] flex items-start flex-row border  ${
-                        address?.id === addr.id
-                          ? "border-primary bg-gray-50"
-                          : "border-muted"
-                      }`}
-                    >
-                      <RadioGroupItem
-                        value={addr.id || ""}
-                        id={addr.id || ""}
-                        checked={addr.id === address?.id}
-                      />
-                      <CardContent className="px-0 py-0 text-xs">
-                        <div>
-                          <p>
-                            {addr.houseNumber}, {addr.street}
-                          </p>
-                          <p>
-                            {addr.area} ,
-                            {addr?.landmark ? <>{addr?.landmark},</> : ""}
-                          </p>
-                          <p>
-                            {addr.city}, {addr.state} - {addr.pincode}
-                          </p>
+  return shippingDetails ? (
+    <div className="space-y-3">
+      <p className="text-xs text-muted-foreground text-center flex items-center gap-1 justify-center">
+        <NotepadText size={18} /> You can save upto five addresses
+      </p>
+      <RadioGroup
+        onValueChange={(value) => {
+          const address = savedAddresses?.length
+            ? savedAddresses?.find((addr) => addr.id === value)
+            : [];
+          setShippingDetails({ ...shippingDetails, ...address });
+          setOpen(false);
+        }}
+        value={shippingDetails?.id}
+      >
+        <div className="overflow-y-auto flex flex-col  w-full  gap-4">
+          {savedAddresses?.length
+            ? savedAddresses.map((addr) => {
+                const showAddressForm =
+                  open && shippingDetails?.id === addr?.id;
+                return (
+                  <>
+                    <Label className="font-normal" key={addr.id}>
+                      <Card
+                        key={addr.id}
+                        className={`py-2 px-2 block border w-full  ${
+                          shippingDetails?.id === addr.id
+                            ? "border-primary bg-gray-50"
+                            : "border-muted"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2" key={addr.id}>
+                          <RadioGroupItem
+                            value={addr.id || ""}
+                            id={addr.id || ""}
+                            checked={addr.id === shippingDetails?.id}
+                            key={addr.id}
+                          />
+                          {showAddressForm ? (
+                            <p className="text-md font-semibold">
+                              Edit Address
+                            </p>
+                          ) : null}
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Label>
-                ))}
-              </div>
-            </RadioGroup>
 
-            <Button
-              onClick={() => {
-                if (address)
-                  setShippingDetails({
-                    fullName: shippingDetails.fullName,
-                    phone: shippingDetails.phone,
-                    deliveryType: shippingDetails?.deliveryType,
-                    ...address,
-                  });
-                setOpen(false);
-              }}
-              className="w-full mt-2"
-              disabled={!address?.pincode}
-            >
-              Confirm Address
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-      <div className="relative flex items-center my-1">
-        <Separator className="flex-grow border" />
-        <span className="mx-3 text-xs text-muted-foreground uppercase font-medium">
-          OR
-        </span>
-        <Separator className="flex-grow border" />
-      </div>
+                        <CardContent className="px-2 py-1 w-full">
+                          {!showAddressForm ? (
+                            <>
+                              <AddressSummary
+                                shippingDetails={addr}
+                                showEdit={addr.id === shippingDetails?.id}
+                                onEditClick={() => setOpen(true)}
+                              />
+                              {addr.id === shippingDetails?.id ? (
+                                <Button
+                                  onClick={async () => {
+                                    handleStepChange("next");
+                                  }}
+                                  className="mt-2"
+                                >
+                                  Deliver Here
+                                </Button>
+                              ) : null}
+                            </>
+                          ) : null}
+                          {showAddressForm ? (
+                            <AddressForm
+                              shippingDetails={shippingDetails}
+                              setShippingDetails={setShippingDetails}
+                              setOpen={setOpen}
+                              handleStepChange={handleStepChange}
+                            />
+                          ) : null}
+                        </CardContent>
+                      </Card>
+                    </Label>
+                  </>
+                );
+              })
+            : null}
+          {open && shippingDetails?.id === NEW_ADRESS_ID ? (
+            <Label className="font-normal" key={NEW_ADRESS_ID}>
+              <Card
+                key={NEW_ADRESS_ID}
+                className={`py-2 px-2 block border w-full  ${
+                  shippingDetails?.id === NEW_ADRESS_ID
+                    ? "border-primary bg-gray-50"
+                    : "border-muted"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem
+                    value={NEW_ADRESS_ID}
+                    id={NEW_ADRESS_ID}
+                    checked={NEW_ADRESS_ID === shippingDetails?.id}
+                    key={NEW_ADRESS_ID}
+                  />
+                  <p className="text-md font-semibold">Add new address</p>
+                </div>
+                <CardContent className="px-2 py-1 w-full">
+                  <AddressForm
+                    shippingDetails={shippingDetails}
+                    setShippingDetails={setShippingDetails}
+                    setOpen={setOpen}
+                    savedAddresses={savedAddresses}
+                    handleStepChange={handleStepChange}
+                  />
+                </CardContent>
+              </Card>
+            </Label>
+          ) : null}
+        </div>
+      </RadioGroup>
     </div>
-  );
+  ) : null;
 }

@@ -1,7 +1,7 @@
 import { MAX_SAVED_ADDRESS } from "@/constants/DeliveryConstants";
 import { apiResponse, db } from "@/lib/dynamoClient";
 import { verifyUser } from "@/lib/verifyUser";
-import { addressDetails } from "@/types/Order";
+import { ShippingInfo } from "@/types/Order";
 import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       : [];
 
     const updatedAddresses = [
-      ...addresses.filter((a: addressDetails) => a.id !== address.id),
+      ...addresses.filter((a: ShippingInfo) => a.id !== address.id),
       address,
     ];
 

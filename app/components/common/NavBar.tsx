@@ -1,14 +1,12 @@
 "use client";
 
-import { useCartContext } from "@/context/CartContext";
-import { useWishlistContext } from "@/context/WishlistContext";
+import { useUser } from "@/context/UserContext";
 import { Heart, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import UserPopover from "./UserPopover";
 
 const Navbar = () => {
-  const { totalItems } = useCartContext();
-  const { totalWishlistItems } = useWishlistContext();
+  const { totalItemsInCart, totalWishlistItems } = useUser();
 
   return (
     <nav className="flex justify-between p-4 bg-background text-foreground shadow-md sticky top-0 z-50">
@@ -27,9 +25,9 @@ const Navbar = () => {
 
         <Link href="/cart" className="relative">
           <ShoppingCart size={24} />
-          {totalItems > 0 && (
+          {totalItemsInCart > 0 && (
             <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full px-2">
-              {totalItems}
+              {totalItemsInCart}
             </span>
           )}
         </Link>

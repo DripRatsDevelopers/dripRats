@@ -1,15 +1,11 @@
 "use client";
 
-import { useCartContext } from "@/context/CartContext";
+import { useUser } from "@/context/UserContext";
 import { CartType } from "@/types/Cart";
 import { Product } from "@/types/Products";
 
 export const useCart = () => {
-  const { cart, setCart } = useCartContext();
-
-  const updateLocalStorage = (cart: CartType[]) => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  };
+  const { cart, setCart } = useUser();
 
   const addToCart = (product: Product) => {
     const updatedCart = isInCart(product.id)
@@ -21,13 +17,11 @@ export const useCart = () => {
         })
       : ([...cart, { ...product, quantity: 1 }] as CartType[]);
     setCart(updatedCart);
-    updateLocalStorage(updatedCart);
   };
 
   const removeFromCart = (productId: string) => {
     const updatedCart = cart.filter((item) => item.id !== productId);
     setCart(updatedCart);
-    updateLocalStorage(updatedCart);
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
@@ -35,7 +29,6 @@ export const useCart = () => {
       item.id === productId ? { ...item, quantity } : item
     );
     setCart(updatedCart);
-    updateLocalStorage(updatedCart);
   };
 
   const isInCart = (productId: string) => {

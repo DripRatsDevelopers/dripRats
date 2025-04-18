@@ -1,6 +1,7 @@
-import { apiFetch } from "@/lib/apiClient";
-import { addressDetails, ShippingInfo } from "@/types/Order";
-import { useEffect, useState } from "react";
+import { NEW_ADRESS_ID } from "@/constants/DeliveryConstants";
+import { useUser } from "@/context/UserContext";
+import { ShippingInfo } from "@/types/Order";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import useGetDeliveryTime from "./useGetDeliveryTime";
 
 interface placesTypes {
@@ -8,51 +9,48 @@ interface placesTypes {
   formatted_address: string;
 }
 
-const useAddressForm = () => {
+const useAddressForm = ({
+  shippingDetails,
+  setShippingDetails,
+}: {
+  shippingDetails: ShippingInfo;
+  setShippingDetails: Dispatch<SetStateAction<ShippingInfo>>;
+}) => {
   const [error, setError] = useState<Record<string, string>>({});
-  const [shippingDetails, setShippingDetails] = useState<ShippingInfo>({
-    address: "",
-    houseNumber: "",
-    street: "",
-    landmark: "",
-    area: "",
-    city: "",
-    state: "",
-    pincode: "",
-    fullName: "",
-    phone: "",
+  const [address, setAddress] = useState<ShippingInfo>({
+    fullName: shippingDetails?.fullName,
+    phone: shippingDetails.phone,
+    id: shippingDetails?.id,
+    address: shippingDetails?.address,
+    houseNumber: shippingDetails?.houseNumber,
+    street: shippingDetails?.street,
+    landmark: shippingDetails?.landmark,
+    area: shippingDetails?.area,
+    city: shippingDetails?.city,
+    state: shippingDetails?.state,
+    pincode: shippingDetails?.pincode,
   });
-  const [open, setOpen] = useState(false);
-  const [savedAddresses, setSavedAddresses] = useState<addressDetails[]>([]);
+
+  const { updateSavedAddress } = useUser();
+
+  const updatedAddress: ShippingInfo =
+    shippingDetails?.id !== NEW_ADRESS_ID ? address : shippingDetails;
+
+  const setUpdatedAddress =
+    shippingDetails?.id !== NEW_ADRESS_ID ? setAddress : setShippingDetails;
 
   const { checkDeliveryTime, deliveryOptions, loading, setDeliveryOptions } =
     useGetDeliveryTime();
 
   useEffect(() => {
-    const deliveryPincode = shippingDetails.pincode;
+    const deliveryPincode = updatedAddress.pincode;
     if (deliveryPincode && deliveryPincode?.length === 6 && !deliveryOptions) {
       checkDeliveryTime(deliveryPincode);
     }
-  }, [checkDeliveryTime, shippingDetails.pincode, deliveryOptions]);
-
-  useEffect(() => {
-    const fetchAddress = async () => {
-      const response = await apiFetch("/api/user/get-saved-address");
-      const {
-        body: {
-          data: { savedAddress },
-          success,
-        },
-      } = response;
-      if (success) {
-        setSavedAddresses(savedAddress);
-      }
-    };
-    fetchAddress();
-  }, []);
+  }, [checkDeliveryTime, updatedAddress.pincode, deliveryOptions]);
 
   const handleSelect = async (place: placesTypes) => {
-    const address = place?.formatted_address;
+    const addressData = place?.formatted_address;
     const components = place.address_components;
 
     const getComponent = (type: string) =>
@@ -69,10 +67,11 @@ const useAddressForm = () => {
       getComponent("locality") || getComponent("administrative_area_level_2");
     const state = getComponent("administrative_area_level_1");
     const pincode = getComponent("postal_code");
-
-    setShippingDetails({
-      ...shippingDetails,
-      address,
+    setDeliveryOptions(undefined);
+    setError({});
+    setUpdatedAddress({
+      ...updatedAddress,
+      address: addressData,
       street,
       houseNumber,
       city,
@@ -147,41 +146,23 @@ const useAddressForm = () => {
   };
 
   const updateAddress = async () => {
-    const payload = {
-      address: JSON.stringify({
-        id: shippingDetails?.id,
-        houseNumber: shippingDetails?.houseNumber,
-        street: shippingDetails?.street,
-        landmark: shippingDetails?.landmark,
-        area: shippingDetails?.area,
-        city: shippingDetails?.city,
-        state: shippingDetails?.state,
-        pincode: shippingDetails?.pincode,
-      }),
-    };
-
-    await apiFetch("/api/user/update-address", {
-      method: "POST",
-      body: payload,
-    });
+    await updateSavedAddress(updatedAddress);
   };
   const disableConfirm =
     Boolean(
-      !shippingDetails?.fullName?.length ||
-        !shippingDetails?.phone?.length ||
-        !shippingDetails?.houseNumber?.length ||
-        !shippingDetails?.street?.length ||
-        !shippingDetails?.city?.length ||
-        !shippingDetails?.state?.length ||
-        !shippingDetails?.pincode?.length ||
-        !shippingDetails?.area?.length
+      !updatedAddress?.fullName?.length ||
+        !updatedAddress?.phone?.length ||
+        !updatedAddress?.houseNumber?.length ||
+        !updatedAddress?.street?.length ||
+        !updatedAddress?.city?.length ||
+        !updatedAddress?.state?.length ||
+        !updatedAddress?.pincode?.length ||
+        !updatedAddress?.area?.length
     ) ||
     Boolean(Object.values(error)?.length) ||
     !isDeliveryAvailable;
 
   return {
-    shippingDetails,
-    setShippingDetails,
     disableConfirm,
     handleSelect,
     handleInputBlur,
@@ -189,14 +170,12 @@ const useAddressForm = () => {
     setError,
     getCurrentLocation,
     removeErrorIfExists,
-    open,
-    setOpen,
     updateAddress,
-    savedAddresses,
-    setSavedAddresses,
     deliveryOptions,
     setDeliveryOptions,
     fetchingDeliveryTime: loading,
+    updatedAddress,
+    setUpdatedAddress,
   };
 };
 

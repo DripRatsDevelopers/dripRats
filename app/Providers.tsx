@@ -1,8 +1,7 @@
 "use client";
 import React from "react";
 import { AuthProvider } from "./context/AuthContext";
-import { CartProvider } from "./context/CartContext";
-import { WishlistProvider } from "./context/WishlistContext";
+import { UserProvider } from "./context/UserContext";
 
 const Providers = ({
   children,
@@ -11,9 +10,7 @@ const Providers = ({
 }>) => {
   return (
     <AuthProvider>
-      <CartProvider>
-        <WishlistProvider>{children}</WishlistProvider>
-      </CartProvider>
+      <UserProvider>{children}</UserProvider>
     </AuthProvider>
   );
 };

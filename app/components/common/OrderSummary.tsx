@@ -81,12 +81,12 @@ const OrderSummary = ({
           {/* Product List */}
           <ul className="space-y-4">
             {checkoutItemsList.map((item) => {
+              const availableQuantity = productStocksMap?.[item.id] || 0;
               const isOutOfStock =
-                !productStocksMap?.[item.id] ||
-                productStocksMap?.[item.id] === 0;
+                !availableQuantity || availableQuantity === 0;
 
               const isQuantityInStock =
-                (productStocksMap?.[item.id] || 0) >= item.quantity;
+                (availableQuantity || 0) >= item.quantity;
               return (
                 <li
                   key={item.id}
@@ -135,6 +135,7 @@ const OrderSummary = ({
                         <button
                           onClick={() => handleQuantityChange(item.id, true)}
                           className="p-1 border rounded"
+                          disabled={item.quantity >= availableQuantity}
                         >
                           +
                         </button>
