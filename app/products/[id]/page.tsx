@@ -272,21 +272,14 @@ export default function ProductDetailPage() {
                 ₹1000.
               </p>
               <div className="mt-2 flex gap-2">
-                {pincode &&
-                pincode?.length === 6 &&
-                typeof deliveryOptions?.standardDelivery === "object" ? (
+                {pincode && pincode?.length === 6 && deliveryOptions?.etd ? (
                   <div className="flex items-center">
-                    <strong>
-                      Delivery by {deliveryOptions?.standardDelivery?.etd}
-                    </strong>
+                    <strong>Delivery by {deliveryOptions?.etd}</strong>
                     <Button
                       variant="link"
                       className="underline text-blue-500"
                       onClick={() => {
-                        setDeliveryOptions({
-                          expressDelivery: "",
-                          standardDelivery: "",
-                        });
+                        setDeliveryOptions(undefined);
                       }}
                     >
                       Edit Pincode <Edit />
