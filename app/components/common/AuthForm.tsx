@@ -11,6 +11,7 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
+  updateProfile,
 } from "firebase/auth";
 import { GalleryHorizontal } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,6 +22,7 @@ export default function AuthForm({ isSignUp = false }: { isSignUp?: boolean }) {
   useAuthRedirect();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -53,6 +55,9 @@ export default function AuthForm({ isSignUp = false }: { isSignUp?: boolean }) {
           email,
           password
         );
+        await updateProfile(userCredential.user, {
+          displayName: fullName,
+        });
         toast.success("Account created successfully!");
       } else {
         userCredential = await signInWithEmailAndPassword(
@@ -109,6 +114,16 @@ export default function AuthForm({ isSignUp = false }: { isSignUp?: boolean }) {
         {isSignUp ? "Sign Up" : "Login"} to DripRats
       </h2>
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+        {isSignUp ? (
+          <Input
+            type="string"
+            placeholder="Enter your Full Name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+            className="mb-3"
+          />
+        ) : null}
         <Input
           type="email"
           placeholder="Enter your email"
