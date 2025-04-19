@@ -21,6 +21,25 @@ export interface OrderItem {
   Name: string;
 }
 
+export interface OrderDetails {
+  OrderId: string;
+  Status: OrderEnum;
+  Items: Array<{
+    Price: number;
+    ProductId: string;
+    Quantity: number;
+  }>;
+  FirstItemImage: string;
+  FirstItemName: string;
+  ShippingAddress: string;
+  TotalAmount: number;
+  CreatedAt: string;
+  ShiprocketOrderId: string;
+  ShiprocketShipmentId: string;
+  ShiprocketAwb: string;
+  CourierName: string;
+}
+
 export type ShiprocketOrderInput = {
   OrderId: string;
   CreatedAt: string;
@@ -36,8 +55,9 @@ export type ShipmentTrackingData = {
   courier_name: string;
   tracking_data?: {
     shipment_track_activities: {
-      date: string;
-      activity: string;
+      date?: string;
+      activity?: string;
+      location?: string;
     }[];
   };
 };

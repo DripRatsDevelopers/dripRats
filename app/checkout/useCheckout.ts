@@ -229,6 +229,7 @@ const useCheckout = () => {
       isProductOutOfStock,
       productStocksMap,
       handleRemoveItem,
+      fetchingProductDetails,
     },
     shippingInfo: {
       deliveryDiscount,

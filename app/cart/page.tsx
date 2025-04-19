@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
+import { useCheckoutSession } from "@/hooks/useCheckoutSession";
 import { useWishlist } from "@/hooks/useWishlist";
 import { Heart, Minus, Plus, Trash } from "lucide-react";
 import Image from "next/image";
@@ -11,6 +12,8 @@ import { useRouter } from "next/navigation";
 const Cart = () => {
   const { cart, removeFromCart, updateQuantity, totalAmount } = useCart();
   const { moveToWishlist } = useWishlist();
+  const { initSession } = useCheckoutSession();
+
   const router = useRouter();
   return (
     <div className="container mx-auto p-4">
@@ -94,7 +97,14 @@ const Cart = () => {
             <Button
               className="mt-4 w-full bg-primary text-primary-foreground"
               onClick={() => {
-                router.push("/checkout");
+                const sessionId = initSession(
+                  cart?.map((item) => ({
+                    productId: item?.id,
+                    quantity: item?.quantity,
+                  })),
+                  "cart"
+                );
+                router.push(`/checkout?sessionId=${sessionId}`);
               }}
             >
               Proceed to Checkout

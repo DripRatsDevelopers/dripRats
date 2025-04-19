@@ -86,6 +86,7 @@ const useShippingForm = () => {
     deliveryOptions,
     setDeliveryOptions,
     fetchingDeliveryTime: loading,
+    fetchingAddress,
   };
 };
 

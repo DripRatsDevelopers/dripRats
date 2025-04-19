@@ -18,8 +18,15 @@ export async function POST(req: Request) {
     );
   }
   try {
-    const { UserId, Items, TotalAmount, ShippingAddress, Email } =
-      await req.json();
+    const {
+      UserId,
+      Items,
+      TotalAmount,
+      ShippingAddress,
+      Email,
+      FirstItemName,
+      FirstItemImage,
+    } = await req.json();
     const OrderId = uuidv4();
     const CreatedAt = new Date().toISOString();
     const UpdatedAt = CreatedAt;
@@ -76,6 +83,8 @@ export async function POST(req: Request) {
             CreatedAt,
             UpdatedAt,
             Email,
+            FirstItemName,
+            FirstItemImage,
           },
         },
       },

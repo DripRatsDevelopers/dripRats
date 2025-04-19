@@ -8,42 +8,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { apiFetch } from "@/lib/apiClient";
+import { useApiRequest } from "@/lib/apiClient";
 import { ShipmentTrackingData } from "@/types/Order";
 import { Check, Copy, Loader2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 
 export function ShipmentTrackingModal({ shipmentId }: { shipmentId: string }) {
-  const [trackingData, setTrackingData] = useState<ShipmentTrackingData | null>(
-    null
-  );
-  const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
-
-  const fetchTracking = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await apiFetch(
-        `/api/order/track-order?shipment_id=${shipmentId}`
-      );
-      const {
-        body: { success, data },
-      } = res;
-      if (success) {
-        setTrackingData(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch tracking info", error);
-    }
-    setLoading(false);
-  }, [shipmentId]);
-
-  useEffect(() => {
-    if (open && !trackingData) {
-      fetchTracking();
-    }
-  }, [fetchTracking, open, trackingData]);
+  const { data, loading } = useApiRequest(
+    `/api/order/track-order?shipment_id=${shipmentId}`
+  );
+  const trackingData: ShipmentTrackingData | null = data;
 
   const handleCopy = () => {
     if (trackingData?.awb_code) {
@@ -102,10 +78,21 @@ export function ShipmentTrackingModal({ shipmentId }: { shipmentId: string }) {
                   (activity, index: number) => (
                     <div key={index} className="relative">
                       <div className="absolute -left-3 top-1.5 w-2 h-2 rounded-full bg-green-500" />
-                      <p className="text-sm font-medium">{activity.activity}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {activity.date}
-                      </p>
+                      {activity.activity ? (
+                        <p className="text-sm font-medium">
+                          {activity.activity}
+                        </p>
+                      ) : null}
+                      {activity.location ? (
+                        <p className="text-xs text-muted-foreground">
+                          {activity.location}
+                        </p>
+                      ) : null}
+                      {activity.date ? (
+                        <p className="text-xs text-muted-foreground">
+                          {activity.date}
+                        </p>
+                      ) : null}
                     </div>
                   )
                 )}

@@ -70,14 +70,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const updateSavedAddress = async (address: ShippingInfo) => {
     if (user) {
-      const updatedAddresses = [
-        ...(Array.isArray(savedAddresses)
-          ? [...savedAddresses.filter((a: ShippingInfo) => a.id !== address.id)]
-          : []),
-        address,
-      ];
-
-      setSavedAddresses(updatedAddresses);
       const payload = {
         address: JSON.stringify({
           fullName: address?.fullName,
@@ -95,10 +87,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         }),
       };
 
-      await apiFetch("/api/user/update-address", {
+      const updatedAddresses = await apiFetch("/api/user/update-address", {
         method: "POST",
         body: payload,
       });
+      setSavedAddresses(updatedAddresses);
     }
   };
 

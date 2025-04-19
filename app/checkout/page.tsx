@@ -1,10 +1,14 @@
 "use client";
 
+import { ApiWrapper } from "@/components/common/ApiWrapper";
 import OrderSummary from "@/components/common/OrderSummary";
 import { OrderSummaryPanel } from "@/components/common/OrderSummaryPanel";
+import { SessionExpiredModal } from "@/components/common/SessionExpiryModal";
 import ShippingForm from "@/components/common/ShippingForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useCheckoutSession } from "@/hooks/useCheckoutSession";
 import useShippingForm from "@/hooks/useShippingForm";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
@@ -15,8 +19,9 @@ const CheckoutPage: React.FC = () => {
   const addressData = useShippingForm();
 
   const { items, shippingInfo, form, payment } = useCheckout();
+  const { isExpired, isSessionInvalid } = useCheckoutSession();
 
-  const { shippingDetails, deliveryOptions } = addressData;
+  const { shippingDetails, deliveryOptions, fetchingAddress } = addressData;
 
   const { isPaymentLoading } = payment;
 
@@ -29,6 +34,7 @@ const CheckoutPage: React.FC = () => {
     productStocksMap,
     isProductOutOfStock,
     handleRemoveItem,
+    fetchingProductDetails,
   } = items;
 
   const {
@@ -40,6 +46,15 @@ const CheckoutPage: React.FC = () => {
   } = form;
 
   const { deliveryDiscount, amountLeftForFreeShipping } = shippingInfo;
+
+  if ((isExpired || isSessionInvalid) && !isPaymentLoading) {
+    return (
+      <SessionExpiredModal
+        isExpired={isExpired}
+        isSessionInvalid={isSessionInvalid}
+      />
+    );
+  }
 
   if (isPaymentLoading) {
     return (
@@ -86,21 +101,39 @@ const CheckoutPage: React.FC = () => {
               <CardTitle>Shipping Information</CardTitle>
             </CardHeader>
             <CardContent className="px-1 md:px-3">
-              <div className="grid grid-cols-1 gap-5">
+              <ApiWrapper
+                loading={fetchingAddress}
+                data={addressData?.savedAddresses?.length}
+                skeleton={
+                  <div>
+                    <Skeleton className="h-100 w-full" />
+                  </div>
+                }
+              >
                 <ShippingForm
                   addressData={addressData}
                   handleStepChange={handleStepChange}
                 />
-              </div>
+              </ApiWrapper>
             </CardContent>
           </Card>
           <div className="block absolute w-full right-0 md:right-10 top-[3.5rem] md:top-[9.5rem] md:w-[300px]">
-            <OrderSummaryPanel
-              products={checkoutItemsList}
-              productStocksMap={productStocksMap}
-              subTotal={subtotal}
-              savings={savings}
-            />
+            <ApiWrapper
+              loading={fetchingProductDetails}
+              data={checkoutItemsList?.length}
+              skeleton={
+                <div>
+                  <Skeleton className="h-60 w-full" />
+                </div>
+              }
+            >
+              <OrderSummaryPanel
+                products={checkoutItemsList}
+                productStocksMap={productStocksMap}
+                subTotal={subtotal}
+                savings={savings}
+              />
+            </ApiWrapper>
           </div>
         </div>
       )}

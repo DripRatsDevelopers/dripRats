@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/hooks/useCart";
+import { useCheckoutSession } from "@/hooks/useCheckoutSession";
 import useGetDeliveryTime from "@/hooks/useGetDeliveryTime";
 import { useWishlist } from "@/hooks/useWishlist";
 import { fetchProduct } from "@/lib/productUtils";
@@ -59,6 +60,8 @@ export default function ProductDetailPage() {
   const isInWishlist = (productId: string) =>
     wishlist.some((item) => item.id === productId);
 
+  const { initSession } = useCheckoutSession();
+
   const shareProduct = () => {
     if (navigator.share) {
       navigator.share({
@@ -72,7 +75,13 @@ export default function ProductDetailPage() {
   };
 
   const handleBuyNow = () => {
-    router.push(`/checkout?productId=${id}&quantity=${quantity}`);
+    const sessionId = product
+      ? initSession([{ productId: id, quantity }], "product")
+      : "";
+
+    router.push(
+      `/checkout?sessionId=${sessionId}&productId=${id}&quantity=${quantity}`
+    );
   };
 
   const handlePincodeCheck = () => {
