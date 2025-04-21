@@ -18,6 +18,7 @@ export function ShipmentTrackingModal({ shipmentId }: { shipmentId: string }) {
   const [open, setOpen] = useState(false);
   const { data, loading } = useApiRequest({
     url: `/api/order/track-order?shipment_id=${shipmentId}`,
+    skip: !shipmentId,
   });
   const trackingData: ShipmentTrackingData | null = data;
 

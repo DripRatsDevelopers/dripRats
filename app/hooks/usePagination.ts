@@ -11,7 +11,7 @@ export function usePagination<T>(
   responseKey?: string,
   params?: Record<string, string>
 ) {
-  const [allData, setAllData] = useState<T[]>([]);
+  const [allData, setAllData] = useState<T[] | undefined>();
   const [previousKey, setPreviousKey] = useState<string | null>(null);
   const [nextKey, setNextKey] = useState<string | null>(null);
 
@@ -26,10 +26,10 @@ export function usePagination<T>(
 
   useEffect(() => {
     const updatedData = responseKey ? data?.[responseKey] : data;
-    if (allData?.length === 0 && !loading && updatedData) {
+    if (!allData && !loading && updatedData) {
       setAllData(updatedData);
     }
-  }, [allData?.length, data, loading, responseKey]);
+  }, [allData, data, loading, responseKey]);
 
   useEffect(() => {
     if (!nextKey && data?.lastEvaluatedKey && !previousKey) {
@@ -48,7 +48,10 @@ export function usePagination<T>(
         ? paginatedData?.[responseKey]
         : paginatedData;
 
-      setAllData((prev: T[]) => [...prev, ...responseData]);
+      setAllData((prev: T[] | undefined) => [
+        ...(prev ? prev : []),
+        ...responseData,
+      ]);
       const storedNextKey = nextKey;
       setPreviousKey(storedNextKey);
       setNextKey(paginatedData?.lastEvaluatedKey);
