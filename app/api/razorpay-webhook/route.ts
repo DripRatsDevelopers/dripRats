@@ -151,7 +151,8 @@ export async function POST(req: NextRequest) {
         TransactItems: transactItems,
       })
     );
-    createShiprocketOrder(orderRes.Item as ShiprocketOrderInput);
+    console.log({ order });
+    createShiprocketOrder(order as ShiprocketOrderInput);
 
     return new Response("Stock reduced and order confirmed", { status: 200 });
   } catch (err) {
