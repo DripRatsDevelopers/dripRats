@@ -32,7 +32,10 @@ export function useCheckoutSession() {
     const stored = localStorage.getItem(STORAGE_KEY);
     const sessionIdFromUrl = searchParams.get("sessionId");
 
-    if (!stored || !sessionIdFromUrl) return;
+    if (!stored || !sessionIdFromUrl) {
+      setIsSessionInvalid(true);
+      return;
+    }
 
     try {
       const sessions: CheckoutSessionData[] = JSON.parse(stored);

@@ -20,8 +20,6 @@ export default function OrderDetailsPage() {
   const { id: orderId } = useParams();
   const router = useRouter();
 
-  // const [items, setItems] = useState<Record<string, Product>>();
-
   const {
     data: order,
     loading,
@@ -30,7 +28,7 @@ export default function OrderDetailsPage() {
     data: OrderDetails | null;
     loading: boolean;
     error: Error | null;
-  } = useApiRequest(orderId ? `/api/order/${orderId}` : "");
+  } = useApiRequest({ url: orderId ? `/api/order/${orderId}` : "" });
 
   const productIds = order?.Items?.length
     ? order?.Items?.map(({ ProductId }) => ProductId)
@@ -46,10 +44,11 @@ export default function OrderDetailsPage() {
     loading: boolean;
     error: Error | null;
     refetch: () => Promise<void>;
-  } = useApiRequest("/api/products/getMultipleProducts", {
+  } = useApiRequest({
+    url: "/api/products/getMultipleProducts",
     method: "POST",
     body: productIds,
-    immediate: false,
+    autoFetch: false,
   });
 
   useEffect(() => {
@@ -92,24 +91,44 @@ export default function OrderDetailsPage() {
         <ArrowLeft className="h-4 w-4" />
         Back to Orders
       </Button>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         <h3 className="text-lg font-semibold text-center md:text-start">
           Order Details
         </h3>
-        <Card className="py-3">
-          <CardContent className="p-3 py-3 space-y-3">
-            <div className="space-y-2">
-              <h3 className="font-medium text-muted-foreground">Status</h3>
-              <OrderStatusTimeline currentStatus={order.Status} />
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Order placed on {formatDate(order.CreatedAt)}
-            </p>
-            <div className="w-full flex justify-center">
-              <ShipmentTrackingModal shipmentId={order.ShiprocketShipmentId} />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="md:flex flex-row items-start gap-4 space-y-6">
+          <Card className="py-3 md:w-[60%]">
+            <CardContent className="p-3 py-3 space-y-3">
+              <div className="space-y-2">
+                <h3 className="font-medium text-muted-foreground">Status</h3>
+                <OrderStatusTimeline currentStatus={order.Status} />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Order placed on {formatDate(order.CreatedAt)}
+              </p>
+              <div className="w-full flex justify-center">
+                <ShipmentTrackingModal
+                  shipmentId={order.ShiprocketShipmentId}
+                />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="md:py-3 md:w-[40%]">
+            <CardContent className="p-6 space-y-3">
+              <h3 className="text-lg font-semibold">Shipping Address</h3>
+              <div className="text-sm leading-relaxed">
+                <p>{shippingDetails.fullName},</p>
+                <p>
+                  {shippingDetails.houseNumber}, {shippingDetails.street}
+                </p>
+                <p>
+                  {shippingDetails.city}, {shippingDetails.state} -{" "}
+                  {shippingDetails.pincode}
+                </p>
+                <p>Phone: {shippingDetails.phone}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
         <Card>
           <CardContent className="p-3 space-y-3">
             <h3 className="text-lg font-semibold">Items</h3>
@@ -150,23 +169,6 @@ export default function OrderDetailsPage() {
             <div className="flex justify-between text-sm font-medium">
               <span>Total</span>
               <span>₹{order.TotalAmount}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6 space-y-3">
-            <h3 className="text-lg font-semibold">Shipping Address</h3>
-            <div className="text-sm leading-relaxed">
-              <p>{shippingDetails.fullName},</p>
-              <p>
-                {shippingDetails.houseNumber}, {shippingDetails.street}
-              </p>
-              <p>
-                {shippingDetails.city}, {shippingDetails.state} -{" "}
-                {shippingDetails.pincode}
-              </p>
-              <p>Phone: {shippingDetails.phone}</p>
             </div>
           </CardContent>
         </Card>

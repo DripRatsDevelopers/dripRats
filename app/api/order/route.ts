@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
           success: true,
           data: {
             orders: data.Items,
-            lastEvaluatedKey: data.LastEvaluatedKey
+            lastEvaluatedKey: !!data.LastEvaluatedKey
               ? JSON.stringify(data.LastEvaluatedKey)
               : null,
           },

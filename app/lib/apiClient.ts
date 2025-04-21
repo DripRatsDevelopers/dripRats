@@ -11,7 +11,16 @@ interface ApiOptions {
   method?: Method;
   body?: any;
   headers?: Record<string, string>;
-  immediate?: boolean;
+}
+
+interface FetchOptions {
+  url: string;
+  method?: Method;
+  body?: any;
+  headers?: Record<string, string>;
+  autoFetch?: boolean;
+  queryParams?: Record<string, any>;
+  skip?: boolean;
 }
 
 export async function apiFetch<T = any>(
@@ -40,10 +49,15 @@ export async function apiFetch<T = any>(
   return res.json();
 }
 
-export function useApiRequest<T = any>(
-  url: string,
-  options: ApiOptions = { immediate: true }
-) {
+export function useApiRequest<T = any>({
+  url,
+  method = "GET",
+  body,
+  headers = {},
+  autoFetch = true,
+  queryParams,
+  skip = false,
+}: FetchOptions) {
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -51,22 +65,28 @@ export function useApiRequest<T = any>(
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchData = async (endPoint?: any) => {
-    const apiUrl = endPoint || url;
-    if (!apiUrl) return;
+  const buildUrlWithParams = (apiQueryParams?: Record<string, any>): string => {
+    const apiParams = apiQueryParams || queryParams;
+    if (!apiParams) return url;
+    const query = new URLSearchParams(apiParams).toString();
+    return `${url}?${query}`;
+  };
+
+  const fetchData = async (queryParams?: Record<string, any>) => {
+    if (!url || skip) return;
     const token = user ? await user.getIdToken() : null;
 
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(apiUrl, {
-        method: options.method || "GET",
+      const res = await fetch(buildUrlWithParams(queryParams), {
+        method,
         headers: {
           "Content-Type": "application/json",
           ...(token && { Authorization: `Bearer ${token}` }),
-          ...options.headers,
+          ...headers,
         },
-        body: options?.body ? JSON.stringify(options?.body) : undefined,
+        body: body ? JSON.stringify(body) : undefined,
       });
       const response = await res.json();
       if (!res.ok || response?.body?.error)
@@ -78,6 +98,7 @@ export function useApiRequest<T = any>(
         );
       else if (response?.body?.success) {
         setData(response?.body?.data);
+        return response?.body?.data;
       }
     } catch (err: any) {
       setError(err);
@@ -87,10 +108,10 @@ export function useApiRequest<T = any>(
   };
 
   useEffect(() => {
-    if (options?.immediate !== false && url && !loading && !data) {
+    if (autoFetch && !skip) {
       fetchData();
     }
-  }, [url, loading, data, options?.immediate]);
+  }, []);
 
   return { data, error, loading, refetch: fetchData, setData };
 }

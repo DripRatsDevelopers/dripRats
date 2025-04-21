@@ -18,12 +18,14 @@ const useShippingForm = () => {
     fullName: "",
     phone: "",
   });
+
   const {
     savedAddresses,
     setSavedAddresses,
     fetchingAddress,
     updateSavedAddress,
   } = useUser();
+
   const [open, setOpen] = useState(false);
 
   const { checkDeliveryTime, deliveryOptions, loading, setDeliveryOptions } =

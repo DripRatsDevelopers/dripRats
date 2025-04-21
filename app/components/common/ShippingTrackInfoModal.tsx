@@ -16,9 +16,9 @@ import { useState } from "react";
 export function ShipmentTrackingModal({ shipmentId }: { shipmentId: string }) {
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
-  const { data, loading } = useApiRequest(
-    `/api/order/track-order?shipment_id=${shipmentId}`
-  );
+  const { data, loading } = useApiRequest({
+    url: `/api/order/track-order?shipment_id=${shipmentId}`,
+  });
   const trackingData: ShipmentTrackingData | null = data;
 
   const handleCopy = () => {

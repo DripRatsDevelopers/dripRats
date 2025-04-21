@@ -75,7 +75,6 @@ const CheckoutPage: React.FC = () => {
         currentStep === 1 ? "mt-6 md:mt-0 " : ""
       )}
     >
-      {/* Step Navigation */}
       <div className="flex justify-center items-center mb-6 space-x-4">
         {["Shipping", "Summary", "Payment"].map((step, index) => (
           <div key={index} className="flex items-center space-x-2">
@@ -103,7 +102,7 @@ const CheckoutPage: React.FC = () => {
             <CardContent className="px-1 md:px-3">
               <ApiWrapper
                 loading={fetchingAddress}
-                data={addressData?.savedAddresses?.length}
+                data={addressData?.shippingDetails?.id}
                 skeleton={
                   <div>
                     <Skeleton className="h-100 w-full" />

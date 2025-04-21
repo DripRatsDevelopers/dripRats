@@ -1,3 +1,4 @@
+import { OrderEnum } from "@/types/Order";
 import { clsx, type ClassValue } from "clsx";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -64,3 +65,29 @@ export function useMediaQuery(query: string): boolean {
 
   return matches;
 }
+
+export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
+  switch (orderStatus) {
+    case OrderEnum.CONFIRMED: {
+      return "Confirmed";
+    }
+    case OrderEnum.PENDING: {
+      return "Pending";
+    }
+    case OrderEnum.PAID: {
+      return "Paid";
+    }
+    case OrderEnum.SHIPPED: {
+      return "Shipped";
+    }
+    case OrderEnum.OUTFORDELIVERY: {
+      return "Out for Delivery";
+    }
+    case OrderEnum.DELIVERED: {
+      return "Delivered";
+    }
+    default: {
+      return "";
+    }
+  }
+};
