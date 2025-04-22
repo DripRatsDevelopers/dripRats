@@ -5,7 +5,7 @@
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 
-type Method = "GET" | "POST" | "PUT" | "DELETE";
+export type Method = "GET" | "POST" | "PUT" | "DELETE";
 
 interface ApiOptions {
   method?: Method;
@@ -72,14 +72,14 @@ export function useApiRequest<T = any>({
     return `${url}?${query}`;
   };
 
-  const fetchData = async (queryParams?: Record<string, any>) => {
+  const fetchData = async (apiQueryParams?: Record<string, any>) => {
     if (!url || skip) return;
     const token = user ? await user.getIdToken() : null;
 
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(buildUrlWithParams(queryParams), {
+      const res = await fetch(buildUrlWithParams(apiQueryParams), {
         method,
         headers: {
           "Content-Type": "application/json",
@@ -97,8 +97,9 @@ export function useApiRequest<T = any>({
             "API Error"
         );
       else if (response?.body?.success) {
-        setData(response?.body?.data);
-        return response?.body?.data;
+        const data = response?.body?.data;
+        setData(data);
+        return data;
       }
     } catch (err: any) {
       setError(err);
@@ -114,4 +115,33 @@ export function useApiRequest<T = any>({
   }, []);
 
   return { data, error, loading, refetch: fetchData, setData };
+}
+
+export async function dripRatsFetch({
+  url,
+  method = "GET",
+  body,
+  headers = {},
+}: FetchOptions) {
+  if (!url) return;
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  const token = user ? await user.getIdToken() : null;
+
+  const res = await fetch(url, {
+    method: method || "GET",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...headers,
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const response = await res.json();
+  if (!res.ok) {
+    throw new Error(response.message || response?.data?.message || "API Error");
+  }
+  const data = response?.body?.data;
+  return data;
 }

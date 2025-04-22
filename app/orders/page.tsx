@@ -1,11 +1,12 @@
 "use client";
 
 import { ApiWrapper } from "@/components/common/ApiWrapper";
-import { InfiniteScroll } from "@/components/common/InfiniteScroll";
+import InfiniteScroll from "@/components/common/InfiniteScroll";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePagination } from "@/hooks/usePagination";
+import { useInfinitePaginatedQuery } from "@/hooks/useTanstackQuery";
+import { fetchOrders } from "@/lib/orderUtils";
 import { getOrderStatusLabel } from "@/lib/utils";
 import { OrderDetails, OrderEnum } from "@/types/Order";
 import { ChevronRight } from "lucide-react";
@@ -13,12 +14,19 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function AllOrdersPage() {
-  const { allData, loading, loadMore, hasMore, error } = usePagination(
-    `/api/order`,
-    10,
-    "orders"
-  );
-  const orders = allData;
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    error,
+  } = useInfinitePaginatedQuery<OrderDetails>({
+    queryKey: "order",
+    fetchPage: fetchOrders,
+  });
+
+  const orders = data?.pages.flatMap((page) => page.Items);
 
   const router = useRouter();
 
@@ -28,7 +36,7 @@ export default function AllOrdersPage() {
   return (
     <div className="container mx-auto p-2 md:p-4 max-w-4xl">
       <ApiWrapper
-        loading={!orders ? loading : false}
+        loading={isLoading}
         error={error}
         data={orders?.length}
         skeleton={
@@ -54,9 +62,9 @@ export default function AllOrdersPage() {
             </Card>
           ) : (
             <InfiniteScroll
-              loading={loading}
-              loadMore={loadMore}
-              hasMore={hasMore}
+              loading={isFetchingNextPage || isLoading}
+              loadMore={fetchNextPage}
+              hasMore={hasNextPage}
             >
               {orders &&
                 (orders as OrderDetails[]).map((order) => {
@@ -85,14 +93,14 @@ export default function AllOrdersPage() {
                                 <p className="text-base font-medium text-xs md:text-sm text-center mt-1">
                                   {order.FirstItemName}
                                 </p>
-                                {order.Items?.length > 0 ? (
+                                {order.Items?.length > 1 ? (
                                   <p className="text-xs text-muted-foreground md:hidden block">
                                     + {order.Items?.length - 1} more
                                   </p>
                                 ) : null}
                               </div>
                             </div>
-                            {order.Items?.length > 0 ? (
+                            {order.Items?.length > 1 ? (
                               <p className="text-sm text-muted-foreground hidden md:block">
                                 + {order.Items?.length - 1} more
                               </p>

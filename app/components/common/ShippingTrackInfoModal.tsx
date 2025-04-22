@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useApiRequest } from "@/lib/apiClient";
+import { useDripratsQuery } from "@/hooks/useTanstackQuery";
 import { ShipmentTrackingData } from "@/types/Order";
 import { Check, Copy, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -16,11 +16,16 @@ import { useState } from "react";
 export function ShipmentTrackingModal({ shipmentId }: { shipmentId: string }) {
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
-  const { data, loading } = useApiRequest({
-    url: `/api/order/track-order?shipment_id=${shipmentId}`,
-    skip: !shipmentId,
+  const { data, isLoading } = useDripratsQuery({
+    queryKey: ["/api/order/track-order?shipment_id", shipmentId],
+    apiParams: {
+      url: `/api/order/track-order?shipment_id=${shipmentId}`,
+    },
+    options: { enabled: !!shipmentId },
   });
-  const trackingData: ShipmentTrackingData | null = data;
+
+  const trackingData: ShipmentTrackingData | null =
+    data as ShipmentTrackingData;
 
   const handleCopy = () => {
     if (trackingData?.awb_code) {
@@ -41,7 +46,7 @@ export function ShipmentTrackingModal({ shipmentId }: { shipmentId: string }) {
           <DialogTitle>Shipment Tracking</DialogTitle>
         </DialogHeader>
 
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center items-center h-40">
             <Loader2 className="animate-spin h-5 w-5 text-muted-foreground" />
           </div>

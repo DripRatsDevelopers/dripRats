@@ -12,20 +12,18 @@ interface InfiniteScrollProps {
   className?: string;
 }
 
-export function InfiniteScroll({
+const InfiniteScroll = ({
   loading,
   hasMore,
   loadMore,
   children,
   loader,
   className,
-}: InfiniteScrollProps) {
+}: InfiniteScrollProps) => {
   const observerRef = useRef<HTMLDivElement | null>(null);
-  const ref = observerRef.current;
 
   useEffect(() => {
     if (!hasMore || loading) return;
-
     const observer = new IntersectionObserver(
       (entries, observer) => {
         if (entries[0].isIntersecting) {
@@ -37,14 +35,14 @@ export function InfiniteScroll({
       { threshold: 1 }
     );
 
-    if (ref) observer.observe(ref);
+    if (observerRef.current) observer.observe(observerRef.current);
 
     return () => {
-      if (ref) {
+      if (observerRef.current) {
         observer.disconnect();
       }
     };
-  }, [loadMore, hasMore, loading, ref]);
+  }, [hasMore, loading]);
 
   return (
     <div className={className}>
@@ -55,7 +53,15 @@ export function InfiniteScroll({
             <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
           </div>
         ))}
-      <div ref={observerRef} className="h-1" />
+      {hasMore ? (
+        <div ref={observerRef} className="h-1" />
+      ) : (
+        <p className="text-center text-muted-foreground text-xs md:text-sm">
+          No more orders to display
+        </p>
+      )}
     </div>
   );
-}
+};
+
+export default InfiniteScroll;

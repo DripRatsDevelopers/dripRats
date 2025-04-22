@@ -1,5 +1,11 @@
-import { ShippingInfo, ShiprocketOrderInput } from "@/types/Order";
+import { PaginatedResponse } from "@/hooks/useTanstackQuery";
+import {
+  OrderDetails,
+  ShippingInfo,
+  ShiprocketOrderInput,
+} from "@/types/Order";
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { getAuth } from "firebase/auth";
 import { toast } from "sonner";
 import { apiFetch } from "./apiClient";
 import { db } from "./dynamoClient";
@@ -139,3 +145,42 @@ export async function updateShiprocketData(
     console.error("Error updating shipment details in Orders table", error);
   }
 }
+
+export const fetchOrders = async (
+  pageParam: Record<string, number | string | boolean> | null
+): Promise<PaginatedResponse<OrderDetails>> => {
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const token = user ? await user.getIdToken() : null;
+
+  const stringifiedParams = pageParam ? JSON.stringify(pageParam) : null;
+
+  const res = await fetch(
+    "/api/order?" +
+      new URLSearchParams({
+        ...(stringifiedParams && { lastEvaluatedKey: stringifiedParams }),
+        limit: "10",
+      }).toString(),
+    {
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    }
+  );
+
+  if (!res.ok) throw new Error("Failed to fetch orders");
+
+  const response = await res.json();
+
+  const {
+    body: { data },
+  } = response;
+
+  return {
+    Items: data?.orders,
+    LastEvaluatedKey: data.lastEvaluatedKey
+      ? JSON.parse(data.lastEvaluatedKey) ?? null
+      : null,
+  };
+};

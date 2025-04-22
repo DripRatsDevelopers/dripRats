@@ -6,7 +6,10 @@ import { ShipmentTrackingModal } from "@/components/common/ShippingTrackInfoModa
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useApiRequest } from "@/lib/apiClient";
+import {
+  useDripratsMutation,
+  useDripratsQuery,
+} from "@/hooks/useTanstackQuery";
 import { formatDate } from "@/lib/utils";
 import { OrderDetails } from "@/types/Order";
 import { Product } from "@/types/Products";
@@ -21,55 +24,51 @@ export default function OrderDetailsPage() {
   const { id: orderId } = useParams();
   const router = useRouter();
 
-  const {
-    data: order,
-    loading,
-    error,
-  }: {
-    data: OrderDetails | null;
-    loading: boolean;
-    error: Error | null;
-  } = useApiRequest({ url: orderId ? `/api/order/${orderId}` : "" });
+  const { data, isLoading, isError } = useDripratsQuery({
+    queryKey: ["/api/order/", orderId],
+    apiParams: {
+      url: `/api/order/${orderId}`,
+    },
+    options: { enabled: !!orderId },
+  });
 
+  const order = data as OrderDetails;
   const productIds = order?.Items?.length
     ? order?.Items?.map(({ ProductId }) => ProductId)
     : [];
 
   const {
-    data: productDetails,
-    loading: productDataLoading,
-    error: productError,
-    refetch,
-  }: {
-    data: Record<string, Product> | null;
-    loading: boolean;
-    error: Error | null;
-    refetch: () => Promise<void>;
-  } = useApiRequest({
-    url: "/api/products/getMultipleProducts",
-    method: "POST",
-    body: productIds,
-    autoFetch: false,
+    mutate,
+    error,
+    isPending: productDataLoading,
+    data: productData,
+  } = useDripratsMutation({
+    apiParams: {
+      url: `/api/products/getMultipleProducts`,
+      body: productIds,
+      method: "POST",
+    },
   });
+  const productDetails = productData as Record<string, Product> | null;
 
   useEffect(() => {
     if (
       !productDataLoading &&
-      !loading &&
+      !isLoading &&
       order?.Items?.length &&
       !productDetails
     ) {
-      refetch();
+      mutate();
     }
-  }, [loading, order?.Items?.length, productDataLoading, productDetails]);
+  }, [isLoading, order?.Items?.length, productDataLoading, productDetails]);
 
-  if (error || productError) {
+  if (isError || error) {
     toast.error("Something went wrong", {
       description: "Please try again later",
     });
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="max-w-4xl p-6 mx-auto space-y-6">
         <Skeleton className="h-40 w-full" />
