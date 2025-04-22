@@ -40,7 +40,7 @@ interface IDripratsMutation<TData, TError, TVariables> {
   apiParams: {
     method?: Method;
     url: string;
-    body?: any;
+    body?: unknown;
     headers?: Record<string, string>;
   };
   mutationFn?: (variables: TVariables) => Promise<TData>;
