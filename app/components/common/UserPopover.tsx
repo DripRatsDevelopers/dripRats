@@ -56,7 +56,7 @@ export default function UserPopover() {
         </Avatar>
       </PopoverTrigger>
 
-      <PopoverContent className="w-56 p-4 bg-background rounded-md shadow-md text-gray-700">
+      <PopoverContent className="w-56 p-4 bg-background rounded-md shadow-md text-gray-700 hidden md:block">
         {user ? (
           <>
             <div className="flex flex-col items-center mb-3">

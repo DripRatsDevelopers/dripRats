@@ -1,37 +1,71 @@
-import { getCache, setCache } from "@/lib/cache";
+import { apiResponse } from "@/lib/dynamoClient";
 import { db } from "@/lib/firebase"; // Adjust based on your Firebase setup
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+} from "firebase/firestore";
 import { NextResponse } from "next/server";
 
-const CACHE_EXPIRY = 3600 * 1000;
+// const CACHE_EXPIRY = 3600 * 1000;
 
-export async function GET() {
-  const CACHE_PATH = `cache/products`;
-
+export async function GET(req: Request) {
+  // const CACHE_PATH = `cache/products`;
   try {
-    const cachedProducts = await getCache(CACHE_PATH, CACHE_EXPIRY);
+    const { searchParams } = new URL(req.url);
+    const cursor = searchParams.get("cursor");
+    const pageSize = 12;
 
-    if (cachedProducts) {
-      console.log("✅ Serving from cache");
-      return NextResponse.json(cachedProducts);
+    let q;
+
+    if (cursor) {
+      const cursorDoc = await getDoc(doc(db, "Products", cursor));
+      if (!cursorDoc.exists()) {
+        return NextResponse.json({ products: [], nextCursor: null });
+      }
+
+      q = query(
+        collection(db, "Products"),
+        orderBy("Name"),
+        startAfter(cursorDoc),
+        limit(pageSize)
+      );
+    } else {
+      q = query(collection(db, "Products"), orderBy("Name"), limit(pageSize));
     }
 
-    const snapshot = await getDocs(collection(db, "Products"));
-    if (snapshot.size) {
-      const products = snapshot.docs.map((doc) => {
-        const product = { id: doc.id, ...doc.data() };
-        const productId = doc.data()?.id;
-        setCache(`${CACHE_PATH}/${productId}`, product);
-        return product;
-      });
+    const snapshot = await getDocs(q);
 
-      return NextResponse.json(products);
-    }
+    const products = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    const nextCursor =
+      snapshot.docs.length > 0
+        ? snapshot.docs[snapshot.docs.length - 1].id
+        : null;
+
+    return NextResponse.json(
+      apiResponse({
+        success: true,
+        data: { products, nextCursor },
+        status: 200,
+      })
+    );
   } catch (error) {
     console.error("Error fetching product:", error);
     return NextResponse.json(
-      { error: "Failed to fetch product" },
-      { status: 500 }
+      apiResponse({
+        data: { error: "Failed to fetch product" },
+        status: 500,
+        success: false,
+      })
     );
   }
 }

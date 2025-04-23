@@ -106,11 +106,13 @@ export default function OrderDetailsPage() {
                 <p className="text-sm text-muted-foreground">
                   Order placed on {formatDate(order.CreatedAt)}
                 </p>
-                <div className="w-full flex justify-center">
-                  <ShipmentTrackingModal
-                    shipmentId={order.ShiprocketShipmentId}
-                  />
-                </div>
+                {order.ShiprocketShipmentId ? (
+                  <div className="w-full flex justify-center">
+                    <ShipmentTrackingModal
+                      shipmentId={order.ShiprocketShipmentId}
+                    />
+                  </div>
+                ) : null}
               </CardContent>
             </Card>
             <Card className="md:py-3 w-full">

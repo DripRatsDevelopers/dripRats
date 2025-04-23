@@ -1,3 +1,4 @@
+import { PaginatedResponse } from "@/hooks/useTanstackQuery";
 import { CartType } from "@/types/Cart";
 import { InventoryItem, Product } from "@/types/Products";
 import { QueryCommand } from "@aws-sdk/lib-dynamodb";
@@ -34,14 +35,21 @@ export const fetchMultipleProducts = async (productIds: string[]) => {
   return data as Record<string, Product>;
 };
 
-export const fetchAllProducts = async (): Promise<CartType[] | undefined> => {
-  try {
-    const response = await apiFetch("/api/products");
-    const data = response;
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch products:", error);
-  }
+export const fetchAllProducts = async (
+  pageParam: Record<string, number | string | boolean> | null
+): Promise<PaginatedResponse<CartType>> => {
+  const response = await apiFetch(`/api/products?cursor=${pageParam ?? ""}`);
+
+  if (!response?.body?.success) throw new Error("Failed to fetch products");
+
+  const {
+    body: { data },
+  } = response;
+
+  return {
+    Items: data?.products,
+    LastEvaluatedKey: data.nextCursor ? data.nextCursor ?? null : null,
+  };
 };
 
 export const getProductStock = async (products: string[]) => {

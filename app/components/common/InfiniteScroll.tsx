@@ -56,8 +56,8 @@ const InfiniteScroll = ({
       {hasMore ? (
         <div ref={observerRef} className="h-1" />
       ) : (
-        <p className="text-center text-muted-foreground text-xs md:text-sm">
-          No more orders to display
+        <p className="text-center text-muted-foreground text-xs md:text-sm mt-2 md:mt-4">
+          No more Items to display
         </p>
       )}
     </div>

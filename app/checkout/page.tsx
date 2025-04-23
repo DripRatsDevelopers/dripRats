@@ -71,7 +71,7 @@ const CheckoutPage: React.FC = () => {
   return (
     <div
       className={cn(
-        "p-6 space-y-6 max-w-3xl mx-auto",
+        "p-6 space-y-6 max-w-3xl mx-auto bg-secondary md:bg-transparent h-[100vh]",
         currentStep === 1 ? "mt-6 md:mt-0 " : ""
       )}
     >
@@ -116,12 +116,12 @@ const CheckoutPage: React.FC = () => {
               </ApiWrapper>
             </CardContent>
           </Card>
-          <div className="block absolute w-full right-0 md:right-10 top-[3.5rem] md:top-[9.5rem] md:w-[300px]">
+          <div className="block absolute w-full right-0 md:right-10 top-[4rem] md:top-[9.5rem] md:w-[300px]">
             <ApiWrapper
               loading={fetchingProductDetails}
               data={checkoutItemsList?.length}
               skeleton={
-                <div>
+                <div className="hidden md:block">
                   <Skeleton className="h-60 w-full" />
                 </div>
               }

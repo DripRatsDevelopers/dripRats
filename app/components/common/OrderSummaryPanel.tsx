@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { cn, useMediaQuery } from "@/lib/utils";
 import { CartType } from "@/types/Cart";
 import { Separator } from "@radix-ui/react-select";
+import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
 
 type Props = {
@@ -93,12 +94,20 @@ export const OrderSummaryPanel = ({
 
   if (isMobile) {
     return (
-      <Accordion type="single" collapsible className="bg-white dark:bg-black ">
+      <Accordion
+        type="single"
+        collapsible
+        className="bg-white dark:bg-black shadow-sm rounded-md"
+      >
         <AccordionItem value="order">
-          <AccordionContent>{content}</AccordionContent>
-          <AccordionTrigger className="px-4 py-3 bg-secondary ">
-            Order Summary
+          <AccordionTrigger className="px-4 pt-3 pb-2">
+            <p className="flex items-center gap-1">
+              <ShoppingBag height={18} width={18} />
+              Order Summary
+            </p>
+            <p>₹{totalAmount}</p>
           </AccordionTrigger>
+          <AccordionContent>{content}</AccordionContent>
         </AccordionItem>
       </Accordion>
     );

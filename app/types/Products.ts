@@ -5,6 +5,7 @@ export interface Product {
   ImageUrls: string[];
   Category?: string;
   Description: string;
+  DiscountPrice?: number;
 }
 
 export interface InventoryItem {
