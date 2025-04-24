@@ -8,9 +8,9 @@ export const useCart = () => {
   const { cart, setCart } = useUser();
 
   const addToCart = (product: Product) => {
-    const updatedCart = isInCart(product.id)
+    const updatedCart = isInCart(product.ProductId)
       ? cart.map((item: CartType) => {
-          if (item.id === product.id) {
+          if (item.ProductId === product.ProductId) {
             return { ...item, quantity: (item.quantity || 1) + 1 };
           }
           return { ...item } as CartType;
@@ -20,19 +20,19 @@ export const useCart = () => {
   };
 
   const removeFromCart = (productId: string) => {
-    const updatedCart = cart.filter((item) => item.id !== productId);
+    const updatedCart = cart.filter((item) => item.ProductId !== productId);
     setCart(updatedCart);
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
     const updatedCart = cart.map((item) =>
-      item.id === productId ? { ...item, quantity } : item
+      item.ProductId === productId ? { ...item, quantity } : item
     );
     setCart(updatedCart);
   };
 
   const isInCart = (productId: string) => {
-    return cart.some((item) => item.id === productId);
+    return cart.some((item) => item.ProductId === productId);
   };
 
   const totalAmount = cart.reduce(

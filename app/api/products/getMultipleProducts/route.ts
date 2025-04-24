@@ -27,11 +27,11 @@ export async function POST(req: NextRequest) {
     const result: Record<string, Product> = {};
 
     for (const chunk of chunks) {
-      const q = query(productsRef, where("id", "in", chunk));
+      const q = query(productsRef, where("ProductId", "in", chunk));
       const snapshot = await getDocs(q);
       snapshot.docs.forEach((doc) => {
         const data = doc.data() as Product;
-        result[data.id] = data;
+        result[data.ProductId] = data;
       });
     }
 

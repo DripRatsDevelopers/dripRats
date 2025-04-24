@@ -73,7 +73,7 @@ export const getProductStock = async (products: string[]) => {
 };
 
 export const isAnyProductOutOfStock = (
-  requiredProducts: { id: string; quantity: number }[],
+  requiredProducts: { ProductId: string; quantity: number }[],
   availableProducts: InventoryItem[]
 ) => {
   const availableProductsMap: Record<string, number> =
@@ -86,8 +86,11 @@ export const isAnyProductOutOfStock = (
     );
 
   let isOutOfStock = false;
-  requiredProducts?.forEach(({ id, quantity }) => {
-    if (!availableProductsMap?.[id] || availableProductsMap?.[id] < quantity) {
+  requiredProducts?.forEach(({ ProductId, quantity }) => {
+    if (
+      !availableProductsMap?.[ProductId] ||
+      availableProductsMap?.[ProductId] < quantity
+    ) {
       isOutOfStock = true;
     }
   });

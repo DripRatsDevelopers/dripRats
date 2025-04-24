@@ -1,11 +1,20 @@
 export interface Product {
-  id: string;
+  ProductId: string;
   Name: string;
   Price: number;
   ImageUrls: string[];
   Category?: string;
   Description: string;
-  DiscountPrice?: number;
+  DiscountedPrice?: number;
+}
+
+export interface SearchIndex {
+  ProductId: string;
+  Name: string;
+  Category: string;
+  Tags: string[];
+  Price: number;
+  DiscountedPrice: number;
 }
 
 export interface InventoryItem {

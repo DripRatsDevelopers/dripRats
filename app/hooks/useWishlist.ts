@@ -9,24 +9,24 @@ export const useWishlist = () => {
   const { cart, setCart } = useUser();
 
   const addToWishlist = (product: Product) => {
-    if (!isInWishlist(product.id)) {
+    if (!isInWishlist(product.ProductId)) {
       setWishlist((prev) => [...prev, product]);
     }
   };
 
   const removeFromWishlist = (productId: string) => {
-    setWishlist((prev) => prev.filter((item) => item.id !== productId));
+    setWishlist((prev) => prev.filter((item) => item.ProductId !== productId));
   };
 
   const isInWishlist = (productId: string) => {
-    return wishlist.some((item) => item.id === productId);
+    return wishlist.some((item) => item.ProductId === productId);
   };
 
   const toggleWishlist = async (product: Product) => {
     // if (!user) {
     setWishlist((prev) => {
-      const updatedWishlist = isInWishlist(product.id)
-        ? prev.filter((item: Product) => product.id !== item.id)
+      const updatedWishlist = isInWishlist(product.ProductId)
+        ? prev.filter((item: Product) => product.ProductId !== item.ProductId)
         : [...prev, product];
 
       localStorage.setItem(wishlistKey, JSON.stringify(updatedWishlist));
@@ -47,7 +47,7 @@ export const useWishlist = () => {
   };
 
   const moveToWishlist = (product: Product) => {
-    const updatedCart = cart.filter((p) => p.id !== product.id);
+    const updatedCart = cart.filter((p) => p.ProductId !== product.ProductId);
     setCart(updatedCart);
     localStorage.setItem(wishlistKey, JSON.stringify(updatedCart));
     const updatedWishlist = [...wishlist, product];

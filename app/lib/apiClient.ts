@@ -117,12 +117,9 @@ export function useApiRequest<T = any>({
   return { data, error, loading, refetch: fetchData, setData };
 }
 
-export async function dripRatsFetch({
-  url,
-  method = "GET",
-  body,
-  headers = {},
-}: FetchOptions) {
+export async function dripRatsFetch(apiParams?: FetchOptions) {
+  if (!apiParams) return;
+  const { url, method = "GET", body, headers = {} } = apiParams;
   if (!url) return;
   const auth = getAuth();
   const user = auth.currentUser;

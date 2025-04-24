@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, props: Props) {
 
     const productQuery = query(
       collection(db, "Products"),
-      where("id", "==", id)
+      where("ProductId", "==", id)
     );
 
     const productDoc = (await getDocs(productQuery))?.docs?.[0];

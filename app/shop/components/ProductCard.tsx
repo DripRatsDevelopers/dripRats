@@ -15,14 +15,14 @@ const ProductCard = ({
   isInWishlist,
   toggleWishlist,
 }: ProductCard) => {
-  const { id, Name, Price, ImageUrls, DiscountPrice = 1000 } = product;
+  const { ProductId, Name, Price, ImageUrls, DiscountedPrice } = product;
 
-  const discounted = DiscountPrice && DiscountPrice < Price;
+  const discounted = DiscountedPrice && DiscountedPrice < Price;
 
   return (
     <Link
-      key={id}
-      href={`/shop/all/${id}`}
+      key={ProductId}
+      href={`/shop/all/${ProductId}`}
       className="flex flex-col gap-2 w-full transition-transform hover:scale-[1.02]"
     >
       <div className="relative aspect-[3/4] w-full rounded-md overflow-hidden bg-[#f7f7f7] dark:bg-[#1a1a1a]">
@@ -50,7 +50,7 @@ const ProductCard = ({
             <HeartIcon
               className={cn(
                 "w-4 h-4 text-muted-foreground",
-                isInWishlist(id) && "fill-red-500 text-red-500"
+                isInWishlist(ProductId) && "fill-red-500 text-red-500"
               )}
             />
           </button>
@@ -62,7 +62,7 @@ const ProductCard = ({
             </span>
           ) : null}
           <span className="text-xs font-bold">
-            ₹{discounted ? DiscountPrice : Price}
+            ₹{discounted ? DiscountedPrice : Price}
           </span>
         </div>
       </div>

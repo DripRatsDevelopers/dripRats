@@ -85,7 +85,7 @@ export async function createShiprocketOrder(order: ShiprocketOrderInput) {
       sub_total: order.TotalAmount,
       pickup_location: "Home",
     };
-    console.log({ payload });
+
     const res = await fetch(
       "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
       {

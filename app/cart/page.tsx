@@ -26,10 +26,10 @@ const Cart = () => {
           <div className="flex-1 flex flex-col gap-6">
             {cart.map((item) => (
               <div
-                key={item.id}
+                key={item.ProductId}
                 className="flex items-center gap-4 p-2 md:p-4 border rounded-lg shadow-sm"
               >
-                <Link href={`/products/${item.id}`} className="block">
+                <Link href={`/products/${item.ProductId}`} className="block">
                   <Image
                     src={item.ImageUrls[0]}
                     alt={item.Name}
@@ -50,7 +50,9 @@ const Cart = () => {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() =>
+                        updateQuantity(item.ProductId, item.quantity - 1)
+                      }
                       disabled={item.quantity <= 1}
                     >
                       <Minus className="w-4 h-4" />
@@ -59,7 +61,9 @@ const Cart = () => {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() =>
+                        updateQuantity(item.ProductId, item.quantity + 1)
+                      }
                     >
                       <Plus className="w-4 h-4" />
                     </Button>
@@ -77,7 +81,7 @@ const Cart = () => {
                   <Button
                     variant="destructive"
                     size="icon"
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => removeFromCart(item.ProductId)}
                     title="Remove from Cart"
                   >
                     <Trash className="w-5 h-5" />
@@ -99,7 +103,7 @@ const Cart = () => {
               onClick={() => {
                 const sessionId = initSession(
                   cart?.map((item) => ({
-                    productId: item?.id,
+                    productId: item?.ProductId,
                     quantity: item?.quantity,
                   })),
                   "cart"

@@ -30,7 +30,7 @@ export const OrderSummaryPanel = ({
   const totalAmount = (subTotal - (savings || 0)).toFixed(2);
   const renderItems = () =>
     products.map((item) => {
-      const availableQuantity = productStocksMap?.[item.id] || 0;
+      const availableQuantity = productStocksMap?.[item.ProductId] || 0;
 
       const isOutOfStock =
         productStocksMap && (!availableQuantity || availableQuantity === 0);
@@ -38,7 +38,7 @@ export const OrderSummaryPanel = ({
 
       return (
         <Card
-          key={item.id}
+          key={item.ProductId}
           className="p-3 flex flex-row gap-4 items-center md:[w-fit-content]"
         >
           <Image

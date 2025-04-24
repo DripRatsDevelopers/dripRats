@@ -26,7 +26,7 @@ export function CategoryDropdown() {
       >
         {categories.map((cat) => (
           <DropdownMenuItem key={cat} asChild>
-            <Link href={`/products/${cat.toLowerCase()}`} className="w-full">
+            <Link href={`/shop/${cat.toLowerCase()}`} className="w-full">
               {cat}
             </Link>
           </DropdownMenuItem>

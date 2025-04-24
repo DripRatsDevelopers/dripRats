@@ -81,7 +81,7 @@ const OrderSummary = ({
           {/* Product List */}
           <ul className="space-y-4">
             {checkoutItemsList.map((item) => {
-              const availableQuantity = productStocksMap?.[item.id] || 0;
+              const availableQuantity = productStocksMap?.[item.ProductId] || 0;
               const isOutOfStock =
                 !availableQuantity || availableQuantity === 0;
 
@@ -89,7 +89,7 @@ const OrderSummary = ({
                 (availableQuantity || 0) >= item.quantity;
               return (
                 <li
-                  key={item.id}
+                  key={item.ProductId}
                   className={cn(
                     "p-4 border rounded-lg relative",
                     isOutOfStock ? "border-red-500" : ""
@@ -99,7 +99,7 @@ const OrderSummary = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleRemoveItem(item.id)}
+                      onClick={() => handleRemoveItem(item.ProductId)}
                       className="mt-2 absolute right-1 text-red-500"
                     >
                       <Trash2 className="w-5 h-5" />{" "}
@@ -126,14 +126,18 @@ const OrderSummary = ({
                       {/* Quantity Controls */}
                       <div className="flex items-center gap-2 mt-2">
                         <button
-                          onClick={() => handleQuantityChange(item.id, false)}
+                          onClick={() =>
+                            handleQuantityChange(item.ProductId, false)
+                          }
                           className="p-1 border rounded"
                         >
                           -
                         </button>
                         <span>{item.quantity}</span>
                         <button
-                          onClick={() => handleQuantityChange(item.id, true)}
+                          onClick={() =>
+                            handleQuantityChange(item.ProductId, true)
+                          }
                           className="p-1 border rounded"
                           disabled={item.quantity >= availableQuantity}
                         >
@@ -156,8 +160,8 @@ const OrderSummary = ({
                     )}
                     {!isQuantityInStock && !isOutOfStock ? (
                       <div className="text-yellow-500 text-sm mt-1 flex items-center justify-center gap-1">
-                        Only {productStocksMap?.[item.id]} items left. Reduce
-                        quantity.
+                        Only {productStocksMap?.[item.ProductId]} items left.
+                        Reduce quantity.
                       </div>
                     ) : (
                       <></>

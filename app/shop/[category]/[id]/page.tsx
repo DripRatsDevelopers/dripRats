@@ -55,10 +55,12 @@ export default function ProductDetailPage() {
   const { addToCart, isInCart } = useCart();
   const { toggleWishlist, wishlist } = useWishlist();
 
-  const isAddedToCart = product?.id ? isInCart(product?.id) : false;
+  const isAddedToCart = product?.ProductId
+    ? isInCart(product?.ProductId)
+    : false;
 
   const isInWishlist = (productId: string) =>
-    wishlist.some((item) => item.id === productId);
+    wishlist.some((item) => item.ProductId === productId);
 
   const { initSession } = useCheckoutSession();
 
@@ -161,13 +163,13 @@ export default function ProductDetailPage() {
               }}
               className={`pr-5 rounded-full transition-all 
           ${
-            isInWishlist(product.id)
+            isInWishlist(product.ProductId)
               ? "text-red-500 hover:text-red-500"
               : "text-gray-700 dark:text-gray-300 hover:text-red-500"
           } hover:scale-110`}
             >
               <Heart
-                fill={isInWishlist(product.id) ? "currentColor" : "none"}
+                fill={isInWishlist(product.ProductId) ? "currentColor" : "none"}
                 stroke="currentColor"
                 className="w-6 h-6 !size-auto"
               />

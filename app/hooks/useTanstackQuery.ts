@@ -27,7 +27,7 @@ interface UseInfinitePaginatedQueryOptions<T> {
 
 interface IDripRatsQuery<TData, TError> {
   queryKey: string | unknown[];
-  apiParams: {
+  apiParams?: {
     url: string;
     options?: RequestInit;
     headers?: Record<string, string>;
@@ -87,7 +87,7 @@ export function useDripratsQuery<TData, TError = Error>({
 }: IDripRatsQuery<TData, TError>): UseQueryResult<TData, TError> {
   return useQuery({
     queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
-    queryFn: queryFn ? queryFn : () => dripRatsFetch(apiParams),
+    queryFn: queryFn ? queryFn : async () => await dripRatsFetch(apiParams),
     staleTime: 1000 * 60 * 20,
     refetchOnWindowFocus: false,
     ...options,

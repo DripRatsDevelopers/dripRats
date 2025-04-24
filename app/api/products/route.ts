@@ -33,23 +33,23 @@ export async function GET(req: Request) {
         collection(db, "Products"),
         orderBy("Name"),
         startAfter(cursorDoc),
-        limit(pageSize)
+        limit(pageSize + 1)
       );
     } else {
-      q = query(collection(db, "Products"), orderBy("Name"), limit(pageSize));
+      q = query(
+        collection(db, "Products"),
+        orderBy("Name"),
+        limit(pageSize + 1)
+      );
     }
 
     const snapshot = await getDocs(q);
+    const docs = snapshot.docs;
+    const hasMore = docs.length > pageSize;
 
-    const products = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const products = docs.slice(0, pageSize).map((doc) => ({ ...doc.data() }));
 
-    const nextCursor =
-      snapshot.docs.length > 0
-        ? snapshot.docs[snapshot.docs.length - 1].id
-        : null;
+    const nextCursor = hasMore ? docs[pageSize].id : null;
 
     return NextResponse.json(
       apiResponse({

@@ -13,11 +13,11 @@ export default function WishlistPage() {
   const router = useRouter();
 
   const isInCart = (productId: string) =>
-    cart.some((product) => product.id === productId);
+    cart.some((product) => product.ProductId === productId);
 
   const handleMoveToCart = (product: Product) => {
     addToCart(product);
-    removeFromWishlist(product.id);
+    removeFromWishlist(product.ProductId);
   };
 
   return (
@@ -28,10 +28,10 @@ export default function WishlistPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {wishlist.map((product: Product) => {
-            const isAddedToCart = isInCart(product.id);
+            const isAddedToCart = isInCart(product.ProductId);
             return (
               <div
-                key={product.id}
+                key={product.ProductId}
                 className="relative shadow-lg p-4 rounded-lg border-border bg-card text-card-foreground"
               >
                 <Image
@@ -45,7 +45,7 @@ export default function WishlistPage() {
                   {product.Name}
                   <Button
                     variant="ghost"
-                    onClick={() => removeFromWishlist(product.id)}
+                    onClick={() => removeFromWishlist(product.ProductId)}
                     className="ml-2 text-red-500"
                     size="icon"
                   >

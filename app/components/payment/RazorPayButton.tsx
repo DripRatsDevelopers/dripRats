@@ -55,7 +55,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
         UserId: user?.uid,
         ShippingAddress: JSON.stringify(shippingInfo),
         Items: items?.map((item) => ({
-          ProductId: item.id,
+          ProductId: item.ProductId,
           Quantity: item.quantity,
           Price: item.Price,
           Name: item.Name,

@@ -40,14 +40,16 @@ const useCheckout = () => {
       const fetchData = async () => {
         const productdata = await fetchProduct(productId);
         if (productdata) {
-          setCheckoutItems({ [productdata.id]: { ...productdata, quantity } });
+          setCheckoutItems({
+            [productdata.ProductId]: { ...productdata, quantity },
+          });
         }
         setFetchingProductDetails(false);
       };
       fetchData();
     } else {
       setCheckoutItems(
-        cart.reduce((acc, item) => ({ ...acc, [item.id]: item }), {})
+        cart.reduce((acc, item) => ({ ...acc, [item.ProductId]: item }), {})
       );
       setFetchingProductDetails(false);
     }
@@ -90,7 +92,7 @@ const useCheckout = () => {
 
   const reserveStockItems = async () => {
     const reservePayload = checkoutItemsList.map((item) => ({
-      ProductId: item.id,
+      ProductId: item.ProductId,
       Quantity: item.quantity,
     }));
     const reservedItems = await reserveItems(reservePayload);
@@ -114,7 +116,7 @@ const useCheckout = () => {
 
   const isStockReserved = reservedItems?.length
     ? checkoutItemsList?.filter(
-        ({ id, quantity }) => reservedItemsMap[id] !== quantity
+        ({ ProductId, quantity }) => reservedItemsMap[ProductId] !== quantity
       )?.length === 0
     : false;
 
@@ -196,7 +198,10 @@ const useCheckout = () => {
 
   const isProductOutOfStock = stocks?.length
     ? isAnyProductOutOfStock(
-        checkoutItemsList?.map(({ id, quantity }) => ({ id, quantity })),
+        checkoutItemsList?.map(({ ProductId, quantity }) => ({
+          ProductId,
+          quantity,
+        })),
         stocks
       )
     : true;

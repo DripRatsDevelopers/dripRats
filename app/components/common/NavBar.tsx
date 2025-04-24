@@ -18,7 +18,7 @@ const Navbar = () => {
 
   const handleSearch = (searchTerm: string) => {
     if (searchTerm.trim()) {
-      router.push(`/shop/search?term=${searchTerm.trim()}`);
+      router.push(`/shop?search=${searchTerm.trim()}`);
     }
   };
   return (
