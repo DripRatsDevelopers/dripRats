@@ -15,7 +15,7 @@ const ProductCard = ({
   product,
   isInWishlist,
   toggleWishlist,
-  category,
+  category = "All",
 }: ProductCard) => {
   const { ProductId, Name, Price, ImageUrls, DiscountedPrice } = product;
 

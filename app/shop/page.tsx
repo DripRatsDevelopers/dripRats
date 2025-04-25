@@ -48,8 +48,8 @@ const ShopPage = () => {
     title = `Search Results for "${searchQuery}"`;
   }
 
-  return (
-    <div className="m-2 mx-3 md:m-6">
+  return -(
+    <div className="m-4 md:m-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-4">
         <h2 className="text-xl font-semibold">{title}</h2>
         <FilterBar onSortChange={handleSortChange} sortKey={sortKey} />

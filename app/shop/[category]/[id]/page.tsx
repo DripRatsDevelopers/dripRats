@@ -1,5 +1,6 @@
 "use client";
 
+import Breadcrumbs from "@/components/common/BreadCrumbs";
 import {
   Accordion,
   AccordionContent,
@@ -113,6 +114,7 @@ export default function ProductDetailPage() {
     <div className="flex flex-col md:flex-row gap-8 p-6 bg-background text-foreground">
       {/* Left - Images */}
       <div className=" flex-1 flex flex-col">
+        <Breadcrumbs />
         <div className="flex-1 flex flex-col items-center md:sticky top-0 mt-2">
           {/* Main Image - Centered */}
           <div

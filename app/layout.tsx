@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
-import Breadcrumbs from "./components/common/BreadCrumbs";
 import Navbar from "./components/common/NavBar";
 import AuthGuard from "./components/common/ProtectedRoutes";
 import "./globals.css";
@@ -51,10 +50,7 @@ export default function RootLayout({
           <Providers>
             <Navbar />
             <AuthGuard>
-              <div className="m-3 md:mx-6 md:my-4">
-                <Breadcrumbs />
-              </div>
-              <div> {children}</div>
+              <div className="mt-3"> {children}</div>
               <Toaster position="bottom-right" richColors />{" "}
             </AuthGuard>
           </Providers>
