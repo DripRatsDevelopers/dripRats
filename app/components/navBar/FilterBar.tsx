@@ -25,7 +25,11 @@ export default function FilterBar({
           </SelectTrigger>
           <SelectContent>
             {sortOptions.map(({ value, label }) => {
-              return <SelectItem value={value}>{label}</SelectItem>;
+              return (
+                <SelectItem value={value} key={label}>
+                  {label}
+                </SelectItem>
+              );
             })}
           </SelectContent>
         </Select>

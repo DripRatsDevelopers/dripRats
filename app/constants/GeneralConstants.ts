@@ -18,6 +18,7 @@ export const sortOptions: { value: string; label: string }[] = [
 ];
 
 export const PRODUCT_CATEGORY = [
+  { name: "All", slug: "All" },
   { name: "Rings", slug: "Rings" },
   { name: "Bracelets", slug: "Bracelets" },
   { name: "Chains", slug: "Chains" },
