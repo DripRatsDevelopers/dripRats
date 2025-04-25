@@ -34,7 +34,9 @@ const AnimatedSearchBar = ({
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        setSearchTerm("");
         handleSearch(searchTerm);
+        setShowSuggestions(false);
       }}
     >
       <div className="relative flex items-center" ref={containerRef}>

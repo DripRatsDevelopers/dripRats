@@ -7,6 +7,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { PRODUCT_CATEGORY } from "@/constants/GeneralConstants";
 import { ArrowRight, ChevronLeft, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -83,14 +84,14 @@ export function MobileSearchDrawer() {
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">Popular Searches</p>
           <div className="flex gap-2 flex-wrap">
-            {["Chains", "Earrings", "Rings", "Luxury Sets"].map((item) => (
+            {PRODUCT_CATEGORY.map((item) => (
               <Button
-                key={item}
+                key={item.slug}
                 className="bg-muted font-normal px-3 py-1 rounded-full text-sm hover:bg-primary/10"
                 onClick={() => {}}
                 variant="link"
               >
-                {item}
+                {item.name}
               </Button>
             ))}
           </div>

@@ -4,12 +4,13 @@ import { ApiWrapper } from "@/components/common/ApiWrapper";
 import InfiniteScroll from "@/components/common/InfiniteScroll";
 import FilterBar from "@/components/navBar/FilterBar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useInfinitePaginatedQuery } from "@/hooks/useTanstackQuery";
+import { sortOptions } from "@/constants/GeneralConstants";
+import { useInfiniteProducts } from "@/hooks/useInfiniteProducts";
+import { useSearchIndex } from "@/hooks/useSearchIndex";
+import { useSearchResults } from "@/hooks/useSearchSuggestions";
 import { useWishlist } from "@/hooks/useWishlist";
-import { fetchAllProducts } from "@/lib/productUtils";
-import { CartType } from "@/types/Cart";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ProductCard from "./components/ProductCard";
 
 const ShopPage = () => {
@@ -18,23 +19,27 @@ const ShopPage = () => {
 
   useEffect(() => {
     if (!searchQuery) {
-      router.replace("/shop/all"); // Redirect to 'shop/all' page
+      router.replace("/shop/all");
     }
   }, [searchQuery, router]);
 
+  const { data: indexData } = useSearchIndex();
+
+  const [sortKey, setSortKey] = useState(sortOptions[0]?.value);
+
+  const searchResults = useSearchResults(indexData, searchQuery);
+
+  const productIds = searchResults.map(({ ProductId }) => ProductId);
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfinitePaginatedQuery<CartType>({
-      queryKey: "products",
-      fetchPage: fetchAllProducts,
-    });
+    useInfiniteProducts({ productIds, sort: sortKey });
+
   const products = data?.pages.flatMap((page) => page.Items);
 
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const handleSortChange = (value: string) => {
-    console.log(value);
-
-    // Trigger your product fetch/sort logic
+    setSortKey(value);
   };
 
   let title = "All Products";
@@ -44,10 +49,10 @@ const ShopPage = () => {
   }
 
   return (
-    <div className="m-4 md:m-6">
+    <div className="m-2 mx-3 md:m-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-4">
         <h2 className="text-xl font-semibold">{title}</h2>
-        <FilterBar onSortChange={handleSortChange} />
+        <FilterBar onSortChange={handleSortChange} sortKey={sortKey} />
       </div>
       <div className={"w-full"}>
         <ApiWrapper
@@ -87,7 +92,7 @@ const ShopPage = () => {
               </div>
             }
           >
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:justify-center">
               {products &&
                 products.map((product, index) => (
                   <ProductCard

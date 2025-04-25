@@ -21,7 +21,7 @@ export default function SearchSuggestions({
   onSelect,
 }: Props) {
   const { data, isLoading } = useSearchIndex();
-  const searchResults = useSearchResults(query, data);
+  const searchResults = useSearchResults(data, query);
 
   if (isLoading) {
     return (

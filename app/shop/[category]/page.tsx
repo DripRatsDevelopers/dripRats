@@ -4,44 +4,42 @@ import { ApiWrapper } from "@/components/common/ApiWrapper";
 import InfiniteScroll from "@/components/common/InfiniteScroll";
 import FilterBar from "@/components/navBar/FilterBar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useInfinitePaginatedQuery } from "@/hooks/useTanstackQuery";
+import { sortOptions } from "@/constants/GeneralConstants";
+import { useInfiniteProducts } from "@/hooks/useInfiniteProducts";
 import { useWishlist } from "@/hooks/useWishlist";
-import { fetchAllProducts } from "@/lib/productUtils";
-import { CartType } from "@/types/Cart";
-import { useSearchParams } from "next/navigation";
+import { capitalize } from "@/lib/utils";
+import { useParams } from "next/navigation";
+import { useState } from "react";
 import ProductCard from "../components/ProductCard";
 
 export default function ProductsPage() {
+  const { category } = useParams();
+  const categoryName: string | undefined =
+    category?.toString().toLowerCase() !== "all" ? category?.toString() : "";
+
+  const [sortKey, setSortKey] = useState(sortOptions[0]?.value);
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfinitePaginatedQuery<CartType>({
-      queryKey: "products",
-      fetchPage: fetchAllProducts,
-    });
+    useInfiniteProducts({ category: categoryName, sort: sortKey });
 
   const products = data?.pages.flatMap((page) => page.Items);
 
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const handleSortChange = (value: string) => {
-    console.log(value);
-    // Trigger your product fetch/sort logic
+    setSortKey(value);
   };
 
-  const searchQuery = useSearchParams().get("search");
   let title = "All Products";
-  const categoryName = "Rings";
-
-  if (searchQuery) {
-    title = `Search Results for "${searchQuery}"`;
-  } else if (categoryName) {
-    title = `${categoryName} Collection`; // Or just capitalize(categoryName)
+  if (categoryName) {
+    title = `${capitalize(categoryName.toString())} Collections`;
   }
 
   return (
-    <div className="m-4 md:m-6">
+    <div className="m-2 mx-3 md:m-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-4">
         <h2 className="text-xl font-semibold">{title}</h2>
-        <FilterBar onSortChange={handleSortChange} />
+        <FilterBar onSortChange={handleSortChange} sortKey={sortKey} />
       </div>
       <div className={"w-full"}>
         <ApiWrapper
@@ -89,6 +87,7 @@ export default function ProductsPage() {
                     product={product}
                     isInWishlist={isInWishlist}
                     toggleWishlist={toggleWishlist}
+                    category={categoryName}
                   />
                 ))}
             </div>

@@ -1,3 +1,4 @@
+import { sortOptions } from "@/constants/GeneralConstants";
 import {
   Select,
   SelectContent,
@@ -8,22 +9,24 @@ import {
 
 export default function FilterBar({
   onSortChange,
+  sortKey,
 }: {
   onSortChange: (value: string) => void;
+  sortKey: string;
 }) {
+  const placeHolder = sortOptions.find(({ value }) => value === sortKey)?.label;
   return (
     <div className="flex items-center justify-end mb-6">
       <div className="flex items-center gap-3">
         <span className="text-sm font-medium">Sort By:</span>
-        <Select onValueChange={onSortChange}>
+        <Select onValueChange={onSortChange} value={sortKey}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Recommended" />
+            <SelectValue placeholder={placeHolder} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="recommended">Recommended</SelectItem>
-            <SelectItem value="lowToHigh">Price: Low to High</SelectItem>
-            <SelectItem value="highToLow">Price: High to Low</SelectItem>
-            <SelectItem value="newest">Newest</SelectItem>
+            {sortOptions.map(({ value, label }) => {
+              return <SelectItem value={value}>{label}</SelectItem>;
+            })}
           </SelectContent>
         </Select>
       </div>

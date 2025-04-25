@@ -7,12 +7,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { PRODUCT_CATEGORY } from "@/constants/GeneralConstants";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 
 export function CategoryDropdown() {
-  const categories = ["Earrings", "Necklaces", "Rings", "Bracelets", "Sets"];
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -24,10 +23,10 @@ export function CategoryDropdown() {
         align="start"
         className="w-50 rounded-xl mt-2 shadow-md"
       >
-        {categories.map((cat) => (
-          <DropdownMenuItem key={cat} asChild>
-            <Link href={`/shop/${cat.toLowerCase()}`} className="w-full">
-              {cat}
+        {PRODUCT_CATEGORY.map((cat) => (
+          <DropdownMenuItem key={cat.slug} asChild>
+            <Link key={cat.slug} href={`/shop/${cat.slug}`} className="w-full">
+              {cat.name}
             </Link>
           </DropdownMenuItem>
         ))}

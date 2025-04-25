@@ -22,7 +22,7 @@ export default function AllOrdersPage() {
     isLoading,
     error,
   } = useInfinitePaginatedQuery<OrderDetails>({
-    queryKey: "order",
+    queryKey: ["order"],
     fetchPage: fetchOrders,
   });
 

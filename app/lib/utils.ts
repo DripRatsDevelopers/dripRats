@@ -19,6 +19,11 @@ export const getInitials = (name: string) => {
     .join("");
 };
 
+export function capitalize(str: string): string {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export const formatDate = (timestamp: number | string | Date) => {
   const date = new Date(timestamp);
   return `${date.toLocaleDateString(undefined, {
@@ -252,17 +257,20 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 
 // Add products and search index to Firestore
 // async function addData() {
-//   const productCollection = collection(db, "Products");
-//   const searchIndexCollection = collection(db, "SearchIndex");
+//   // const productCollection = collection(db, "Products");
+//   // const searchIndexCollection = collection(db, "SearchIndex");
 
 //   // Add products
 //   for (const product of products) {
-//     await addDoc(productCollection, product);
+//     await setDoc(doc(db, "Products", product.ProductId), product);
+//     // await addDoc(productCollection, product);
 //   }
 
 //   // Add search index
 //   for (const index of searchIndex) {
-//     await addDoc(searchIndexCollection, index);
+//     await setDoc(doc(db, "SearchIndex", index.ProductId), index);
+
+//     // await addDoc(searchIndexCollection, index);
 //   }
 
 //   console.log("Data added successfully");
@@ -272,13 +280,13 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 // addData().catch(console.error);
 
 // async function deleteAllProducts() {
-//   const productsCollection = collection(db, "SearchIndex");
+//   const productsCollection = collection(db, "Products");
 //   const productsSnapshot = await getDocs(productsCollection);
 
 //   const batch = writeBatch(db);
 
 //   productsSnapshot.forEach((docSnap) => {
-//     batch.delete(doc(db, "SearchIndex", docSnap.id));
+//     batch.delete(doc(db, "Products", docSnap.id));
 //   });
 
 //   await batch.commit();

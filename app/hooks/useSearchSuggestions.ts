@@ -2,9 +2,9 @@ import { SearchIndex } from "@/types/Products";
 import Fuse from "fuse.js";
 import { useMemo } from "react";
 
-export function useSearchResults(query: string, data: SearchIndex[]) {
+export function useSearchResults(data: SearchIndex[], query?: string | null) {
   return useMemo(() => {
-    if (!query.trim() || !data?.length) return [];
+    if (!query?.trim() || !data?.length) return [];
 
     const fuse = new Fuse(data, {
       keys: ["Name", "Category", "Tags"],

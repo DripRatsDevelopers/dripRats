@@ -8,12 +8,14 @@ interface ProductCard {
   product: Product;
   isInWishlist: (productId: string) => boolean;
   toggleWishlist: (productId: Product) => void;
+  category?: string;
 }
 
 const ProductCard = ({
   product,
   isInWishlist,
   toggleWishlist,
+  category,
 }: ProductCard) => {
   const { ProductId, Name, Price, ImageUrls, DiscountedPrice } = product;
 
@@ -22,7 +24,7 @@ const ProductCard = ({
   return (
     <Link
       key={ProductId}
-      href={`/shop/all/${ProductId}`}
+      href={`/shop/${category}/${ProductId}`}
       className="flex flex-col gap-2 w-full transition-transform hover:scale-[1.02]"
     >
       <div className="relative aspect-[3/4] w-full rounded-md overflow-hidden bg-[#f7f7f7] dark:bg-[#1a1a1a]">

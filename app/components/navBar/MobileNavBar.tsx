@@ -2,6 +2,7 @@
 
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { PRODUCT_CATEGORY } from "@/constants/GeneralConstants";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { motion } from "framer-motion";
@@ -18,13 +19,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
-
-const categories = [
-  { name: "Rings", slug: "rings" },
-  { name: "Necklaces", slug: "necklaces" },
-  { name: "Bracelets", slug: "bracelets" },
-  { name: "Earrings", slug: "earrings" },
-];
 
 export function MobileNavBar({
   totalWishlistItems,
@@ -73,7 +67,7 @@ export function MobileNavBar({
           transition={{ duration: 0.3 }}
           className="space-y-2"
         >
-          {categories.map((cat) => (
+          {PRODUCT_CATEGORY.map((cat) => (
             <Link
               key={cat.slug}
               href={`/shop/${cat.slug}`}

@@ -18,7 +18,7 @@ export interface PaginatedResponse<T> {
 }
 
 interface UseInfinitePaginatedQueryOptions<T> {
-  queryKey: string;
+  queryKey: [string];
   fetchPage: (
     lastKey: Record<string, number | string | boolean> | null
   ) => Promise<PaginatedResponse<T>>;
@@ -64,7 +64,7 @@ export function useInfinitePaginatedQuery<T>({
     [string],
     Record<string, number | string | boolean> | null
   >({
-    queryKey: [queryKey],
+    queryKey,
     queryFn: async ({
       pageParam,
     }: QueryFunctionContext<
