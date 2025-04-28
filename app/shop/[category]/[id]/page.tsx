@@ -1,12 +1,11 @@
 import { Metadata } from "next";
 import ProductDetails from "./ProductDetails";
 
-export async function generateMetadata({
-  params,
-}: {
+export async function generateMetadata(props: {
   params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }): Promise<Metadata> {
-  const id = (await params).id;
+  const id = (await props.params).id;
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     const response = await fetch(`${baseUrl}/api/products/${id}`, {
