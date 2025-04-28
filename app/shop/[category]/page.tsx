@@ -80,16 +80,19 @@ export default function ProductsPage() {
             }
           >
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5  gap-4">
-              {products &&
-                products.map((product, index) => (
-                  <ProductCard
-                    key={`${product.ProductId}-${index}`}
-                    product={product}
-                    isInWishlist={isInWishlist}
-                    toggleWishlist={toggleWishlist}
-                    category={categoryName}
-                  />
-                ))}
+              {products ? (
+                <>
+                  {products.map((product, index) => (
+                    <ProductCard
+                      key={`${product.ProductId}-${index}`}
+                      product={product}
+                      isInWishlist={isInWishlist}
+                      toggleWishlist={toggleWishlist}
+                      category={categoryName}
+                    />
+                  ))}
+                </>
+              ) : null}
             </div>
           </InfiniteScroll>
         </ApiWrapper>

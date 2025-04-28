@@ -105,20 +105,6 @@ const ProductDetails = () => {
   const increaseQuantity = () => setQuantity(quantity + 1);
   const decreaseQuantity = () => quantity > 1 && setQuantity(quantity - 1);
 
-  //   useEffect(()=>{
-  //     const key = "rzp_test_XXXX00000XXXX"; //Replace it with your Test Key ID generated from the Dashboard
-  // const amount = 400000; //in paise
-
-  // window.onload = function() {
-  // const widgetConfig = {
-  // 	"key": key,
-  // 	"amount": amount,
-  // };
-  // const rzpAffordabilitySuite = new RazorpayAffordabilitySuite(widgetConfig);
-  // rzpAffordabilitySuite.render();
-  // }
-  //   },[])
-
   return (
     <ApiWrapper
       loading={isLoading}
@@ -278,7 +264,6 @@ const ProductDetails = () => {
                 </Badge>
               </div>
             </div>
-            <div id="razorpay-affordability-widget"> </div>
             <Accordion type="multiple" className="my-6">
               <AccordionItem value="details">
                 <AccordionTrigger className="text-lg font-medium no-underline hover:no-underline">
