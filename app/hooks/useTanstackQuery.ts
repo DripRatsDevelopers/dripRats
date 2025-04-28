@@ -87,7 +87,7 @@ export function useDripratsQuery<TData, TError = Error>({
 }: IDripRatsQuery<TData, TError>): UseQueryResult<TData, TError> {
   return useQuery({
     queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
-    queryFn: queryFn ? queryFn : async () => await dripRatsFetch(apiParams),
+    queryFn: queryFn ? queryFn : () => dripRatsFetch(apiParams),
     staleTime: 1000 * 60 * 20,
     refetchOnWindowFocus: false,
     ...options,

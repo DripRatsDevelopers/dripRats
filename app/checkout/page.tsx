@@ -35,6 +35,7 @@ const CheckoutPage: React.FC = () => {
     isProductOutOfStock,
     handleRemoveItem,
     fetchingProductDetails,
+    isInitialState,
   } = items;
 
   const {
@@ -116,10 +117,10 @@ const CheckoutPage: React.FC = () => {
               </ApiWrapper>
             </CardContent>
           </Card>
-          <div className="block absolute w-full right-0 md:right-10 top-[4rem] md:top-[9.5rem] md:w-[300px]">
+          <div className="block absolute w-full right-0 md:right-10 top-[3rem] md:top-[9.5rem] md:w-[300px]">
             <ApiWrapper
-              loading={fetchingProductDetails}
-              data={checkoutItemsList?.length}
+              loading={fetchingProductDetails || isInitialState}
+              data={checkoutItemsList?.length && !isInitialState}
               skeleton={
                 <div className="hidden md:block">
                   <Skeleton className="h-60 w-full" />

@@ -3,12 +3,9 @@ import {
   FREE_DELIVERY_MINIMUM_AMOUNT,
 } from "@/constants/DeliveryConstants";
 import { useCart } from "@/hooks/useCart";
+import { useDripratsQuery } from "@/hooks/useTanstackQuery";
 import { reserveItems } from "@/lib/orderUtils";
-import {
-  fetchProduct,
-  getProductStock,
-  isAnyProductOutOfStock,
-} from "@/lib/productUtils";
+import { getProductStock, isAnyProductOutOfStock } from "@/lib/productUtils";
 import { CartType } from "@/types/Cart";
 import { InventoryItem } from "@/types/Products";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -20,40 +17,49 @@ const useCheckout = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
-  const [fetchingProductDetails, setFetchingProductDetails] = useState(true);
   const [disableNavigation, setDisableNavigation] = useState(false);
   const searchParams = useSearchParams();
 
   const productId = searchParams.get("productId");
   const quantity = Number(searchParams.get("quantity")) || 1;
-  const [checkoutItems, setCheckoutItems] = useState<Record<string, CartType>>(
-    {}
-  );
+  const { data, isLoading, status } = useDripratsQuery<CartType>({
+    queryKey: ["/api/products", productId],
+    apiParams: {
+      url: `/api/products/${productId}`,
+    },
+    options: { enabled: !!productId },
+  });
+  const [checkoutItems, setCheckoutItems] = useState<Record<string, CartType>>({
+    initial: {
+      ProductId: "",
+      Name: "",
+      Price: 0,
+      ImageUrls: [""],
+      quantity: 0,
+      Description: "",
+    },
+  });
   const [stocks, setStocks] = useState<InventoryItem[]>();
   const [reservedItems, setReservedItems] = useState<
     { ProductId: string; Quantity: number }[]
   >([]);
   const router = useRouter();
 
+  const isInitialState = Object.keys(checkoutItems)?.[0] === "initial";
+
   useEffect(() => {
     if (productId) {
-      const fetchData = async () => {
-        const productdata = await fetchProduct(productId);
-        if (productdata) {
-          setCheckoutItems({
-            [productdata.ProductId]: { ...productdata, quantity },
-          });
-        }
-        setFetchingProductDetails(false);
-      };
-      fetchData();
+      if (!isLoading && status === "success") {
+        setCheckoutItems({
+          [productId]: { ...data, quantity },
+        });
+      }
     } else {
       setCheckoutItems(
         cart.reduce((acc, item) => ({ ...acc, [item.ProductId]: item }), {})
       );
-      setFetchingProductDetails(false);
     }
-  }, [cart, productId, quantity]);
+  }, [cart, data, isLoading, productId, quantity, status]);
 
   const checkoutItemsList = Object.values(checkoutItems);
 
@@ -62,10 +68,14 @@ const useCheckout = () => {
       const stock = await getProductStock(Object.keys(checkoutItems));
       setStocks(stock);
     };
-    if (Object.keys(checkoutItems)?.length > 0 && !stocks?.length) {
+    if (
+      !isInitialState &&
+      Object.keys(checkoutItems)?.length > 0 &&
+      !stocks?.length
+    ) {
       fetchProductsStock();
     }
-  }, [checkoutItems, stocks]);
+  }, [checkoutItems, stocks, isInitialState]);
 
   const subtotal = checkoutItemsList.reduce(
     (acc, item) => acc + item.Price * (item.quantity || 1),
@@ -167,10 +177,16 @@ const useCheckout = () => {
   };
 
   useEffect(() => {
-    if (checkoutItemsList?.length === 0 && !fetchingProductDetails) {
+    if (
+      checkoutItemsList?.length === 0 &&
+      !isLoading &&
+      status === "success" &&
+      data &&
+      !isInitialState
+    ) {
       router.back();
     }
-  }, [checkoutItemsList, router, fetchingProductDetails]);
+  }, [checkoutItemsList, data, router, isLoading, status, isInitialState]);
 
   const savings = subtotal * 0.1;
   const deliveryCharge =
@@ -234,7 +250,8 @@ const useCheckout = () => {
       isProductOutOfStock,
       productStocksMap,
       handleRemoveItem,
-      fetchingProductDetails,
+      fetchingProductDetails: isLoading,
+      isInitialState,
     },
     shippingInfo: {
       deliveryDiscount,

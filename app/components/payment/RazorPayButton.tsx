@@ -114,9 +114,9 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
             onPaymentUpdate(OrderId);
           },
           prefill: {
-            name: "John Doe",
-            email: "john@example.com",
-            contact: "9999999999",
+            name: shippingInfo.fullName,
+            email: user?.email,
+            contact: shippingInfo.phone,
           },
           notes: {
             address: "Driprats Office",

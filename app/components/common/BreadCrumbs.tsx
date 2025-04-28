@@ -3,6 +3,7 @@
 import { capitalize } from "@/lib/utils";
 import { Home } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { Fragment } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -35,7 +36,7 @@ const Breadcrumbs = () => {
         </BreadcrumbItem>
         {crumbs.map(({ href, label }, index) => {
           return (
-            <>
+            <Fragment key={index}>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 {index < crumbs?.length - 1 ? (
@@ -44,7 +45,7 @@ const Breadcrumbs = () => {
                   <BreadcrumbPage>{label}</BreadcrumbPage>
                 )}
               </BreadcrumbItem>
-            </>
+            </Fragment>
           );
         })}
       </BreadcrumbList>
