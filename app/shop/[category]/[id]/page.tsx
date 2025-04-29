@@ -2,14 +2,14 @@ import { Metadata } from "next";
 import ProductDetails from "./ProductDetails";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; category: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
+  const { id, category } = await params;
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL as string;
   try {
     const response = await fetch(`${baseUrl}/api/products/${id}`, {
       cache: "no-store",
@@ -31,21 +31,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         title: product?.Name,
         description: product?.Description,
-        images: [
-          {
-            url: product?.ImageUrls?.[0], // fallback if no image
-            width: 1200,
-            height: 630,
-          },
-        ],
-        url: `${baseUrl}/shop/Rings/${id}`,
+        url: `${baseUrl}/shop/${category}/${id}`,
         type: "website",
+        siteName: "Driprats",
+        images: product?.ImageUrls?.[0]
+          ? [
+              {
+                url: product.ImageUrls[0],
+                width: 1200,
+                height: 630,
+                alt: "Product image",
+              },
+            ]
+          : [],
       },
       twitter: {
         card: "summary_large_image",
         title: product?.Name,
         description: product?.Description,
-        images: [product?.ImageUrls?.[0]],
+        images: product?.ImageUrls?.[0] ? [product.ImageUrls[0]] : [],
       },
     };
   } catch (error) {
