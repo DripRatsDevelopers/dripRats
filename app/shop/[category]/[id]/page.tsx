@@ -24,32 +24,64 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const {
       body: { data: product },
     } = await response.json();
+    const productUrl = `${baseUrl}/shop/${category}/${id}`;
+
+    const title = product?.Name || "Driprats";
+    const description =
+      product?.Description || "Discover exclusive jewelry at Driprats.";
+    const imageUrl = product?.ImageUrls?.[0];
+
+    const structuredData = {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      name: product.Name,
+      image: [product?.ImageUrls?.[0]],
+      description: product.Description,
+      sku: product.ProductId,
+      brand: {
+        "@type": "Brand",
+        name: "Driprats",
+      },
+      offers: {
+        "@type": "Offer",
+        url: productUrl,
+        priceCurrency: "INR",
+        price: product.Price,
+        availability: "https://schema.org/InStock",
+        itemCondition: "https://schema.org/NewCondition",
+      },
+    };
 
     return {
-      title: product?.Name,
-      description: product?.Description,
+      title: title,
+      description: description,
+      alternates: {
+        canonical: productUrl,
+      },
       openGraph: {
-        title: product?.Name,
-        description: product?.Description,
-        url: `${baseUrl}/shop/${category}/${id}`,
-        type: "website",
+        title: title,
+        description: description,
+        url: productUrl,
         siteName: "Driprats",
-        images: product?.ImageUrls?.[0]
-          ? [
-              {
-                url: product.ImageUrls[0],
-                width: 1200,
-                height: 630,
-                alt: "Product image",
-              },
-            ]
-          : [],
+        type: "website",
+        images: [
+          {
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
       },
       twitter: {
         card: "summary_large_image",
-        title: product?.Name,
-        description: product?.Description,
-        images: product?.ImageUrls?.[0] ? [product.ImageUrls[0]] : [],
+        title: title,
+        description: description,
+        images: [imageUrl],
+      },
+      metadataBase: new URL(baseUrl),
+      other: {
+        "application/ld+json": JSON.stringify(structuredData),
       },
     };
   } catch (error) {
