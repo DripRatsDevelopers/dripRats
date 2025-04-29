@@ -78,10 +78,6 @@ export default function RootLayout({
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://driprats.com" />
         <Script
-          src="https://cdn.razorpay.com/widgets/affordability/affordability.js"
-          strategy="lazyOnload"
-        />
-        <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
           strategy="lazyOnload"
         />

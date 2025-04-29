@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       "@context": "https://schema.org/",
       "@type": "Product",
       name: product.Name,
-      image: [product?.ImageUrls?.[0]],
+      image: [imageUrl],
       description: product.Description,
       sku: product.ProductId,
       brand: {
