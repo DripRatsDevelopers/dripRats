@@ -7,7 +7,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card } from "@/components/ui/card";
-import { cn, useMediaQuery } from "@/lib/utils";
+import { useMediaQuery } from "@/lib/mediaUtils";
+import { cn } from "@/lib/utils";
 import { CartType } from "@/types/Cart";
 import { Separator } from "@radix-ui/react-select";
 import { ShoppingBag } from "lucide-react";

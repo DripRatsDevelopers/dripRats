@@ -11,10 +11,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   return {
-    title: `${categoryName} | Driprats`,
+    title: `${categoryName} Collections`,
     description: `Explore ${categoryName} jewelry collections crafted for futuristic luxury.`,
     openGraph: {
-      title: `${categoryName} | Driprats`,
+      title: `${categoryName} Collections | Driprats`,
       description: `Explore ${categoryName} jewelry collections crafted for futuristic luxury.`,
       url: `${baseUrl}/shop/${categoryName}`,
       images: [

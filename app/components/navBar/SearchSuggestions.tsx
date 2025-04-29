@@ -13,12 +13,14 @@ type Props = {
   query: string;
   isMobile?: boolean;
   onSelect: () => void;
+  handleSearch?: (searchTerm: string) => void;
 };
 
 export default function SearchSuggestions({
   query,
   isMobile,
   onSelect,
+  handleSearch,
 }: Props) {
   const { data, isLoading } = useSearchIndex();
   const searchResults = useSearchResults(data, query);
@@ -78,7 +80,10 @@ export default function SearchSuggestions({
           <Button
             variant="ghost"
             className="w-full text-primary font-semibold border-top"
-            onClick={onSelect}
+            onClick={() => {
+              onSelect();
+              if (handleSearch) handleSearch(query);
+            }}
           >
             Search for &quot;{query?.trim()}&quot; <ArrowRight />
           </Button>

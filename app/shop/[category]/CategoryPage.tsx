@@ -30,7 +30,7 @@ export default function CategoryPage() {
     setSortKey(value);
   };
 
-  let title = "All Products";
+  let title = "All Collections";
   if (categoryName) {
     title = `${capitalize(categoryName.toString())} Collections`;
   }

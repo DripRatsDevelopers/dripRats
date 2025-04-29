@@ -1,6 +1,7 @@
 "use client";
 
-import { cn, useMediaQuery } from "@/lib/utils";
+import { useMediaQuery } from "@/lib/mediaUtils";
+import { cn } from "@/lib/utils";
 import { Expand, X } from "lucide-react"; // Added X for close button
 import Image from "next/image";
 import { useRef, useState } from "react";

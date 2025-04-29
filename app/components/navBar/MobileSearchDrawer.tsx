@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { PRODUCT_CATEGORY } from "@/constants/GeneralConstants";
 import { ArrowRight, ChevronLeft, Search, X } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "../ui/button";
@@ -88,10 +89,18 @@ export function MobileSearchDrawer() {
               <Button
                 key={item.slug}
                 className="bg-muted font-normal px-3 py-1 rounded-full text-sm hover:bg-primary/10"
-                onClick={() => {}}
+                onClick={() => {
+                  setIsOpen(false);
+                }}
                 variant="link"
               >
-                {item.name}
+                <Link
+                  key={item.slug}
+                  href={`/shop/${item.slug}`}
+                  className="w-full"
+                >
+                  {item.name}
+                </Link>
               </Button>
             ))}
           </div>

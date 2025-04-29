@@ -71,6 +71,7 @@ const AnimatedSearchBar = ({
             setSearchTerm("");
             setShowSuggestions(false);
           }}
+          handleSearch={handleSearch}
         />
       </div>
     </form>

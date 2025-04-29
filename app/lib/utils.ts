@@ -1,6 +1,5 @@
 import { OrderEnum } from "@/types/Order";
 import { clsx, type ClassValue } from "clsx";
-import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { apiFetch } from "./apiClient";
 
@@ -52,24 +51,6 @@ export const getSavedAddress = async () => {
     console.error("SOmething went wrong when fetching saved address", error);
   }
 };
-
-export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    if (media.matches !== matches) {
-      setMatches(media.matches);
-    }
-
-    const listener = () => setMatches(media.matches);
-    media.addEventListener("change", listener);
-
-    return () => media.removeEventListener("change", listener);
-  }, [matches, query]);
-
-  return matches;
-}
 
 export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
   switch (orderStatus) {
