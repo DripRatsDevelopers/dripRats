@@ -6,43 +6,21 @@ import FilterBar from "@/components/navBar/FilterBar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { sortOptions } from "@/constants/GeneralConstants";
 import { useInfiniteProducts } from "@/hooks/useInfiniteProducts";
-import { useSearchIndex } from "@/hooks/useSearchIndex";
-import { useSearchResults } from "@/hooks/useSearchSuggestions";
 import { useWishlist } from "@/hooks/useWishlist";
-import { Metadata } from "next";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import ProductCard from "./components/ProductCard";
+import { capitalize } from "@/lib/utils";
+import { useParams } from "next/navigation";
+import { useState } from "react";
+import ProductCard from "../components/ProductCard";
 
-export const metadata: Metadata = {
-  title: "Search | Driprats",
-  description: "Find futuristic jewelry collections from Driprats.",
-  robots: {
-    index: false,
-    follow: true,
-  },
-};
-
-const ShopPage = () => {
-  const router = useRouter();
-  const searchQuery = useSearchParams().get("search");
-
-  useEffect(() => {
-    if (!searchQuery) {
-      router.replace("/shop/all");
-    }
-  }, [searchQuery, router]);
-
-  const { data: indexData } = useSearchIndex();
+export default function CategoryPage() {
+  const { category } = useParams();
+  const categoryName: string | undefined =
+    category?.toString().toLowerCase() !== "all" ? category?.toString() : "";
 
   const [sortKey, setSortKey] = useState(sortOptions[0]?.value);
 
-  const searchResults = useSearchResults(indexData, searchQuery);
-
-  const productIds = searchResults.map(({ ProductId }) => ProductId);
-
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteProducts({ productIds, sort: sortKey });
+    useInfiniteProducts({ category: categoryName, sort: sortKey });
 
   const products = data?.pages.flatMap((page) => page.Items);
 
@@ -53,12 +31,11 @@ const ShopPage = () => {
   };
 
   let title = "All Products";
-
-  if (searchQuery) {
-    title = `Search Results for "${searchQuery}"`;
+  if (categoryName) {
+    title = `${capitalize(categoryName.toString())} Collections`;
   }
 
-  return -(
+  return (
     <div className="m-4 md:m-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-4">
         <h2 className="text-xl font-semibold">{title}</h2>
@@ -69,7 +46,7 @@ const ShopPage = () => {
           data={products?.length}
           loading={isLoading}
           skeleton={
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5  gap-4">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div className="flex flex-col gap-2" key={i}>
                   <Skeleton className="aspect-[3/4] w-full rounded-md" />
@@ -88,7 +65,7 @@ const ShopPage = () => {
             loadMore={fetchNextPage}
             loading={isFetchingNextPage}
             loader={
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5  gap-4">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <div className="flex flex-col gap-2" key={i}>
                     <Skeleton className="aspect-[3/4] w-full rounded-md" />
@@ -102,22 +79,24 @@ const ShopPage = () => {
               </div>
             }
           >
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:justify-center">
-              {products &&
-                products.map((product, index) => (
-                  <ProductCard
-                    key={`${product.ProductId}-${index}`}
-                    product={product}
-                    isInWishlist={isInWishlist}
-                    toggleWishlist={toggleWishlist}
-                  />
-                ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5  gap-4">
+              {products ? (
+                <>
+                  {products.map((product, index) => (
+                    <ProductCard
+                      key={`${product.ProductId}-${index}`}
+                      product={product}
+                      isInWishlist={isInWishlist}
+                      toggleWishlist={toggleWishlist}
+                      category={categoryName}
+                    />
+                  ))}
+                </>
+              ) : null}
             </div>
           </InfiniteScroll>
         </ApiWrapper>
       </div>
     </div>
   );
-};
-
-export default ShopPage;
+}

@@ -18,6 +18,15 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/sitemap.xml",
+        destination: "/sitemap",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
