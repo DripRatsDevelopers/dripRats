@@ -1,13 +1,16 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Product } from "@/types/Products";
 import { HeartIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect } from "react";
 
 interface ProductCard {
   product: Product;
-  isInWishlist: (productId: string) => boolean;
-  toggleWishlist: (productId: Product) => void;
+  isInWishlist?: (productId: string) => boolean;
+  toggleWishlist?: (productId: Product) => void;
   category?: string;
 }
 
@@ -21,6 +24,20 @@ const ProductCard = ({
 
   const discounted = DiscountedPrice && DiscountedPrice < Price;
   const categoryName = category ? category : "all";
+
+  useEffect(() => {
+    if (!product?.ProductId) return;
+
+    const key = "recentlyViewed";
+    const existing = JSON.parse(localStorage.getItem(key) || "[]");
+
+    const filtered = existing.filter(
+      (p: Product) => p.ProductId !== product.ProductId
+    );
+    const updated = [product.ProductId, ...filtered].slice(0, 10); // keep max 10
+
+    localStorage.setItem(key, JSON.stringify(updated));
+  }, [product]);
 
   return (
     <Link
@@ -43,20 +60,22 @@ const ProductCard = ({
           <h3 className="text-sm font-semibold text-foreground truncate">
             {Name}
           </h3>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              toggleWishlist(product);
-            }}
-            className="p-1 -mr-1 rounded-full hover:bg-accent"
-          >
-            <HeartIcon
-              className={cn(
-                "w-4 h-4 text-muted-foreground",
-                isInWishlist(ProductId) && "fill-red-500 text-red-500"
-              )}
-            />
-          </button>
+          {isInWishlist && toggleWishlist ? (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                toggleWishlist(product);
+              }}
+              className="p-1 -mr-1 rounded-full hover:bg-accent"
+            >
+              <HeartIcon
+                className={cn(
+                  "w-4 h-4 text-muted-foreground",
+                  isInWishlist(ProductId) && "fill-red-500 text-red-500"
+                )}
+              />
+            </button>
+          ) : null}
         </div>
         <div className="flex items-center gap-2">
           {discounted ? (

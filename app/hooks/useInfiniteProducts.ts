@@ -10,6 +10,7 @@ type FetchProductsParams = {
   productIds?: string[];
   sort?: string; // 'name_asc', 'name_desc', 'price_asc'
   pageParam: Record<string, number | string | boolean> | null;
+  enabled?: boolean;
 };
 
 async function fetchProducts({
@@ -46,10 +47,12 @@ export function useInfiniteProducts({
   category,
   productIds,
   sort,
+  enabled,
 }: Omit<FetchProductsParams, "pageParam">) {
   return useInfinitePaginatedQuery<Product>({
     queryKey: [`products"${category}${productIds}${sort}`],
     fetchPage: (pageParam: Record<string, number | string | boolean> | null) =>
       fetchProducts({ category, productIds, sort, pageParam }),
+    enabled,
   });
 }
