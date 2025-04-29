@@ -1,12 +1,14 @@
 import { Metadata } from "next";
 import CategoryPage from "./CategoryPage";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { category: string };
-}): Promise<Metadata> {
-  const categoryName = decodeURIComponent(params.category);
+type Props = {
+  params: Promise<{ id: string; category: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { category: categoryName } = await params;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   return {
     title: `${categoryName} | Driprats`,
@@ -14,10 +16,10 @@ export async function generateMetadata({
     openGraph: {
       title: `${categoryName} | Driprats`,
       description: `Explore ${categoryName} jewelry collections crafted for futuristic luxury.`,
-      url: `https://driprats.com/shop/${categoryName}`,
+      url: `${baseUrl}/shop/${categoryName}`,
       images: [
         {
-          url: `https://driprats.com/og-collections/${categoryName}.jpg`, // your collection OG images folder //TODO
+          url: `${baseUrl}/og-collections/${categoryName}.jpg`, // your collection OG images folder //TODO
           width: 1200,
           height: 630,
           alt: `${categoryName} Collection`,
@@ -28,7 +30,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${categoryName} | Driprats`,
       description: `Explore ${categoryName} jewelry collections crafted for futuristic luxury.`,
-      images: [`https://driprats.com/og-collections/${categoryName}.jpg`],
+      images: [`${baseUrl}/og-collections/${categoryName}.jpg`],
     },
   };
 }
