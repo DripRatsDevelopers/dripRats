@@ -1,5 +1,6 @@
 import { apiResponse, db } from "@/lib/dynamoClient";
 import { createShiprocketOrder } from "@/lib/orderUtils";
+import { sendOrderConfirmationEmail } from "@/lib/resend";
 import { verifyUser } from "@/lib/verifyUser";
 import {
   OrderEnum,
@@ -137,8 +138,16 @@ export async function POST(req: Request) {
         ],
       })
     );
+    const orderItem = orderData.Item;
 
-    createShiprocketOrder(orderData.Item as ShiprocketOrderInput);
+    createShiprocketOrder(orderItem as ShiprocketOrderInput);
+
+    await sendOrderConfirmationEmail({
+      Name: "orderItem.fullName", //TODO
+      Email: orderItem.Email,
+      OrderId: orderItem.OrderId,
+      Total: orderItem.TotalAmount.toFixed(2),
+    });
 
     return NextResponse.json(
       apiResponse({

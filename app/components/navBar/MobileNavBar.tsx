@@ -58,7 +58,7 @@ export function MobileNavBar({
         </div>
 
         <div className="uppercase text-xs tracking-widest text-gray-400 mb-2">
-          Shop Categories
+          Shop Collections
         </div>
 
         <motion.div

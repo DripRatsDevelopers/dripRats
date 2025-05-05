@@ -79,14 +79,18 @@ const ProductDetails = () => {
   const { initSession } = useCheckoutSession();
 
   const shareProduct = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: product?.Name,
-        text: `Check out this product: ${product?.Name}`,
-        url: window.location.href,
-      });
-    } else {
-      alert("Sharing not supported in this browser.");
+    try {
+      if (navigator.share) {
+        navigator.share({
+          title: product?.Name,
+          text: `Check out this product: ${product?.Name}`,
+          url: window.location.href,
+        });
+      } else {
+        alert("Sharing not supported in this browser.");
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 

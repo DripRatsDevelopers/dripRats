@@ -6,6 +6,7 @@ export interface Product {
   Category?: string;
   Description: string;
   DiscountedPrice?: number;
+  InStock?: boolean;
 }
 
 export interface SearchIndex {

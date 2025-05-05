@@ -72,7 +72,7 @@ const CheckoutPage: React.FC = () => {
   return (
     <div
       className={cn(
-        "p-6 space-y-6 max-w-3xl mx-auto bg-secondary md:bg-transparent h-[100vh]",
+        "p-6 space-y-6 max-w-3xl mx-auto md:bg-transparent ",
         currentStep === 1 ? "mt-6 md:mt-0 " : ""
       )}
     >

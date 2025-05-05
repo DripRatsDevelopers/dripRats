@@ -16,7 +16,8 @@ export function CategoryDropdown() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="text-base font-medium">
-          Shop <ChevronDown />
+          Collections
+          <ChevronDown />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

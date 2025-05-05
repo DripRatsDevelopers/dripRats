@@ -87,15 +87,18 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <Suspense fallback={<>Loading...</>}>
           <Providers>
             <Navbar />
-            <AuthGuard>
-              <div className="mt-3"> {children}</div>
-              <Toaster position="bottom-right" richColors />{" "}
-            </AuthGuard>
+
+            <main className="flex-1">
+              <AuthGuard>
+                <div className="mt-3"> {children}</div>
+                <Toaster position="bottom-right" richColors />{" "}
+              </AuthGuard>
+            </main>
             <Footer />
           </Providers>
         </Suspense>
