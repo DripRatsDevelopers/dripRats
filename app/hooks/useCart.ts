@@ -3,6 +3,7 @@
 import { useUser } from "@/context/UserContext";
 import { CartType } from "@/types/Cart";
 import { Product } from "@/types/Products";
+import { toast } from "sonner";
 
 export const useCart = () => {
   const { cart, setCart } = useUser();
@@ -17,6 +18,7 @@ export const useCart = () => {
         })
       : ([...cart, { ...product, quantity: 1 }] as CartType[]);
     setCart(updatedCart);
+    toast.info("Added to cart");
   };
 
   const removeFromCart = (productId: string) => {

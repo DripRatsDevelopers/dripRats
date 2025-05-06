@@ -40,7 +40,46 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   return (
-    <div className="w-full max-w-xl mx-auto flex flex-col md:flex-row gap-2 relative md:mt-4 h-[500px] md:h-auto mt-4 md:mt-0">
+    <div className="w-full max-w-xl mx-auto flex flex-col-reverse md:flex-row gap-2 relative md:mt-4 h-[500px] md:h-auto mt-4 md:mt-0">
+      <div>
+        <Swiper
+          onSwiper={setThumbsSwiper}
+          direction={isMobile ? "horizontal" : "vertical"}
+          spaceBetween={10}
+          slidesPerView={isMobile ? 4 : 5}
+          freeMode
+          watchSlidesProgress
+          modules={[FreeMode, Thumbs]}
+          className="h-[100px] md:h-[600px] md:w-auto overflow-hidden w-full md:w-[120px] flex justify-center items-center "
+        >
+          {images.map((image, index) => (
+            <SwiperSlide
+              key={index}
+              className={`w-full md:w-[120px] flex justify-center items-center mt-4 md:mt-0`}
+              onClick={() => setActiveIndex(index)}
+            >
+              <div
+                className={
+                  "relative w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-lg overflow-hidden"
+                }
+              >
+                <Image
+                  src={image.src}
+                  alt={image.alt || `Thumbnail ${index + 1}`}
+                  fill
+                  className={cn(
+                    "object-cover cursor-pointer rounded-lg",
+                    activeIndex === index
+                      ? "opacity-100"
+                      : "opacity-40 hover:opacity-70"
+                  )}
+                  priority={index === 0}
+                />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
       {/* Main Image */}
       <div className="relative flex-1 flex justify-center items-center md:w-3/4">
         <Swiper
@@ -52,6 +91,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
           thumbs={{ swiper: thumbsSwiper }}
           modules={[Zoom, Navigation, Thumbs, Keyboard]}
           className="w-full h-full rounded-lg"
+          onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
         >
           {images.map((image, index) => (
             <SwiperSlide
@@ -95,43 +135,6 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
       </div>
 
       {/* Thumbnail Swiper */}
-      <div>
-        <Swiper
-          onSwiper={setThumbsSwiper}
-          direction={isMobile ? "horizontal" : "vertical"}
-          spaceBetween={10}
-          slidesPerView={isMobile ? 3 : 5}
-          freeMode
-          watchSlidesProgress
-          modules={[FreeMode, Thumbs]}
-          className="h-[100px] md:h-[600px] md:w-auto overflow-hidden w-full md:w-[120px] flex justify-center items-center "
-        >
-          {images.map((image, index) => (
-            <SwiperSlide
-              key={index}
-              className={`w-full md:w-[120px] flex justify-center items-center mt-4 md:mt-0`}
-              onClick={() => setActiveIndex(index)}
-            >
-              <div
-                className={
-                  "relative w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-lg overflow-hidden"
-                }
-              >
-                <Image
-                  src={image.src}
-                  alt={image.alt || `Thumbnail ${index + 1}`}
-                  fill
-                  className={cn(
-                    "object-cover cursor-pointer rounded-lg",
-                    activeIndex === index ? " border-3 border-blue-600" : ""
-                  )}
-                  priority={index === 0}
-                />
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
     </div>
   );
 }

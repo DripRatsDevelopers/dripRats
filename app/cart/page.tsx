@@ -1,6 +1,8 @@
 "use client";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import { useCheckoutSession } from "@/hooks/useCheckoutSession";
 import { useWishlist } from "@/hooks/useWishlist";
@@ -13,11 +15,23 @@ const Cart = () => {
   const { cart, removeFromCart, updateQuantity, totalAmount } = useCart();
   const { moveToWishlist } = useWishlist();
   const { initSession } = useCheckoutSession();
-
+  const { user } = useAuth();
   const router = useRouter();
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Your Cart</h1>
+      {!user && (
+        <Alert variant="default" className="mb-4">
+          <AlertTitle>You&lsquo;re not logged in</AlertTitle>
+          <AlertDescription className="flex flex-wrap">
+            Items here are saved only on this device.{" "}
+            <Link href="/auth/login" className="underline">
+              Login
+            </Link>
+            to save them across devices.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {cart.length === 0 ? (
         <p className="text-center text-muted-foreground">Your cart is empty.</p>
@@ -29,7 +43,10 @@ const Cart = () => {
                 key={item.ProductId}
                 className="flex items-center gap-4 p-2 md:p-4 border rounded-lg shadow-sm"
               >
-                <Link href={`/products/${item.ProductId}`} className="block">
+                <Link
+                  href={`/shop/${item.Category}/${item.ProductId}`}
+                  className="block"
+                >
                   <Image
                     src={item.ImageUrls[0]}
                     alt={item.Name}

@@ -53,7 +53,7 @@ export function WishlistCard({
   };
 
   return (
-    <Card className="flex flex-row items-center gap-4 p-3 border border-gray-200 rounded-xl shadow-sm md:w-full w-auto max-w-[600px] mx-auto relative md:flex">
+    <Card className="flex flex-row items-center gap-4 p-3 border border-gray-200 rounded-xl shadow-sm md:w-full w-auto max-w-3xl mx-auto relative md:flex">
       {/* Image Section */}
       <Link
         href={productLink}

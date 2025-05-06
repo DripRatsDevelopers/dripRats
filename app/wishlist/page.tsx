@@ -1,11 +1,15 @@
 "use client";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
+import Link from "next/link";
 import { WishlistCard } from "./WishlistCard";
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist } = useWishlist();
   const { addToCart, cart } = useCart();
+  const { user } = useAuth();
 
   const isInCart = (productId: string) =>
     cart.some((product) => product.ProductId === productId);
@@ -18,7 +22,18 @@ export default function WishlistPage() {
           ({wishlist.length} item{wishlist.length !== 1 ? "s" : ""})
         </p>
       </div>
-
+      {!user && (
+        <Alert variant="default" className="mb-4">
+          <AlertTitle>You&lsquo;re not logged in</AlertTitle>
+          <AlertDescription className="flex flex-wrap">
+            Items here are saved only on this device.{" "}
+            <Link href="/auth/login" className="underline">
+              Login
+            </Link>
+            to save them across devices.
+          </AlertDescription>
+        </Alert>
+      )}
       <div className="space-y-4">
         {wishlist.map((product) => (
           <WishlistCard

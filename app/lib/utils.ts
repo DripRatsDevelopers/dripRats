@@ -48,7 +48,7 @@ export const getSavedAddress = async () => {
       return savedAddress || [];
     }
   } catch (error) {
-    console.error("SOmething went wrong when fetching saved address", error);
+    console.error("Something went wrong when fetching saved address", error);
   }
 };
 

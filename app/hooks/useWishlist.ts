@@ -3,6 +3,7 @@
 import { cartKey, wishlistKey } from "@/constants/UserConstants";
 import { useUser } from "@/context/UserContext";
 import { Product } from "@/types/Products";
+import { toast } from "sonner";
 
 export const useWishlist = () => {
   const { wishlist, setWishlist } = useUser();
@@ -23,15 +24,17 @@ export const useWishlist = () => {
   };
 
   const toggleWishlist = async (product: Product) => {
+    const isAdded = isInWishlist(product.ProductId);
     // if (!user) {
     setWishlist((prev) => {
-      const updatedWishlist = isInWishlist(product.ProductId)
+      const updatedWishlist = isAdded
         ? prev.filter((item: Product) => product.ProductId !== item.ProductId)
         : [...prev, product];
 
       localStorage.setItem(wishlistKey, JSON.stringify(updatedWishlist));
       return updatedWishlist as Product[];
     });
+    toast.info(!isAdded ? "Added to wishlist" : "Removed from wishlist");
     return;
     // }
 
@@ -53,6 +56,7 @@ export const useWishlist = () => {
     const updatedWishlist = [...wishlist, product];
     setWishlist(updatedWishlist);
     localStorage.setItem(cartKey, JSON.stringify(updatedWishlist));
+    toast.info("Moved To wishlist");
   };
 
   return {

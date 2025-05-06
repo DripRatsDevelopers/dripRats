@@ -1,8 +1,8 @@
 import { NEW_ADRESS_ID } from "@/constants/DeliveryConstants";
 import { cartKey, wishlistKey } from "@/constants/UserConstants";
 import useAuthState from "@/hooks/useAuthState";
+import { useDripratsQuery } from "@/hooks/useTanstackQuery";
 import { apiFetch } from "@/lib/apiClient";
-import { getSavedAddress } from "@/lib/utils";
 import { CartType } from "@/types/Cart";
 import { ShippingInfo } from "@/types/Order";
 import { Product } from "@/types/Products";
@@ -21,16 +21,30 @@ type UserContextType = {
   fetchingAddress: boolean;
 };
 
+type UserDetails = {
+  Addresses: [];
+  Wishlist: string[];
+  Cart: [];
+};
+
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuthState();
+
+  const { data, isLoading } = useDripratsQuery<UserDetails>({
+    queryKey: ["/api/user/get-user-data"],
+    apiParams: {
+      url: `/api/user/get-user-data`,
+    },
+    options: { enabled: !!user },
+  });
+
   const [cart, setCart] = useState<CartType[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [savedAddresses, setSavedAddresses] = useState<
     ShippingInfo[] | undefined
   >();
-  const [fetchingAddress, setFetchingAddress] = useState(true);
 
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem(cartKey) || "[]");
@@ -51,22 +65,31 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, [wishlist]);
 
   useEffect(() => {
-    if (user && !Array.isArray(savedAddresses)) {
+    if (
+      user &&
+      Array.isArray(data?.Addresses) &&
+      !Array.isArray(savedAddresses)
+    ) {
       const fetchSavedAddresses = async () => {
         if (user) {
           try {
-            const data = await getSavedAddress();
-            setSavedAddresses(data);
+            setSavedAddresses(data?.Addresses);
           } catch (err) {
             console.error("Address fetch error:", err);
-          } finally {
-            setFetchingAddress(false);
           }
         }
       };
       fetchSavedAddresses();
     }
-  }, [user, savedAddresses]);
+  }, [user, savedAddresses, data]);
+
+  // const clearLocalCart = () => {
+  //   localStorage.removeItem(cartKey);
+  // };
+
+  // const clearLocalWishlist = () => {
+  //   localStorage.removeItem(wishlistKey);
+  // };
 
   const updateSavedAddress = async (address: ShippingInfo) => {
     if (user) {
@@ -111,7 +134,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         savedAddresses,
         setSavedAddresses,
         updateSavedAddress,
-        fetchingAddress,
+        fetchingAddress: isLoading,
       }}
     >
       {children}
