@@ -71,7 +71,7 @@ const useCheckout = () => {
     if (
       !isInitialState &&
       Object.keys(checkoutItems)?.length > 0 &&
-      !stocks?.length
+      !Array.isArray(stocks)
     ) {
       fetchProductsStock();
     }

@@ -154,10 +154,9 @@ export default function OrderDetailsPage() {
                         <div className="flex items-center gap-4">
                           <Image
                             src={
-                              productDetails?.[Number(item.ProductId)]
-                                .ImageUrls?.[0]
+                              productDetails?.[item.ProductId].ImageUrls?.[0]
                             }
-                            alt={productDetails?.[Number(item.ProductId)].Name}
+                            alt={productDetails?.[item.ProductId].Name}
                             className="w-20 h-20 rounded object-cover border"
                             width={400}
                             height={400}

@@ -18,7 +18,7 @@ export function WishlistCard({
   isInCart,
 }: {
   product: Product;
-  addToCart: (product: Product) => void;
+  addToCart: (productId: string) => void;
   removeFromWishlist: (productId: string) => void;
   isInCart: (productId: string) => boolean;
 }) {
@@ -47,7 +47,7 @@ export function WishlistCard({
     if (isAddedToCart) {
       router.push("/cart");
     } else {
-      addToCart(product);
+      addToCart(product.ProductId);
       removeFromWishlist(product.ProductId);
     }
   };

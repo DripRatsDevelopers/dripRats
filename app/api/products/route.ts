@@ -1,5 +1,4 @@
-// pages/api/products.ts or app/api/products/route.ts (Next.js App Router)
-
+import { PAGE_SIZE } from "@/constants/GeneralConstants";
 import { apiResponse } from "@/lib/dynamoClient";
 import { db } from "@/lib/firebase";
 import {
@@ -12,8 +11,6 @@ import {
   where,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
-
-const PAGE_SIZE = 8;
 
 export async function GET(req: Request) {
   try {
@@ -38,44 +35,45 @@ export async function GET(req: Request) {
     }
 
     const productsRef = collection(db, "Products");
-    let q;
+
+    const constraints = [];
 
     if (productIds && productIds.length > 0) {
-      q = query(
-        productsRef,
-        where("ProductId", "in", productIds),
-        limit(PAGE_SIZE + 1)
-      );
+      constraints.push(where("ProductId", "in", productIds));
     } else if (category) {
-      q = query(
-        productsRef,
-        where("Category", "==", category),
-        limit(PAGE_SIZE + 1)
-      );
-    } else {
-      q = query(productsRef, limit(PAGE_SIZE + 1));
+      constraints.push(where("Category", "==", category));
     }
 
     if (sortField && sortDirection) {
-      q = query(q, orderBy(sortField, sortDirection));
+      constraints.push(orderBy(sortField, sortDirection));
+    } else {
+      constraints.push(orderBy("ProductId", "asc"));
     }
 
     if (cursor) {
-      q = query(q, startAfter(cursor));
+      try {
+        const parsedCursor = JSON.parse(cursor);
+        constraints.push(startAfter(parsedCursor));
+      } catch (e) {
+        console.error("Invalid cursor format:", cursor, e);
+      }
     }
+
+    constraints.push(limit(PAGE_SIZE + 1));
+
+    const q = query(productsRef, ...constraints);
 
     const snapshot = await getDocs(q);
     const docs = snapshot.docs;
     const products = docs.slice(0, PAGE_SIZE).map((doc) => ({ ...doc.data() }));
+
     const hasMore = docs.length > PAGE_SIZE;
     // Determine next cursor if there are more products
 
     const nextCursor = hasMore
       ? !sortField
         ? docs[PAGE_SIZE - 1].data().ProductId
-        : sortField === "Name"
-        ? docs[PAGE_SIZE - 1].data().Name
-        : docs[PAGE_SIZE - 1].data().DiscountedPrice
+        : docs[PAGE_SIZE - 1].data()[sortField]
       : null;
 
     return NextResponse.json(

@@ -10,6 +10,7 @@ type ApiWrapperProps<T> = {
   data: T | null;
   skeleton?: ReactNode;
   children: ReactNode;
+  emptyState?: ReactNode;
 };
 
 export function ApiWrapper<T>({
@@ -18,6 +19,7 @@ export function ApiWrapper<T>({
   data,
   skeleton,
   children,
+  emptyState,
 }: ApiWrapperProps<T>) {
   if (loading) {
     return (
@@ -41,6 +43,9 @@ export function ApiWrapper<T>({
     );
   }
 
+  if (!data && emptyState) {
+    return <>{emptyState}</>;
+  }
   if (!data) return null;
 
   if (data) return <>{children}</>;

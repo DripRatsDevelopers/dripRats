@@ -136,7 +136,7 @@ export async function dripRatsFetch(apiParams?: FetchOptions) {
     body: body ? JSON.stringify(body) : undefined,
   });
   const response = await res.json();
-  if (!res.ok) {
+  if (!res.ok || !response?.body?.success) {
     throw new Error(response.message || response?.data?.message || "API Error");
   }
   const data = response?.body?.data;

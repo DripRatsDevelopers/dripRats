@@ -1,36 +1,68 @@
 import { NEW_ADRESS_ID } from "@/constants/DeliveryConstants";
 import { cartKey, wishlistKey } from "@/constants/UserConstants";
 import useAuthState from "@/hooks/useAuthState";
-import { useDripratsQuery } from "@/hooks/useTanstackQuery";
+import {
+  useDripratsMutation,
+  useDripratsQuery,
+} from "@/hooks/useTanstackQuery";
 import { apiFetch } from "@/lib/apiClient";
-import { CartType } from "@/types/Cart";
+import {
+  clearLocalCart,
+  clearLocalWishlist,
+  getLocalCart,
+  getLocalWishlist,
+} from "@/lib/userUtils";
+import { CartItem } from "@/types/Cart";
 import { ShippingInfo } from "@/types/Order";
-import { Product } from "@/types/Products";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type UserContextType = {
-  cart: CartType[];
-  setCart: React.Dispatch<React.SetStateAction<CartType[]>>;
+  cart: CartItem[];
+  setCart: (newCart: CartItem[]) => void;
   totalItemsInCart: number;
-  wishlist: Product[];
-  setWishlist: React.Dispatch<React.SetStateAction<Product[]>>;
+  wishlist: string[];
+  setWishlist: (newWishlist: string[]) => void;
   totalWishlistItems: number;
   savedAddresses?: ShippingInfo[];
   setSavedAddresses: (items: ShippingInfo[]) => void;
   updateSavedAddress: (address: ShippingInfo) => Promise<void>;
   fetchingAddress: boolean;
+  totalCartAmount: number;
 };
 
 type UserDetails = {
-  Addresses: [];
+  Addresses: ShippingInfo[];
   Wishlist: string[];
-  Cart: [];
+  Cart: CartItem[];
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuthState();
+
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const [savedAddresses, setSavedAddresses] = useState<
+    ShippingInfo[] | undefined
+  >();
+
+  const updateCartMutation = useDripratsMutation<void, CartItem[]>({
+    apiParams: {
+      url: "/api/user/update-cart",
+      body: { cart },
+      method: "POST",
+    },
+  });
+
+  const updateWishlistMutation = useDripratsMutation<void, string[]>({
+    apiParams: {
+      url: "/api/user/update-wishlist",
+      body: { wishlist },
+      method: "POST",
+    },
+  });
 
   const { data, isLoading } = useDripratsQuery<UserDetails>({
     queryKey: ["/api/user/get-user-data"],
@@ -40,56 +72,106 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     options: { enabled: !!user },
   });
 
-  const [cart, setCart] = useState<CartType[]>([]);
-  const [wishlist, setWishlist] = useState<Product[]>([]);
-  const [savedAddresses, setSavedAddresses] = useState<
-    ShippingInfo[] | undefined
-  >();
+  const {
+    mutate,
+    data: priceData,
+    isIdle,
+    isPending,
+  } = useDripratsMutation<{
+    summaryData: { ProductId: string; Price: number }[];
+  }>({
+    apiParams: {
+      url: `/api/products/get-product-price`,
+      body: { productIds: cart.map((item) => item.ProductId) },
+      method: "POST",
+    },
+  });
 
   useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem(cartKey) || "[]");
-    const storedWishlist = JSON.parse(
-      localStorage.getItem(wishlistKey) || "[]"
-    );
+    const onUserStatusChanged = async () => {
+      if (user && !isLoading && data) {
+        const localCart: CartItem[] = getLocalCart();
+        const localWishlist: string[] = getLocalWishlist();
+        const db = data;
 
-    if (storedCart) setCart(storedCart);
-    if (storedWishlist) setWishlist(storedWishlist);
-  }, []);
+        const mergedWishlist: string[] =
+          localWishlist.length > 0
+            ? Array.from(new Set([...(db.Wishlist || []), ...localWishlist]))
+            : db.Wishlist;
+
+        const mergedCartMap = new Map<string, CartItem>();
+        [...(db.Cart || []), ...localCart].forEach((item) => {
+          const key = item.ProductId;
+          mergedCartMap.set(key, {
+            ProductId: key,
+            quantity: (mergedCartMap.get(key)?.quantity || 0) + item.quantity,
+          });
+        });
+        const mergedCart = Array.from(mergedCartMap.values());
+
+        setCart(mergedCart);
+        setWishlist(mergedWishlist);
+        setSavedAddresses(db.Addresses || []);
+        if (localCart.length > 0)
+          await updateCartMutation.mutateAsync(mergedCart);
+        if (localWishlist.length > 0)
+          await updateWishlistMutation.mutateAsync(mergedWishlist);
+
+        clearLocalCart();
+        clearLocalWishlist();
+      } else {
+        setCart(getLocalCart());
+        setWishlist(getLocalWishlist());
+        setSavedAddresses([]);
+      }
+    };
+
+    onUserStatusChanged();
+  }, [data, user]);
+
+  const cartPricedata = priceData?.summaryData;
 
   useEffect(() => {
-    localStorage.setItem(cartKey, JSON.stringify(cart));
-  }, [cart]);
-
-  useEffect(() => {
-    localStorage.setItem(wishlistKey, JSON.stringify(wishlist));
-  }, [wishlist]);
+    if (!priceData && cart.length && isIdle) {
+      mutate();
+    }
+  }, [priceData, cart.length]);
 
   useEffect(() => {
     if (
-      user &&
-      Array.isArray(data?.Addresses) &&
-      !Array.isArray(savedAddresses)
+      priceData?.summaryData.length !== cart.length &&
+      !isIdle &&
+      !isPending
     ) {
-      const fetchSavedAddresses = async () => {
-        if (user) {
-          try {
-            setSavedAddresses(data?.Addresses);
-          } catch (err) {
-            console.error("Address fetch error:", err);
-          }
-        }
-      };
-      fetchSavedAddresses();
+      mutate();
     }
-  }, [user, savedAddresses, data]);
+  }, [priceData, cart.length, isIdle, isPending]);
 
-  // const clearLocalCart = () => {
-  //   localStorage.removeItem(cartKey);
-  // };
+  const updateCart = async (newCart: CartItem[]) => {
+    try {
+      if (user) {
+        await updateCartMutation.mutateAsync(newCart);
+      } else localStorage.setItem(cartKey, JSON.stringify(newCart));
+      setCart(newCart);
+      toast.info("Cart Updated");
+    } catch (error) {
+      toast.error("Error Updating Cart");
+      console.error("Error updating cart:", error);
+    }
+  };
 
-  // const clearLocalWishlist = () => {
-  //   localStorage.removeItem(wishlistKey);
-  // };
+  const updateWishlist = async (newWishlist: string[]) => {
+    try {
+      if (user) {
+        await updateWishlistMutation.mutateAsync(newWishlist);
+      } else localStorage.setItem(wishlistKey, JSON.stringify(newWishlist));
+      setWishlist(newWishlist);
+      toast.info("Wishlist Updated");
+    } catch (error) {
+      toast.error("Error Updating Wishlist");
+      console.error("Error updating Wishlist:", error);
+    }
+  };
 
   const updateSavedAddress = async (address: ShippingInfo) => {
     if (user) {
@@ -122,19 +204,32 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const totalWishlistItems = wishlist.length;
 
+  const priceMap: Record<string, number> = cartPricedata
+    ? cartPricedata?.reduce((acc: Record<string, number>, cur) => {
+        acc[cur.ProductId] = cur.Price;
+        return acc;
+      }, {})
+    : {};
+
+  const totalCartAmount = cart.reduce(
+    (sum, item) => sum + priceMap[item.ProductId] * item.quantity,
+    0
+  );
+
   return (
     <UserContext.Provider
       value={{
         cart,
-        setCart,
         totalItemsInCart,
         wishlist,
-        setWishlist,
+        setCart: updateCart,
+        setWishlist: updateWishlist,
         totalWishlistItems,
         savedAddresses,
         setSavedAddresses,
         updateSavedAddress,
         fetchingAddress: isLoading,
+        totalCartAmount,
       }}
     >
       {children}

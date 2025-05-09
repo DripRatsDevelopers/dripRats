@@ -1,10 +1,14 @@
 "use client";
+import { ApiWrapper } from "@/components/common/ApiWrapper";
+import InfiniteScroll from "@/components/common/InfiniteScroll";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import Link from "next/link";
 import { WishlistCard } from "./WishlistCard";
+import useWishlistData from "./useWishlistData";
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist } = useWishlist();
@@ -13,6 +17,17 @@ export default function WishlistPage() {
 
   const isInCart = (productId: string) =>
     cart.some((product) => product.ProductId === productId);
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    error,
+  } = useWishlistData(wishlist, wishlist.length > 0);
+
+  const wishlistData = data?.pages.flatMap((page) => page.Items);
 
   return (
     <div className="p-4 md:p-8 space-y-6">
@@ -34,17 +49,55 @@ export default function WishlistPage() {
           </AlertDescription>
         </Alert>
       )}
-      <div className="space-y-4">
-        {wishlist.map((product) => (
-          <WishlistCard
-            key={product.ProductId}
-            product={product}
-            addToCart={addToCart}
-            removeFromWishlist={removeFromWishlist}
-            isInCart={isInCart}
-          />
-        ))}
-      </div>
+      <ApiWrapper
+        loading={isLoading}
+        data={wishlistData}
+        error={error}
+        emptyState={
+          <p className="text-center text-muted-foreground">
+            Your Wishlist is empty.
+          </p>
+        }
+        skeleton={
+          <div className="space-y-4 h-[60vh]">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton
+                className="h-1/4 flex flex-row items-center gap-4 p-3 border border-gray-200 rounded-xl shadow-sm md:w-full w-auto max-w-3xl mx-auto relative md:flex"
+                key={i}
+              />
+            ))}
+          </div>
+        }
+      >
+        <InfiniteScroll
+          hasMore={hasNextPage}
+          loadMore={fetchNextPage}
+          loading={isFetchingNextPage}
+          loader={
+            <div className="space-y-4 h-[60vh]">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton
+                  className="h-1/4 flex flex-row items-center gap-4 p-3 border border-gray-200 rounded-xl shadow-sm md:w-full w-auto max-w-3xl mx-auto relative md:flex"
+                  key={i}
+                />
+              ))}
+            </div>
+          }
+        >
+          <div className="space-y-4">
+            {wishlistData &&
+              wishlistData.map((product) => (
+                <WishlistCard
+                  key={product.ProductId}
+                  product={product}
+                  addToCart={addToCart}
+                  removeFromWishlist={removeFromWishlist}
+                  isInCart={isInCart}
+                />
+              ))}
+          </div>
+        </InfiniteScroll>
+      </ApiWrapper>
     </div>
   );
 }

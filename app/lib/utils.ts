@@ -238,8 +238,8 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 
 // Add products and search index to Firestore
 // async function addData() {
-//   // const productCollection = collection(db, "Products");
-//   // const searchIndexCollection = collection(db, "SearchIndex");
+// const productCollection = collection(db, "Products");
+// const searchIndexCollection = collection(db, "SearchIndex");
 
 //   // Add products
 //   for (const product of products) {
@@ -275,3 +275,54 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 // }
 
 // deleteAllProducts();
+
+// const productSummary = [
+//   {
+//     ProductId: "gold-plated-ring",
+//     Price: 1599,
+//   },
+//   {
+//     ProductId: "silver-classic-ring",
+//     Price: 1299,
+//   },
+//   {
+//     ProductId: "vintage-diamond-ring",
+//     Price: 2499,
+//   },
+//   {
+//     ProductId: "bold-chain-necklace",
+//     Price: 1899,
+//   },
+//   {
+//     ProductId: "elegant-chain",
+//     Price: 1499,
+//   },
+//   {
+//     ProductId: "textured-chain",
+//     Price: 1799,
+//   },
+//   {
+//     ProductId: "gold-cuban-bracelet",
+//     Price: 1999,
+//   },
+//   {
+//     ProductId: "silver-textured-bracelet",
+//     Price: 1499,
+//   },
+// ];
+
+// async function addProductSummaryData() {
+//   const productSummaryCollection = collection(db, "ProductSummary");
+
+//   // Add search index
+//   for (const index of productSummary) {
+//     await setDoc(doc(db, "ProductSummary", index.ProductId), index);
+
+//     await addDoc(productSummaryCollection, index);
+//   }
+
+//   console.log("Data added successfully");
+// }
+
+// // Run the function to add data
+// addProductSummaryData().catch(console.error);

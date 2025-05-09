@@ -21,7 +21,6 @@ export async function GET(request: NextRequest, props: Props) {
     const cachedProduct = await getCache(CACHE_PATH, CACHE_EXPIRY);
 
     if (cachedProduct) {
-      console.log("✅ Serving from cache");
       return NextResponse.json(cachedProduct);
     }
 

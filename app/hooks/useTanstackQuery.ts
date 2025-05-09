@@ -12,16 +12,20 @@ import {
   UseQueryResult,
 } from "@tanstack/react-query";
 
-export interface PaginatedResponse<T> {
+export interface PaginatedResponse<
+  T,
+  cursorType = Record<string, number | string | boolean> | null,
+> {
   Items: T[];
-  LastEvaluatedKey?: Record<string, number | string | boolean> | null;
+  LastEvaluatedKey?: cursorType;
 }
 
-interface UseInfinitePaginatedQueryOptions<T> {
+interface UseInfinitePaginatedQueryOptions<
+  T,
+  cursorType = Record<string, number | string | boolean> | null,
+> {
   queryKey: [string];
-  fetchPage: (
-    lastKey: Record<string, number | string | boolean> | null
-  ) => Promise<PaginatedResponse<T>>;
+  fetchPage: (lastKey: cursorType) => Promise<PaginatedResponse<T, cursorType>>;
   enabled?: boolean;
 }
 
@@ -49,28 +53,32 @@ interface IDripratsMutation<TData, TError, TVariables> {
     "mutationFn"
   >;
 }
-export function useInfinitePaginatedQuery<T>({
+export function useInfinitePaginatedQuery<
+  T,
+  cursorType = Record<string, number | string | boolean> | null,
+>({
   queryKey,
   fetchPage,
   enabled = true,
-}: UseInfinitePaginatedQueryOptions<T>): UseInfiniteQueryResult<
-  InfiniteData<PaginatedResponse<T>>,
+}: UseInfinitePaginatedQueryOptions<
+  T,
+  cursorType | null
+>): UseInfiniteQueryResult<
+  InfiniteData<PaginatedResponse<T, cursorType | null>>,
   Error
 > {
   return useInfiniteQuery<
-    PaginatedResponse<T>,
+    PaginatedResponse<T, cursorType | null>,
     Error,
-    InfiniteData<PaginatedResponse<T>>,
+    InfiniteData<PaginatedResponse<T, cursorType | null>>,
     [string],
-    Record<string, number | string | boolean> | null
+    cursorType | null
   >({
     queryKey,
     queryFn: async ({
       pageParam,
-    }: QueryFunctionContext<
-      [string],
-      Record<string, number | string | boolean> | null
-    >) => await fetchPage(pageParam),
+    }: QueryFunctionContext<[string], cursorType | null>) =>
+      await fetchPage(pageParam as cursorType | null),
     initialPageParam: null,
     getNextPageParam: (lastPage) => lastPage.LastEvaluatedKey ?? undefined,
     enabled,

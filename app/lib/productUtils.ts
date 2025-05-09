@@ -2,8 +2,16 @@ import { PaginatedResponse } from "@/hooks/useTanstackQuery";
 import { CartType } from "@/types/Cart";
 import { InventoryItem, Product } from "@/types/Products";
 import { QueryCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  collection,
+  documentId,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { apiFetch } from "./apiClient";
 import { db } from "./dynamoClient";
+import { db as firestoreDB } from "./firebase";
 
 export const fetchProduct = async (
   id: string
@@ -48,8 +56,24 @@ export const fetchAllProducts = async (
 
   return {
     Items: data?.products,
-    LastEvaluatedKey: data.nextCursor ? data.nextCursor ?? null : null,
+    LastEvaluatedKey: data.nextCursor ? (data.nextCursor ?? null) : null,
   };
+};
+
+export const getProductPrice = async (productIds: string[]) => {
+  const productQuery = query(
+    collection(firestoreDB, "ProductSummary"),
+    where(documentId(), "in", productIds.slice(0, 10))
+  );
+
+  const snapshot = await getDocs(productQuery);
+
+  const summaryData = snapshot.docs.map((doc) => ({
+    ProductId: doc.id,
+    ...doc.data(),
+  }));
+
+  return summaryData;
 };
 
 export const getProductStock = async (products: string[]) => {
@@ -134,3 +158,32 @@ export const getReservedStock = async (
   );
   return reservedCounts;
 };
+
+export function sliceFromProductId(
+  size: number,
+  productIds?: string[],
+  fromProductId?: string | null
+): {
+  slicedProductIds: string[];
+  nextCursor?: string | null;
+} {
+  if (productIds) {
+    const startIndex = fromProductId ? productIds.indexOf(fromProductId) : 0;
+
+    if (startIndex === -1) {
+      // If the productId is not found, return an empty array
+      return { slicedProductIds: [] };
+    }
+    const slicedProductIds = productIds.slice(startIndex, startIndex + size);
+
+    return {
+      slicedProductIds: productIds.slice(startIndex, startIndex + (size - 1)),
+      nextCursor:
+        slicedProductIds?.length > size - 1
+          ? slicedProductIds[slicedProductIds?.length - 1]
+          : null,
+    };
+  } else {
+    return { slicedProductIds: [] };
+  }
+}

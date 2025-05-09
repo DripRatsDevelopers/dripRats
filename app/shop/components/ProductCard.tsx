@@ -10,7 +10,7 @@ import { useEffect } from "react";
 interface ProductCard {
   product: Product;
   isInWishlist?: (productId: string) => boolean;
-  toggleWishlist?: (productId: Product) => void;
+  toggleWishlist?: (productId: string) => void;
   category?: string;
 }
 
@@ -64,7 +64,7 @@ const ProductCard = ({
             <button
               onClick={(e) => {
                 e.preventDefault();
-                toggleWishlist(product);
+                toggleWishlist(product.ProductId);
               }}
               className="p-1 -mr-1 rounded-full hover:bg-accent"
             >

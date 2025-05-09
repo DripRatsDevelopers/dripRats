@@ -1,9 +1,9 @@
 "use client";
 
+import { useDripratsQuery } from "@/hooks/useTanstackQuery";
 import { apiFetch } from "@/lib/apiClient";
 import ProductCard from "@/shop/components/ProductCard";
 import { Product } from "@/types/Products";
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 async function fetchRecentlyViewed(ids: string[]): Promise<Product[]> {
@@ -27,10 +27,10 @@ export default function RecentlyViewedProducts() {
     setProductIds(ids);
   }, []);
 
-  const { data: products, isLoading } = useQuery({
+  const { data: products, isLoading } = useDripratsQuery({
     queryKey: ["recentlyViewed", productIds],
     queryFn: () => fetchRecentlyViewed(productIds),
-    enabled: productIds.length > 0, // Only run if we have IDs
+    options: { enabled: productIds.length > 0 }, // Only run if we have IDs
   });
 
   if (isLoading || !products?.length) return null;

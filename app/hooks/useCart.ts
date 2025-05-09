@@ -1,24 +1,24 @@
 "use client";
 
 import { useUser } from "@/context/UserContext";
-import { CartType } from "@/types/Cart";
-import { Product } from "@/types/Products";
-import { toast } from "sonner";
+import { CartItem } from "@/types/Cart";
 
 export const useCart = () => {
-  const { cart, setCart } = useUser();
+  const { cart, setCart, totalCartAmount } = useUser();
 
-  const addToCart = (product: Product) => {
-    const updatedCart = isInCart(product.ProductId)
-      ? cart.map((item: CartType) => {
-          if (item.ProductId === product.ProductId) {
-            return { ...item, quantity: (item.quantity || 1) + 1 };
+  const addToCart = (productId: string) => {
+    const updatedCart = isInCart(productId)
+      ? cart.map((item: CartItem) => {
+          if (item.ProductId === productId) {
+            return {
+              ProductId: productId,
+              quantity: (item.quantity || 1) + 1,
+            };
           }
-          return { ...item } as CartType;
+          return { ...item } as CartItem;
         })
-      : ([...cart, { ...product, quantity: 1 }] as CartType[]);
+      : ([...cart, { ProductId: productId, quantity: 1 }] as CartItem[]);
     setCart(updatedCart);
-    toast.info("Added to cart");
   };
 
   const removeFromCart = (productId: string) => {
@@ -37,17 +37,12 @@ export const useCart = () => {
     return cart.some((item) => item.ProductId === productId);
   };
 
-  const totalAmount = cart.reduce(
-    (sum, item) => sum + item.Price * item.quantity,
-    0
-  );
-
   return {
     cart,
     addToCart,
     removeFromCart,
     updateQuantity,
     isInCart,
-    totalAmount,
+    totalAmount: totalCartAmount,
   };
 };

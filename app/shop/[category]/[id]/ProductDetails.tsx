@@ -21,7 +21,7 @@ import useGetDeliveryTime from "@/hooks/useGetDeliveryTime";
 import { useDripratsQuery } from "@/hooks/useTanstackQuery";
 import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
-import { CartType } from "@/types/Cart";
+import { Product } from "@/types/Products";
 import {
   Album,
   Edit,
@@ -44,7 +44,7 @@ const ProductDetails = () => {
   const path = usePathname();
   const router = useRouter();
   const [id] = path.split("/").slice(-1);
-  const { data: product, isLoading } = useDripratsQuery<CartType>({
+  const { data: product, isLoading } = useDripratsQuery<Product>({
     queryKey: ["/api/products", id],
     apiParams: {
       url: `/api/products/${id}`,
@@ -74,7 +74,7 @@ const ProductDetails = () => {
     : false;
 
   const isInWishlist = (productId: string) =>
-    wishlist.some((item) => item.ProductId === productId);
+    wishlist.some((itemId) => itemId === productId);
 
   const { initSession } = useCheckoutSession();
 
@@ -173,7 +173,7 @@ const ProductDetails = () => {
                   <Button
                     variant="ghost"
                     onClick={() => {
-                      toggleWishlist(product);
+                      toggleWishlist(product.ProductId);
                     }}
                     className={`pr-5 rounded-full transition-all 
             ${
@@ -371,7 +371,7 @@ const ProductDetails = () => {
                   onClick={() => {
                     if (isAddedToCart) {
                       router.push("/cart");
-                    } else addToCart(product);
+                    } else addToCart(product.ProductId);
                   }}
                   variant="outline"
                 >
