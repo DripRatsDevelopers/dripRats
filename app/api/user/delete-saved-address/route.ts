@@ -1,10 +1,8 @@
-import { MAX_SAVED_ADDRESS } from "@/constants/DeliveryConstants";
 import { apiResponse, db } from "@/lib/dynamoClient";
 import { verifyUser } from "@/lib/verifyUser";
 import { ShippingInfo } from "@/types/Order";
 import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
 
 export async function POST(req: NextRequest) {
   let UserId;
@@ -19,18 +17,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { address: addressJson } = await req.json();
-  const address = JSON.parse(addressJson);
+  const { addressId } = await req.json();
 
-  if (!address || !UserId) {
+  if (!addressId || !UserId) {
     return NextResponse.json({ error: "Data missing" }, { status: 400 });
   }
-
-  if (!address.id) {
-    address.id = uuidv4();
-  }
-
-  address.CreatedAt ??= new Date().toISOString();
 
   try {
     const result = await db.send(
@@ -40,42 +31,31 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    const existing = result.Item || {
-      UserId,
-      Addresses: [],
-      Cart: [],
-      Wishlist: [],
-    };
+    const existing = result.Item;
 
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Address is not available" },
+        { status: 400 }
+      );
+    }
     const addresses = Array.isArray(existing.Addresses)
       ? existing.Addresses
       : [];
 
     const updatedAddresses = [
-      ...addresses.filter((a: ShippingInfo) => a.id !== address.id),
-      address,
+      ...addresses.filter((a: ShippingInfo) => a.id !== addressId),
     ];
 
-    if (!existing && addresses?.length >= MAX_SAVED_ADDRESS) {
-      return NextResponse.json(
-        apiResponse({
-          success: false,
-          data: { message: "Cannot save more that 5 addresses" },
-          status: 400,
-        })
-      );
-    }
-
-    if (existing || addresses?.length < 5)
-      await db.send(
-        new PutCommand({
-          TableName: "Users",
-          Item: {
-            ...existing,
-            Addresses: updatedAddresses,
-          },
-        })
-      );
+    await db.send(
+      new PutCommand({
+        TableName: "Users",
+        Item: {
+          ...existing,
+          Addresses: updatedAddresses,
+        },
+      })
+    );
 
     return NextResponse.json({ success: true, updatedAddresses });
   } catch (err) {
@@ -83,7 +63,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       apiResponse({
         success: false,
-        error: "Failed to save address",
+        error: "Failed to delete address",
         status: 500,
       })
     );

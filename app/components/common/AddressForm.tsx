@@ -8,10 +8,11 @@ import { Label } from "../ui/label";
 
 interface IAddressForm {
   shippingDetails: ShippingInfo;
-  setShippingDetails: Dispatch<SetStateAction<ShippingInfo>>;
+  setShippingDetails?: Dispatch<SetStateAction<ShippingInfo>>;
   setOpen: Dispatch<SetStateAction<boolean>>;
   savedAddresses?: ShippingInfo[];
-  handleStepChange: (direction: "next" | "prev") => void;
+  handleStepChange?: (direction: "next" | "prev") => void;
+  isCheckoutForm?: boolean;
 }
 
 const AddressForm = ({
@@ -20,6 +21,7 @@ const AddressForm = ({
   setOpen,
   savedAddresses,
   handleStepChange,
+  isCheckoutForm = true,
 }: IAddressForm) => {
   const {
     disableConfirm,
@@ -33,7 +35,7 @@ const AddressForm = ({
     fetchingDeliveryTime,
     updatedAddress,
     setUpdatedAddress,
-  } = useAddressForm({ shippingDetails, setShippingDetails });
+  } = useAddressForm({ shippingDetails, setShippingDetails, isCheckoutForm });
   return (
     <>
       <div className="space-y-3 p-2 rounded-lg">
@@ -297,7 +299,8 @@ const AddressForm = ({
           {!error?.pincode &&
           !fetchingDeliveryTime &&
           !deliveryOptions?.etd &&
-          updatedAddress.pincode?.length === 6 ? (
+          updatedAddress.pincode?.length === 6 &&
+          isCheckoutForm ? (
             <p className="text-sm text-destructive">Pincode not serviceable</p>
           ) : null}
         </div>
@@ -308,16 +311,17 @@ const AddressForm = ({
             onClick={async () => {
               setOpen(false);
               await updateAddress();
-              handleStepChange("next");
-              setShippingDetails({
-                ...updatedAddress,
-              });
+              if (isCheckoutForm && handleStepChange) handleStepChange("next");
+              if (setShippingDetails)
+                setShippingDetails({
+                  ...updatedAddress,
+                });
             }}
             className="mt-2"
           >
-            Save & Deliver Here
+            {isCheckoutForm ? "Save & Deliver Here" : "Save"}
           </Button>
-          {savedAddresses?.length !== 0 ? (
+          {savedAddresses?.length !== 0 || !isCheckoutForm ? (
             <Button
               variant="ghost"
               onClick={() => setOpen(false)}

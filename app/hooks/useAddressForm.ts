@@ -12,9 +12,11 @@ interface placesTypes {
 const useAddressForm = ({
   shippingDetails,
   setShippingDetails,
+  isCheckoutForm,
 }: {
   shippingDetails: ShippingInfo;
-  setShippingDetails: Dispatch<SetStateAction<ShippingInfo>>;
+  setShippingDetails?: Dispatch<SetStateAction<ShippingInfo>>;
+  isCheckoutForm: boolean;
 }) => {
   const [error, setError] = useState<Record<string, string>>({});
   const [address, setAddress] = useState<ShippingInfo>({
@@ -34,20 +36,36 @@ const useAddressForm = ({
   const { updateSavedAddress } = useUser();
 
   const updatedAddress: ShippingInfo =
-    shippingDetails?.id !== NEW_ADRESS_ID ? address : shippingDetails;
+    shippingDetails?.id !== NEW_ADRESS_ID || !isCheckoutForm
+      ? address
+      : shippingDetails;
 
   const setUpdatedAddress =
-    shippingDetails?.id !== NEW_ADRESS_ID ? setAddress : setShippingDetails;
+    shippingDetails?.id !== NEW_ADRESS_ID ||
+    !isCheckoutForm ||
+    !setShippingDetails
+      ? setAddress
+      : setShippingDetails;
 
   const { checkDeliveryTime, deliveryOptions, loading, setDeliveryOptions } =
     useGetDeliveryTime();
 
   useEffect(() => {
     const deliveryPincode = updatedAddress.pincode;
-    if (deliveryPincode && deliveryPincode?.length === 6 && !deliveryOptions) {
+    if (
+      deliveryPincode &&
+      deliveryPincode?.length === 6 &&
+      !deliveryOptions &&
+      isCheckoutForm
+    ) {
       checkDeliveryTime(deliveryPincode);
     }
-  }, [checkDeliveryTime, updatedAddress.pincode, deliveryOptions]);
+  }, [
+    checkDeliveryTime,
+    updatedAddress.pincode,
+    deliveryOptions,
+    isCheckoutForm,
+  ]);
 
   const handleSelect = async (place: placesTypes) => {
     const addressData = place?.formatted_address;
@@ -160,7 +178,7 @@ const useAddressForm = ({
         !updatedAddress?.area?.length
     ) ||
     Boolean(Object.values(error)?.length) ||
-    !isDeliveryAvailable;
+    (isCheckoutForm ? !isDeliveryAvailable : false);
 
   return {
     disableConfirm,

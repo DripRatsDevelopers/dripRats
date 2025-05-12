@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 
 interface IAddressSummary {
   shippingDetails: ShippingInfo;
-  onEditClick: () => void;
+  onEditClick?: () => void;
   showEdit?: boolean;
 }
 

@@ -26,4 +26,4 @@ export const PRODUCT_CATEGORY = [
 
 export const BREADCRUMBS_DISALLOW_PATH = ["/checkout"];
 
-export const PAGE_SIZE = 3;
+export const PAGE_SIZE = 8;

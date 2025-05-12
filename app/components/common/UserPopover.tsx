@@ -7,21 +7,24 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { auth } from "@/lib/firebase";
+import { useMediaQuery } from "@/lib/mediaUtils";
 import { getInitials } from "@/lib/utils";
 import {
   User as FirebaseUser,
   onAuthStateChanged,
   signOut,
 } from "firebase/auth";
-import { LogIn, LogOut, User } from "lucide-react";
+import { LogIn, LogOut, User, User2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Separator } from "../ui/separator";
 
 export default function UserPopover() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const router = useRouter();
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -44,7 +47,13 @@ export default function UserPopover() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Avatar>
+        <Avatar
+          onClick={() => {
+            if (isMobile) {
+              router.push("/my-profile");
+            }
+          }}
+        >
           <AvatarImage src={user?.photoURL ?? undefined} />
           <AvatarFallback>
             {user?.displayName ? (
@@ -59,15 +68,19 @@ export default function UserPopover() {
       <PopoverContent className="w-56 p-4 bg-background rounded-md shadow-md text-gray-700 hidden md:block">
         {user ? (
           <>
-            <div className="flex flex-col items-center mb-3">
+            <div className="flex flex-col mb-3 space-y-1">
               {user.displayName ? (
-                <p className="font-semibold">Hello, {user.displayName}</p>
+                <p className="font-semibold text-sm">{user.displayName}</p>
               ) : null}
-              <p className="text-sm text-gray-500">{user.email}</p>
+              <p className="text-xs text-gray-500">{user.email}</p>
             </div>
+            <Separator />
+            <Button variant="link" className="w-full justify-start">
+              <User2 /> Your Profile
+            </Button>
             <Button
-              variant="outline"
-              className="w-full mt-2"
+              variant="link"
+              className="w-full mt-2 justify-start"
               onClick={handleLogout}
             >
               <LogOut size={18} className="mr-2" /> Logout

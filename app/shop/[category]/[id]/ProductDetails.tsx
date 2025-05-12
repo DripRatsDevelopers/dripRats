@@ -381,7 +381,7 @@ const ProductDetails = () => {
                   Buy Now
                 </Button>
               </div>
-            </div>{" "}
+            </div>
             {/* Buy Now & Add to Cart */}
           </div>
         ) : null}

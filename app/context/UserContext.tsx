@@ -27,6 +27,7 @@ type UserContextType = {
   savedAddresses?: ShippingInfo[];
   setSavedAddresses: (items: ShippingInfo[]) => void;
   updateSavedAddress: (address: ShippingInfo) => Promise<void>;
+  deleteAddress: (addressId: string) => void;
   fetchingAddress: boolean;
   totalCartAmount: number;
 };
@@ -174,29 +175,65 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateSavedAddress = async (address: ShippingInfo) => {
-    if (user) {
-      const payload = {
-        address: JSON.stringify({
-          fullName: address?.fullName,
-          phone: address?.phone,
-          ...(address?.id !== NEW_ADRESS_ID && {
-            id: address?.id,
+    try {
+      if (user) {
+        const payload = {
+          address: JSON.stringify({
+            fullName: address?.fullName,
+            phone: address?.phone,
+            ...(address?.id !== NEW_ADRESS_ID && {
+              id: address?.id,
+            }),
+            houseNumber: address?.houseNumber,
+            street: address?.street,
+            landmark: address?.landmark,
+            area: address?.area,
+            city: address?.city,
+            state: address?.state,
+            pincode: address?.pincode,
           }),
-          houseNumber: address?.houseNumber,
-          street: address?.street,
-          landmark: address?.landmark,
-          area: address?.area,
-          city: address?.city,
-          state: address?.state,
-          pincode: address?.pincode,
-        }),
-      };
+        };
 
-      const updatedAddresses = await apiFetch("/api/user/update-address", {
-        method: "POST",
-        body: payload,
+        const { updatedAddresses } = await apiFetch(
+          "/api/user/update-address",
+          {
+            method: "POST",
+            body: payload,
+          }
+        );
+        toast.success("Address successfully updated");
+        setSavedAddresses(updatedAddresses);
+      }
+    } catch (error) {
+      console.error("Error while updating address:", error);
+      toast.error("Something went wrong", {
+        description: "Address updation failed. Please try again",
       });
-      setSavedAddresses(updatedAddresses);
+    }
+  };
+
+  const deleteAddress = async (addressId: string) => {
+    try {
+      if (user) {
+        const payload = {
+          addressId,
+        };
+
+        const { updatedAddresses } = await apiFetch(
+          "/api/user/delete-saved-address",
+          {
+            method: "POST",
+            body: payload,
+          }
+        );
+        toast.success("Address successfully deleted");
+        setSavedAddresses(updatedAddresses);
+      }
+    } catch (error) {
+      console.error("Error while deleting address:", error);
+      toast.error("Something went wrong", {
+        description: "Address updation failed. Please try again",
+      });
     }
   };
 
@@ -228,6 +265,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         savedAddresses,
         setSavedAddresses,
         updateSavedAddress,
+        deleteAddress,
         fetchingAddress: isLoading,
         totalCartAmount,
       }}
