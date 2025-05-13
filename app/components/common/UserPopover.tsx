@@ -64,8 +64,7 @@ export default function UserPopover() {
           </AvatarFallback>
         </Avatar>
       </PopoverTrigger>
-
-      <PopoverContent className="w-56 p-4 bg-background rounded-md shadow-md text-gray-700 hidden md:block">
+      <PopoverContent className="w-60 p-4 bg-background rounded-md shadow-md text-gray-700 hidden md:block">
         {user ? (
           <>
             <div className="flex flex-col mb-3 space-y-1">
@@ -75,12 +74,18 @@ export default function UserPopover() {
               <p className="text-xs text-gray-500">{user.email}</p>
             </div>
             <Separator />
-            <Button variant="link" className="w-full justify-start">
+            <Button
+              variant="link"
+              className="w-full justify-start px-1"
+              onClick={() => {
+                router.push("/my-profile");
+              }}
+            >
               <User2 /> Your Profile
             </Button>
             <Button
               variant="link"
-              className="w-full mt-2 justify-start"
+              className="w-full mt-2 justify-start px-1"
               onClick={handleLogout}
             >
               <LogOut size={18} className="mr-2" /> Logout

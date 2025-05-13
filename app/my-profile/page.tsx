@@ -77,7 +77,7 @@ export default function ProfilePage() {
           >
             <Heart className="w-6 h-6 mr-2" /> Wishlist
             {totalWishlistItems > 0 && (
-              <span className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
+              <span className="bg-pink-600 text-white rounded-full px-2 py-1 text-xs">
                 {totalWishlistItems}
               </span>
             )}
