@@ -3,42 +3,13 @@
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { PRODUCT_CATEGORY } from "@/constants/GeneralConstants";
-import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
 import { motion } from "framer-motion";
-import {
-  HeartIcon,
-  LogOut,
-  Menu,
-  ShieldCheck,
-  Sparkles,
-  Truck,
-} from "lucide-react";
+import { Menu, ShieldCheck, Sparkles, User } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
-import { Button } from "../ui/button";
 
-export function MobileNavBar({
-  totalWishlistItems,
-}: {
-  totalWishlistItems: number;
-}) {
+export function MobileNavBar() {
   const [isOpen, setIsOpen] = useState(false);
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      toast.success("Logged out successfully");
-      router.push("/auth/login");
-    } catch (error) {
-      toast.error("Logout failed", {
-        description: `Something went wrong!, ${error}`,
-      });
-    }
-  };
 
   const toggleOpen = () => {
     setIsOpen(!open);
@@ -106,41 +77,14 @@ export function MobileNavBar({
           </Link>
         </div>
         <Separator className="my-5" />
-
-        <div className="space-y-2">
-          {/* Your Orders */}
-          <Link
-            href="/orders"
-            className="flex items-center gap-2 py-2 rounded-md transition text-sm "
-            onClick={toggleOpen}
-          >
-            <Truck className="w-6 h-6" />
-            Your Orders
-          </Link>
-
-          {/* Wishlist with Count Badge */}
-          <Link
-            href="/wishlist"
-            className="flex items-center gap-2 py-2 rounded-md transition text-sm "
-            onClick={toggleOpen}
-          >
-            <HeartIcon className="w-6 h-6" />
-            Wishlist
-            <span className="ml-2 bg-red-600 text-white rounded-full px-2 text-xs">
-              {totalWishlistItems} {/* Dynamically rendered wishlist count */}
-            </span>
-          </Link>
-
-          {/* Logout */}
-          <Button
-            variant="outline"
-            className="font-medium absolute left-0 bottom-5 w-full"
-            onClick={handleLogout}
-          >
-            <LogOut className="w-6 h-6" />
-            Logout
-          </Button>
-        </div>
+        <Link
+          href="/my-profile"
+          className="flex items-center gap-2 py-2 rounded-md transition text-sm "
+          onClick={toggleOpen}
+        >
+          <User className="w-6 h-6" />
+          Your Profile
+        </Link>
       </SheetContent>
     </Sheet>
   );

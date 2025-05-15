@@ -177,6 +177,9 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     Tags: ["gold", "ring", "plated", "wedding"],
 //     Price: 1999,
 //     DiscountedPrice: 1599,
+//     ImageUrls: [
+//       "https://images.unsplash.com/photo-1603719461453-0ef44fa837aa?q=80",
+//     ],
 //   },
 //   {
 //     ProductId: "silver-classic-ring",
@@ -185,6 +188,9 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     Tags: ["silver", "ring", "classic", "casual"],
 //     Price: 1599,
 //     DiscountedPrice: 1299,
+//     ImageUrls: [
+//       "https://images.unsplash.com/photo-1684083385930-a9e8446db558?q=80",
+//     ],
 //   },
 //   {
 //     ProductId: "vintage-diamond-ring",
@@ -193,6 +199,9 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     Tags: ["vintage", "diamond", "ring", "elegant"],
 //     Price: 2999,
 //     DiscountedPrice: 2499,
+//     ImageUrls: [
+//       "https://images.unsplash.com/photo-1670954951623-82ad4881d0ed?q=80",
+//     ],
 //   },
 //   {
 //     ProductId: "bold-chain-necklace",
@@ -201,6 +210,9 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     Tags: ["bold", "chain", "necklace", "modern"],
 //     Price: 2299,
 //     DiscountedPrice: 1899,
+//     ImageUrls: [
+//       "https://images.unsplash.com/photo-1679973296637-1411c1d25c7e?q=80",
+//     ],
 //   },
 //   {
 //     ProductId: "elegant-chain",
@@ -209,6 +221,9 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     Tags: ["elegant", "chain", "minimal", "daily"],
 //     Price: 1899,
 //     DiscountedPrice: 1499,
+//     ImageUrls: [
+//       "https://images.unsplash.com/photo-1679973296602-f49b58765ad4?q=80",
+//     ],
 //   },
 //   {
 //     ProductId: "textured-chain",
@@ -217,6 +232,9 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     Tags: ["chain", "textured", "bold"],
 //     Price: 2199,
 //     DiscountedPrice: 1799,
+//     ImageUrls: [
+//       "https://images.unsplash.com/photo-1677201795049-014caaa6b1cd?q=80",
+//     ],
 //   },
 //   {
 //     ProductId: "gold-cuban-bracelet",
@@ -225,6 +243,9 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     Tags: ["gold", "cuban", "bracelet"],
 //     Price: 2599,
 //     DiscountedPrice: 1999,
+//     ImageUrls: [
+//       "https://images.unsplash.com/photo-1681091637777-7b5c49bf9691?q=80",
+//     ],
 //   },
 //   {
 //     ProductId: "silver-textured-bracelet",
@@ -233,19 +254,22 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     Tags: ["silver", "bracelet", "textured"],
 //     Price: 1899,
 //     DiscountedPrice: 1499,
+//     ImageUrls: [
+//       "https://images.unsplash.com/photo-1681091638141-a87495ae612f?w=900",
+//     ],
 //   },
 // ];
 
 // Add products and search index to Firestore
 // async function addData() {
-// const productCollection = collection(db, "Products");
-// const searchIndexCollection = collection(db, "SearchIndex");
+//   // const productCollection = collection(db, "Products");
+//   const searchIndexCollection = collection(db, "SearchIndex");
 
-//   // Add products
-//   for (const product of products) {
-//     await setDoc(doc(db, "Products", product.ProductId), product);
-//     // await addDoc(productCollection, product);
-//   }
+//   // // Add products
+//   // for (const product of products) {
+//   //   await setDoc(doc(db, "Products", product.ProductId), product);
+//   //   // await addDoc(productCollection, product);
+//   // }
 
 //   // Add search index
 //   for (const index of searchIndex) {
@@ -261,13 +285,13 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 // addData().catch(console.error);
 
 // async function deleteAllProducts() {
-//   const productsCollection = collection(db, "Products");
+//   const productsCollection = collection(db, "SearchIndex");
 //   const productsSnapshot = await getDocs(productsCollection);
 
 //   const batch = writeBatch(db);
 
 //   productsSnapshot.forEach((docSnap) => {
-//     batch.delete(doc(db, "Products", docSnap.id));
+//     batch.delete(doc(db, "SearchIndex", docSnap.id));
 //   });
 
 //   await batch.commit();
