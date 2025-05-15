@@ -27,9 +27,10 @@ type UserContextType = {
   savedAddresses?: ShippingInfo[];
   setSavedAddresses: (items: ShippingInfo[]) => void;
   updateSavedAddress: (address: ShippingInfo) => Promise<void>;
-  deleteAddress: (addressId: string) => void;
+  deleteAddress: (addressId: string) => Promise<void>;
   fetchingAddress: boolean;
   totalCartAmount: number;
+  isAddressUpdating: boolean;
 };
 
 type UserDetails = {
@@ -48,6 +49,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [savedAddresses, setSavedAddresses] = useState<
     ShippingInfo[] | undefined
   >();
+  const [isAddressUpdating, setIsAddressUpdating] = useState(false);
 
   const updateCartMutation = useDripratsMutation<void, CartItem[]>({
     apiParams: {
@@ -177,6 +179,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const updateSavedAddress = async (address: ShippingInfo) => {
     try {
       if (user) {
+        setIsAddressUpdating(true);
         const payload = {
           address: JSON.stringify({
             fullName: address?.fullName,
@@ -209,12 +212,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       toast.error("Something went wrong", {
         description: "Address updation failed. Please try again",
       });
+    } finally {
+      setIsAddressUpdating(false);
     }
   };
 
   const deleteAddress = async (addressId: string) => {
     try {
       if (user) {
+        setIsAddressUpdating(true);
         const payload = {
           addressId,
         };
@@ -234,6 +240,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       toast.error("Something went wrong", {
         description: "Address updation failed. Please try again",
       });
+    } finally {
+      setIsAddressUpdating(false);
     }
   };
 
@@ -268,6 +276,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         deleteAddress,
         fetchingAddress: isLoading,
         totalCartAmount,
+        isAddressUpdating,
       }}
     >
       {children}

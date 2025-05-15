@@ -33,7 +33,7 @@ const useAddressForm = ({
     pincode: shippingDetails?.pincode,
   });
 
-  const { updateSavedAddress } = useUser();
+  const { updateSavedAddress, isAddressUpdating } = useUser();
 
   const updatedAddress: ShippingInfo =
     shippingDetails?.id !== NEW_ADRESS_ID || !isCheckoutForm
@@ -189,6 +189,7 @@ const useAddressForm = ({
     getCurrentLocation,
     removeErrorIfExists,
     updateAddress,
+    isAddressUpdating,
     deliveryOptions,
     setDeliveryOptions,
     fetchingDeliveryTime: loading,

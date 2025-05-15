@@ -13,12 +13,14 @@ import { getInitials } from "@/lib/utils";
 import { signOut } from "firebase/auth";
 import { Heart, LogIn, LogOut, Truck, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 import { DeleteAddressDialog } from "./DeleteAddressDialog";
 import { EditAddressDialog } from "./EditAddressDialog";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
   const { user } = useAuth();
 
@@ -33,10 +35,16 @@ export default function ProfilePage() {
       });
     }
   };
-  const { savedAddresses, deleteAddress, totalWishlistItems } = useUser();
+  const {
+    savedAddresses,
+    deleteAddress,
+    totalWishlistItems,
+    isAddressUpdating,
+  } = useUser();
 
-  const handleDeleteAddress = (addressId?: string) => {
-    if (addressId) deleteAddress(addressId);
+  const handleDeleteAddress = async (addressId?: string) => {
+    if (addressId) await deleteAddress(addressId);
+    setOpenDeleteModal(false);
   };
 
   return (
@@ -114,6 +122,9 @@ export default function ProfilePage() {
                         <EditAddressDialog address={address} />
                         <DeleteAddressDialog
                           onConfirm={() => handleDeleteAddress(address?.id)}
+                          openDeleteModal={openDeleteModal}
+                          setOpenDeleteModal={setOpenDeleteModal}
+                          isAddressUpdating={isAddressUpdating}
                         />
                       </div>
                     </div>

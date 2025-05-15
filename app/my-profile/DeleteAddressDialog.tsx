@@ -14,16 +14,25 @@ import {
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/lib/mediaUtils";
 import { Trash2 } from "lucide-react";
+import { Dispatch, SetStateAction } from "react";
 
 interface DeleteAddressDialogProps {
   onConfirm: () => void;
+  openDeleteModal: boolean;
+  setOpenDeleteModal: Dispatch<SetStateAction<boolean>>;
+  isAddressUpdating: boolean;
 }
 
-export function DeleteAddressDialog({ onConfirm }: DeleteAddressDialogProps) {
+export function DeleteAddressDialog({
+  onConfirm,
+  openDeleteModal,
+  setOpenDeleteModal,
+  isAddressUpdating,
+}: DeleteAddressDialogProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   return (
-    <AlertDialog>
+    <AlertDialog open={openDeleteModal} onOpenChange={setOpenDeleteModal}>
       <AlertDialogTrigger asChild>
         {!isMobile ? (
           <Button size="icon" variant="ghost" className="hidden md:flex">
@@ -47,9 +56,12 @@ export function DeleteAddressDialog({ onConfirm }: DeleteAddressDialogProps) {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             className="bg-red-500 hover:bg-red-600"
-            onClick={onConfirm}
+            onClick={(e) => {
+              e.preventDefault();
+              onConfirm();
+            }}
           >
-            Delete
+            {isAddressUpdating ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

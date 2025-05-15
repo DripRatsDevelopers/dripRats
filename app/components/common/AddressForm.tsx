@@ -34,8 +34,10 @@ const AddressForm = ({
     setDeliveryOptions,
     fetchingDeliveryTime,
     updatedAddress,
+    isAddressUpdating,
     setUpdatedAddress,
   } = useAddressForm({ shippingDetails, setShippingDetails, isCheckoutForm });
+
   return (
     <>
       <div className="space-y-3 p-2 rounded-lg">
@@ -309,17 +311,21 @@ const AddressForm = ({
           <Button
             disabled={disableConfirm}
             onClick={async () => {
-              setOpen(false);
               await updateAddress();
               if (isCheckoutForm && handleStepChange) handleStepChange("next");
               if (setShippingDetails)
                 setShippingDetails({
                   ...updatedAddress,
                 });
+              setOpen(false);
             }}
             className="mt-2"
           >
-            {isCheckoutForm ? "Save & Deliver Here" : "Save"}
+            {isAddressUpdating
+              ? "Saving..."
+              : isCheckoutForm
+                ? "Save & Deliver Here"
+                : "Save"}
           </Button>
           {savedAddresses?.length !== 0 || !isCheckoutForm ? (
             <Button
