@@ -1,5 +1,3 @@
-// pages/api/products.ts or app/api/products/route.ts (Next.js App Router)
-
 import { apiResponse } from "@/lib/dynamoClient";
 import { db } from "@/lib/firebase";
 import {

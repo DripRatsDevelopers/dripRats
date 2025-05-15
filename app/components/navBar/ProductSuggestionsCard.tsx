@@ -4,6 +4,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { SearchIndex } from "@/types/Products";
+import Image from "next/image";
 import Link from "next/link";
 
 interface ProductCardProps {
@@ -24,10 +25,19 @@ export const ProductSuggestionCard = ({
       <Card className="hover:bg-muted transition cursor-pointer mb-2 py-2 px-2">
         <CardContent className="p-0">
           <div className="flex justify-between items-center">
-            <div className="flex flex-col justify-between">
-              <p className="text-sm font-medium truncate">{product.Name}</p>
-              <div className="text-xs text-muted-foreground">
-                in {product.Category}
+            <div className="flex items-start gap-2">
+              <Image
+                src={product.ImageUrls?.[0]}
+                alt={product.Name}
+                className="w-20 h-20 rounded-md object-cover border"
+                width={20}
+                height={20}
+              />
+              <div className="flex flex-col justify-between">
+                <p className="text-sm font-medium truncate">{product.Name}</p>
+                <div className="text-xs text-muted-foreground">
+                  in {product.Category}
+                </div>
               </div>
             </div>
             <div className="flex flex-col text-sm">

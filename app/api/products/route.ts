@@ -34,7 +34,7 @@ export async function GET(req: Request) {
       sortDirection = "asc";
     }
 
-    const productsRef = collection(db, "Products");
+    const productsRef = collection(db, "SearchIndex");
 
     const constraints = [];
 

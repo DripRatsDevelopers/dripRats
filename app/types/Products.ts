@@ -16,6 +16,7 @@ export interface SearchIndex {
   Tags: string[];
   Price: number;
   DiscountedPrice: number;
+  ImageUrls: string[];
 }
 
 export interface InventoryItem {
