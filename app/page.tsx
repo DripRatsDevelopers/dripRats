@@ -199,7 +199,7 @@ export default function HomePage() {
           </div>
           <div>
             {hotspots.map((spot) => (
-              <div key={spot.id} onBlur={() => setActiveHotspot(null)}>
+              <div key={spot.id}>
                 <div
                   className="absolute w-5 h-5 rounded-full border-2 border-white bg-white animate-ping cursor-pointer z-20"
                   style={{ left: spot.x, top: spot.y }}
@@ -214,13 +214,6 @@ export default function HomePage() {
                       height={80}
                       className="rounded mb-2"
                     />
-                    <h3 className="font-semibold text-lg">
-                      {spot.product.Name}
-                    </h3>
-                    <p className="text-sm opacity-80">{spot.product.Price}</p>
-                    <button className="px-4 py-2 bg-white dark:bg-black text-black dark:text-white text-sm rounded hover:opacity-90 transition">
-                      View Product
-                    </button>
                     <p className="text-sm opacity-70 mb-1">Featured</p>
                     <h3 className="text-lg font-semibold">
                       {spot.product.Name}
