@@ -7,6 +7,7 @@ export interface Product {
   Description: string;
   DiscountedPrice?: number;
   InStock?: boolean;
+  DetailedDescription?: Record<string, string>;
 }
 
 export interface SearchIndex {

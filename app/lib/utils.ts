@@ -89,6 +89,14 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1603719461453-0ef44fa837aa?q=80",
 //     ],
+//     InStock: true,
+//     DetailedDescription: {
+//       Material: "High-quality stainless steel",
+//       Color: "Available in black and white",
+//       Dimensions: "2.5cm x 1.5cm x 0.5cm",
+//       Weight: "20 grams",
+//       Care: "Keep away from moisture for longevity",
+//     },
 //   },
 //   {
 //     ProductId: "silver-classic-ring",
@@ -100,6 +108,14 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1684083385930-a9e8446db558?q=80",
 //     ],
+//     InStock: true,
+//     DetailedDescription: {
+//       Material: "High-quality stainless steel",
+//       Color: "Available in black and white",
+//       Dimensions: "2.5cm x 1.5cm x 0.5cm",
+//       Weight: "20 grams",
+//       Care: "Keep away from moisture for longevity",
+//     },
 //   },
 //   {
 //     ProductId: "vintage-diamond-ring",
@@ -111,6 +127,14 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1670954951623-82ad4881d0ed?q=80",
 //     ],
+//     InStock: true,
+//     DetailedDescription: {
+//       Material: "High-quality stainless steel",
+//       Color: "Available in black and white",
+//       Dimensions: "2.5cm x 1.5cm x 0.5cm",
+//       Weight: "20 grams",
+//       Care: "Keep away from moisture for longevity",
+//     },
 //   },
 //   {
 //     ProductId: "bold-chain-necklace",
@@ -122,6 +146,14 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1679973296637-1411c1d25c7e?q=80",
 //     ],
+//     InStock: true,
+//     DetailedDescription: {
+//       Material: "High-quality stainless steel",
+//       Color: "Available in black and white",
+//       Dimensions: "2.5cm x 1.5cm x 0.5cm",
+//       Weight: "20 grams",
+//       Care: "Keep away from moisture for longevity",
+//     },
 //   },
 //   {
 //     ProductId: "elegant-chain",
@@ -133,6 +165,14 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1679973296602-f49b58765ad4?q=80",
 //     ],
+//     InStock: true,
+//     DetailedDescription: {
+//       Material: "High-quality stainless steel",
+//       Color: "Available in black and white",
+//       Dimensions: "2.5cm x 1.5cm x 0.5cm",
+//       Weight: "20 grams",
+//       Care: "Keep away from moisture for longevity",
+//     },
 //   },
 //   {
 //     ProductId: "textured-chain",
@@ -144,6 +184,14 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1677201795049-014caaa6b1cd?q=80",
 //     ],
+//     InStock: true,
+//     DetailedDescription: {
+//       Material: "High-quality stainless steel",
+//       Color: "Available in black and white",
+//       Dimensions: "2.5cm x 1.5cm x 0.5cm",
+//       Weight: "20 grams",
+//       Care: "Keep away from moisture for longevity",
+//     },
 //   },
 //   {
 //     ProductId: "gold-cuban-bracelet",
@@ -155,6 +203,14 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1681091637777-7b5c49bf9691?q=80",
 //     ],
+//     InStock: true,
+//     DetailedDescription: {
+//       Material: "High-quality stainless steel",
+//       Color: "Available in black and white",
+//       Dimensions: "2.5cm x 1.5cm x 0.5cm",
+//       Weight: "20 grams",
+//       Care: "Keep away from moisture for longevity",
+//     },
 //   },
 //   {
 //     ProductId: "silver-textured-bracelet",
@@ -166,6 +222,14 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1681091638141-a87495ae612f?w=900",
 //     ],
+//     InStock: true,
+//     DetailedDescription: {
+//       Material: "High-quality stainless steel",
+//       Color: "Available in black and white",
+//       Dimensions: "2.5cm x 1.5cm x 0.5cm",
+//       Weight: "20 grams",
+//       Care: "Keep away from moisture for longevity",
+//     },
 //   },
 // ];
 
@@ -180,6 +244,7 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1603719461453-0ef44fa837aa?q=80",
 //     ],
+//     InStock: true,
 //   },
 //   {
 //     ProductId: "silver-classic-ring",
@@ -191,6 +256,7 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1684083385930-a9e8446db558?q=80",
 //     ],
+//     InStock: true,
 //   },
 //   {
 //     ProductId: "vintage-diamond-ring",
@@ -202,6 +268,7 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1670954951623-82ad4881d0ed?q=80",
 //     ],
+//     InStock: true,
 //   },
 //   {
 //     ProductId: "bold-chain-necklace",
@@ -213,6 +280,7 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1679973296637-1411c1d25c7e?q=80",
 //     ],
+//     InStock: true,
 //   },
 //   {
 //     ProductId: "elegant-chain",
@@ -224,6 +292,7 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1679973296602-f49b58765ad4?q=80",
 //     ],
+//     InStock: true,
 //   },
 //   {
 //     ProductId: "textured-chain",
@@ -235,6 +304,7 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1677201795049-014caaa6b1cd?q=80",
 //     ],
+//     InStock: true,
 //   },
 //   {
 //     ProductId: "gold-cuban-bracelet",
@@ -246,6 +316,7 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1681091637777-7b5c49bf9691?q=80",
 //     ],
+//     InStock: true,
 //   },
 //   {
 //     ProductId: "silver-textured-bracelet",
@@ -257,26 +328,27 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //     ImageUrls: [
 //       "https://images.unsplash.com/photo-1681091638141-a87495ae612f?w=900",
 //     ],
+//     InStock: true,
 //   },
 // ];
 
 // Add products and search index to Firestore
 // async function addData() {
-//   // const productCollection = collection(db, "Products");
-//   const searchIndexCollection = collection(db, "SearchIndex");
+//   const productCollection = collection(db, "Products");
+//   // const searchIndexCollection = collection(db, "SearchIndex");
 
 //   // // Add products
-//   // for (const product of products) {
-//   //   await setDoc(doc(db, "Products", product.ProductId), product);
-//   //   // await addDoc(productCollection, product);
-//   // }
+//   for (const product of products) {
+//     await setDoc(doc(db, "Products", product.ProductId), product);
+//     // await addDoc(productCollection, product);
+//   }
 
 //   // Add search index
-//   for (const index of searchIndex) {
-//     await setDoc(doc(db, "SearchIndex", index.ProductId), index);
+//   // for (const index of searchIndex) {
+//   //   await setDoc(doc(db, "SearchIndex", index.ProductId), index);
 
-//     // await addDoc(searchIndexCollection, index);
-//   }
+//   //   // await addDoc(searchIndexCollection, index);
+//   // }
 
 //   console.log("Data added successfully");
 // }
@@ -285,13 +357,13 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 // addData().catch(console.error);
 
 // async function deleteAllProducts() {
-//   const productsCollection = collection(db, "SearchIndex");
+//   const productsCollection = collection(db, "Products");
 //   const productsSnapshot = await getDocs(productsCollection);
 
 //   const batch = writeBatch(db);
 
 //   productsSnapshot.forEach((docSnap) => {
-//     batch.delete(doc(db, "SearchIndex", docSnap.id));
+//     batch.delete(doc(db, "Products", docSnap.id));
 //   });
 
 //   await batch.commit();

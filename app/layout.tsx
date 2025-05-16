@@ -95,8 +95,8 @@ export default function RootLayout({
 
             <main className="flex-1">
               <AuthGuard>
-                <div className="mt-3"> {children}</div>
-                <Toaster position="bottom-right" richColors />{" "}
+                <div> {children}</div>
+                <Toaster position="bottom-right" richColors />
               </AuthGuard>
             </main>
             <Footer />

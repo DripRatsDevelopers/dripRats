@@ -59,8 +59,15 @@ const ProductDetails = () => {
     setDeliveryOptions,
   } = useGetDeliveryTime();
 
+  const inStock = product?.InStock;
+
+  const hasDiscount =
+    product?.DiscountedPrice &&
+    product?.DiscountedPrice < product.Price &&
+    inStock;
+
   const discountPercentage =
-    product?.DiscountedPrice && product?.DiscountedPrice < product?.Price
+    product?.DiscountedPrice && hasDiscount
       ? Math.round(
           ((product?.Price - product.DiscountedPrice) / product.Price) * 100
         )
@@ -211,47 +218,55 @@ const ProductDetails = () => {
                 <span className="text-2xl font-semibold relative">
                   <span
                     className={cn(
-                      "text-gray-400 dark:text-gray-500",
-                      product?.DiscountedPrice &&
-                        product?.DiscountedPrice < product.Price
-                        ? "strike-animation"
-                        : ""
+                      hasDiscount
+                        ? "strike-animation text-gray-400 dark:text-gray-500"
+                        : !inStock
+                          ? "text-muted-foreground font-bold"
+                          : "font-bold"
                     )}
                   >
                     ₹{product.Price}
                   </span>
-                  {product?.DiscountedPrice ? (
+                  {product?.DiscountedPrice && hasDiscount ? (
                     <span className="ml-2 font-bold discount-price">
                       ₹{product.DiscountedPrice.toFixed(2)}
                     </span>
                   ) : null}
                 </span>
-                <span className="bg-gradient-to-r from-blue-500 to-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-md discount-tag">
-                  {discountPercentage}% OFF
-                </span>
+                {discountPercentage > 0 ? (
+                  <span className="bg-gradient-to-r from-blue-500 to-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-md discount-tag">
+                    {discountPercentage}% OFF
+                  </span>
+                ) : null}
               </div>
-              <div className="space-y-2">
-                <p className="text-gray-600 dark:text-gray-300 font-semibold">
-                  Select Quantity:
-                </p>
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={decreaseQuantity}
-                    variant="outline"
-                    className="p-2"
-                  >
-                    <Minus size={16} />
-                  </Button>
-                  <p className="text-lg">{quantity}</p>
-                  <Button
-                    onClick={increaseQuantity}
-                    variant="outline"
-                    className="p-2"
-                  >
-                    <Plus size={16} />
-                  </Button>
+              {!inStock && (
+                <p className="font-semibold text-2xl">Currently Unavailable</p>
+              )}
+
+              {inStock ? (
+                <div className="space-y-2">
+                  <p className="text-gray-600 dark:text-gray-300 font-semibold">
+                    Select Quantity:
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={decreaseQuantity}
+                      variant="outline"
+                      className="p-2"
+                    >
+                      <Minus size={16} />
+                    </Button>
+                    <p className="text-lg">{quantity}</p>
+                    <Button
+                      onClick={increaseQuantity}
+                      variant="outline"
+                      className="p-2"
+                    >
+                      <Plus size={16} />
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               {/* Offers */}
               <div className="mt-4 space-y-2">
@@ -271,83 +286,80 @@ const ProductDetails = () => {
                 </div>
               </div>
               <Accordion type="multiple" className="my-6">
-                <AccordionItem value="details">
-                  <AccordionTrigger className="text-lg font-medium no-underline hover:no-underline">
-                    <div className="text-gray-600 dark:text-gray-300 flex items-center gap-1">
-                      <Album stroke="currentColor" />
-                      Product Details
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
-                    <ul className="list-disc ml-6 space-y-2">
-                      <li>
-                        <strong>Material:</strong> High-quality stainless steel
-                      </li>
-                      <li>
-                        <strong>Color:</strong> Available in black and white
-                      </li>
-                      <li>
-                        <strong>Dimensions:</strong> 2.5cm x 1.5cm x 0.5cm
-                      </li>
-                      <li>
-                        <strong>Weight:</strong> 20 grams
-                      </li>
-                      <li>
-                        <strong>Care:</strong> Keep away from moisture for
-                        longevity
-                      </li>
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="shipping">
-                  <AccordionTrigger className="text-lg font-medium no-underline hover:no-underline">
-                    <div className="text-gray-600 dark:text-gray-300 flex gap-1 items-center">
-                      <Rocket stroke="currentColor" /> Shipping Details
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
-                    <p>
-                      Delivered in 5-7 business days. Free shipping on orders
-                      over ₹1000.
-                    </p>
-                    <div className="mt-2 flex gap-2">
-                      {pincode &&
-                      pincode?.length === 6 &&
-                      deliveryOptions?.etd ? (
-                        <div className="flex items-center">
-                          <strong>Delivery by {deliveryOptions?.etd}</strong>
-                          <Button
-                            variant="link"
-                            className="underline text-blue-500"
-                            onClick={() => {
-                              setDeliveryOptions(undefined);
-                            }}
-                          >
-                            Edit Pincode <Edit />
-                          </Button>
-                        </div>
-                      ) : (
-                        <>
-                          <Input
-                            type="text"
-                            value={pincode}
-                            onChange={(e) => setPincode(e.target.value)}
-                            placeholder="Enter Pincode"
-                            className="w-80 border-gray-400"
-                          />
-                          <Button
-                            onClick={handlePincodeCheck}
-                            className="bg-gray-600 dark:bg-gray-300  hover:bg-gray-500 hover:dark:bg-gray-300"
-                            disabled={!pincode}
-                          >
-                            {deliveryLoading ? "Checking..." : "Check"}
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
+                {product?.DetailedDescription ? (
+                  <AccordionItem value="details">
+                    <AccordionTrigger className="text-lg font-medium no-underline hover:no-underline">
+                      <div className="text-gray-600 dark:text-gray-300 flex items-center gap-1">
+                        <Album stroke="currentColor" />
+                        Product Details
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
+                      <ul className="list-disc ml-6 space-y-2">
+                        {Object.keys(product?.DetailedDescription)?.map(
+                          (key) => {
+                            return (
+                              <li key={key}>
+                                <strong>{key}:</strong>{" "}
+                                {product?.DetailedDescription?.[key]}
+                              </li>
+                            );
+                          }
+                        )}
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                ) : null}
+                {inStock ? (
+                  <AccordionItem value="shipping">
+                    <AccordionTrigger className="text-lg font-medium no-underline hover:no-underline">
+                      <div className="text-gray-600 dark:text-gray-300 flex gap-1 items-center">
+                        <Rocket stroke="currentColor" /> Shipping Details
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
+                      <p>
+                        Delivered in 5-7 business days. Free shipping on orders
+                        over ₹1000.
+                      </p>
+                      <div className="mt-2 flex gap-2">
+                        {pincode &&
+                        pincode?.length === 6 &&
+                        deliveryOptions?.etd ? (
+                          <div className="flex items-center">
+                            <strong>Delivery by {deliveryOptions?.etd}</strong>
+                            <Button
+                              variant="link"
+                              className="underline text-blue-500"
+                              onClick={() => {
+                                setDeliveryOptions(undefined);
+                              }}
+                            >
+                              Edit Pincode <Edit />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <Input
+                              type="text"
+                              value={pincode}
+                              onChange={(e) => setPincode(e.target.value)}
+                              placeholder="Enter Pincode"
+                              className="w-80 border-gray-400"
+                            />
+                            <Button
+                              onClick={handlePincodeCheck}
+                              className="bg-gray-600 dark:bg-gray-300  hover:bg-gray-500 hover:dark:bg-gray-300"
+                              disabled={!pincode}
+                            >
+                              {deliveryLoading ? "Checking..." : "Check"}
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ) : null}
 
                 <AccordionItem value="suggestions">
                   <AccordionTrigger className="text-lg font-medium no-underline hover:no-underline">
@@ -365,6 +377,7 @@ const ProductDetails = () => {
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
+
               <div className="md:flex-col gap-2 fixed md:static w-full bottom-0 left-0 p-2 md:p-0 shadow-[-4px_-4px_10px_-2px_rgba(0,0,0,0.3)] md:shadow-none flex bg-background rounded-md md:rounded-none">
                 <Button
                   className="w-[48%] md:w-full bg-white hover:bg-gray-100"
@@ -374,10 +387,15 @@ const ProductDetails = () => {
                     } else addToCart(product.ProductId);
                   }}
                   variant="outline"
+                  disabled={!inStock}
                 >
                   {isAddedToCart ? "Go to Cart" : "Add to Cart"}
                 </Button>
-                <Button className="w-[48%] md:w-full" onClick={handleBuyNow}>
+                <Button
+                  className="w-[48%] md:w-full"
+                  onClick={handleBuyNow}
+                  disabled={!inStock}
+                >
                   Buy Now
                 </Button>
               </div>
