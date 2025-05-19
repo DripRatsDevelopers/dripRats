@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import RecentlyViewedProducts from "./components/common/RecentlyViewedProducts";
 import { Button } from "./components/ui/button";
@@ -10,22 +11,24 @@ import { cn } from "./lib/utils";
 const hotspots = [
   {
     id: 1,
-    x: "45%",
-    y: "50%",
+    x: "50%",
+    y: "60%",
     product: {
       Name: "Celestial Hoops",
       Price: "₹2,499",
-      Image: "/sample-product.jpg",
+      Image:
+        "https://images.unsplash.com/photo-1681091646207-f14c4e49da4b?q=80&w=3087&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
   },
   {
     id: 2,
-    x: "60%",
-    y: "30%",
+    x: "87%",
+    y: "52%",
     product: {
       Name: "Starfall Necklace",
       Price: "₹3,299",
-      Image: "/sample-product.jpg",
+      Image:
+        "https://images.unsplash.com/photo-1689287428894-9b52d1534a25?q=80&w=2433&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
   },
 ];
@@ -93,26 +96,30 @@ const testimonials = [
   },
 ];
 
-const HeroText = (
-  <div className="max-w-lg z-10">
-    <h1 className="text-5xl font-bold mb-4">Own the Spotlight</h1>
-    <p className="text-lg opacity-80 mb-6">
-      Luxury jewellery to elevate your vibe.
-    </p>
-    <button className="px-6 py-3 bg-white text-black dark:bg-black dark:text-white rounded-md shadow hover:opacity-90 transition">
-      Explore Collection
-    </button>
-  </div>
-);
-
 export default function HomePage() {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [activeHotspot, setActiveHotspot] = useState<number | null>(null);
-
+  const router = useRouter();
   const handleHotspot = (id: number) => {
     if (isMobile) setActiveHotspot((prev) => (prev === id ? null : id));
   };
 
+  const HeroText = (
+    <div className="max-w-lg z-10">
+      <h1 className="text-5xl font-bold mb-4">Own the Spotlight</h1>
+      <p className="text-lg opacity-80 mb-6">
+        Luxury jewellery to elevate your vibe.
+      </p>
+      <Button
+        className="px-6 py-3 bg-white text-black dark:bg-black dark:text-white rounded-md shadow hover:opacity-90 transition"
+        onClick={() => {
+          router.push("/shop/all");
+        }}
+      >
+        Explore Collection
+      </Button>
+    </div>
+  );
   return (
     <div>
       {/* HERO */}
@@ -145,26 +152,27 @@ export default function HomePage() {
                       : "opacity-0 scale-95"
                   )}
                   style={{
-                    left: `calc(${spot.x} + 2rem)`,
-                    top: `calc(${spot.y} - 2rem)`,
+                    left: spot.x,
+                    top: spot.y,
                   }}
                 >
                   <div
-                    className="w-64  backdrop-blur-md p-5 rounded-xl border border-white/30 dark:border-black/30 bg-black/90 dark:bg-white text-white dark:text-black shadow-[0_0_20px_rgba(255,255,255,0.3)] dark:shadow-[0_0_20px_rgba(0,0,0,0.3)]  shadow-xl"
+                    className="w-50 backdrop-blur-md p-5 space-y-2 rounded-xl border border-white/30 dark:border-black/30 bg-black/90 dark:bg-white text-white dark:text-black shadow-[0_0_20px_rgba(255,255,255,0.3)] dark:shadow-[0_0_20px_rgba(0,0,0,0.3)] shadow-xl"
                     onMouseEnter={() => setActiveHotspot(spot.id)}
                   >
-                    <Image
-                      src={spot.product.Image}
-                      alt={spot.product.Name}
-                      width={80}
-                      height={80}
-                      className="rounded mb-2"
-                    />
-                    <p className="text-sm opacity-70 mb-1">Featured</p>
-                    <h3 className="text-lg font-semibold">
+                    <div className="w-30 h-30 relative text-center w-full">
+                      <Image
+                        src={spot.product.Image}
+                        alt={spot.product.Name}
+                        fill
+                        className="object-cover object-center rounded-md"
+                      />
+                    </div>
+                    <p className="text-sm opacity-90">Featured</p>
+                    <h3 className="text-md font-semibold">
                       {spot.product.Name}
                     </h3>
-                    <p className="text-neutral-300 dark:text-neutral-700 mb-3">
+                    <p className="text-neutral-300 dark:text-neutral-700">
                       {spot.product.Price}
                     </p>
                     <Button className="px-4 py-2 bg-white dark:bg-black text-black dark:text-white text-sm rounded hover:opacity-90 transition w-full">
@@ -183,62 +191,70 @@ export default function HomePage() {
         </div>
 
         {/* Mobile View */}
-        <div className="md:hidden relative flex flex-col w-full aspect-[3/4]">
-          <div className="relative w-full aspect-[3/4]">
+        <div className="md:hidden relative flex flex-col w-full h-screen">
+          <div className="relative w-full">
             <Image
-              src="https://images.unsplash.com/photo-1679412330075-ef0c1c79f8a8?q=80&w=1920&auto=format&fit=crop"
-              alt="Model"
-              fill
-              className="object-cover object-center"
+              src="https://images.unsplash.com/photo-1679412330075-ef0c1c79f8a8?q=80&w=1080&auto=format&fit=crop"
+              alt="Driprats Hero"
+              layout="responsive"
+              width={3}
+              height={4}
+              className="object-contain"
               priority
+              onClick={() => setActiveHotspot(null)}
             />
+            <div>
+              {hotspots.map((spot) => (
+                <div key={spot.id}>
+                  <div
+                    className="absolute w-5 h-5 rounded-full border-2 border-white bg-white animate-ping cursor-pointer z-20"
+                    style={{ left: spot.x, top: spot.y }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleHotspot(spot.id);
+                    }}
+                  />
+                  {activeHotspot === spot.id && (
+                    <div className="absolute left-1/2 bottom-[10%] space-y-1 -translate-x-1/2  text-black shadow-xl z-30 backdrop-blur-md p-5 rounded-xl border border-white/30 dark:border-black/30 bg-black/90 dark:bg-white text-white dark:text-black shadow-[0_0_20px_rgba(255,255,255,0.3)] dark:shadow-[0_0_20px_rgba(0,0,0,0.3)]">
+                      <div className="w-30 h-30 relative text-center w-full">
+                        <Image
+                          src={spot.product.Image}
+                          alt={spot.product.Name}
+                          fill
+                          className="object-cover object-center rounded-md"
+                        />
+                      </div>
+                      <p className="text-sm">Featured</p>
+                      <h3 className="text-md font-semibold">
+                        {spot.product.Name}
+                      </h3>
+                      <p className="text-neutral-300 dark:text-neutral-700">
+                        {spot.product.Price}
+                      </p>
+                      <Button className="px-2 py-1 bg-white dark:bg-black text-black dark:text-white text-sm rounded hover:opacity-90 transition w-full">
+                        View Product
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
           {/* Overlay Text moved to top */}
-          <div className="w-full text-center pb-2 bg-black text-white dark:bg-white dark:text-black">
+          <div className="w-full flex-grow text-center pb-2 bg-black text-white dark:bg-white dark:text-black">
             {HeroText}
           </div>
-          <div>
-            {hotspots.map((spot) => (
-              <div key={spot.id}>
-                <div
-                  className="absolute w-5 h-5 rounded-full border-2 border-white bg-white animate-ping cursor-pointer z-20"
-                  style={{ left: spot.x, top: spot.y }}
-                  onClick={() => handleHotspot(spot.id)}
-                />
-                {activeHotspot === spot.id && (
-                  <div className="absolute left-1/2 top-[50%] -translate-x-1/2  text-black shadow-xl z-30 backdrop-blur-md p-5 rounded-xl border border-white/30 dark:border-black/30 bg-black/90 dark:bg-white text-white dark:text-black shadow-[0_0_20px_rgba(255,255,255,0.3)] dark:shadow-[0_0_20px_rgba(0,0,0,0.3)]">
-                    <Image
-                      src={spot.product.Image}
-                      alt={spot.product.Name}
-                      width={80}
-                      height={80}
-                      className="rounded mb-2"
-                    />
-                    <p className="text-sm opacity-70 mb-1">Featured</p>
-                    <h3 className="text-lg font-semibold">
-                      {spot.product.Name}
-                    </h3>
-                    <p className="text-neutral-300 dark:text-neutral-700 mb-3">
-                      {spot.product.Price}
-                    </p>
-                    <Button className="px-4 py-2 bg-white dark:bg-black text-black dark:text-white text-sm rounded hover:opacity-90 transition w-full">
-                      View Product
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+
           {/* Hotspots */}
         </div>
       </section>
 
       {/* SIGNATURE DROPS */}
-      <section className="py-16 px-4 md:px-16">
+      <section className="py-8 px-4 md:px-16">
         <h2 className="text-3xl font-semibold mb-8 text-center">
           Signature Drops
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           {products.map((product) => (
             <div
               key={product.id}
@@ -248,12 +264,24 @@ export default function HomePage() {
                 src={product.image}
                 alt={product.title}
                 width={300}
-                height={400}
+                height={300}
                 className="object-cover w-full h-full"
               />
-              <div className="absolute inset-0 bg-black/70 opacity-0 text-white group-hover:opacity-100 transition flex flex-col justify-center items-center">
+              <div
+                className="absolute bottom-0 left-0 right-0 md:inset-0 bg-black/50 md:bg-black/70 text-white  opacity-0 group-hover:opacity-100
+            md:opacity-0 md:group-hover:opacity-100
+            opacity-100 md:opacity-0 transition flex flex-col justify-center items-center transition-opacity duration-300"
+              >
                 <h3 className="text-xl font-semibold">{product.title}</h3>
                 <p className="text-lg">{product.price}</p>
+                <Button
+                  className="px-6 py-3 bg-white text-black dark:bg-black dark:text-white"
+                  onClick={() => {
+                    router.push("/shop/all");
+                  }}
+                >
+                  View Item
+                </Button>
               </div>
             </div>
           ))}
@@ -330,7 +358,7 @@ export default function HomePage() {
       </section>
 
       {/* RECENTLY VIEWED */}
-      <section className="py-16 px-4 md:px-8">
+      <section className="py-4 pb-5 px-4 md:px-8">
         <RecentlyViewedProducts />
       </section>
     </div>
