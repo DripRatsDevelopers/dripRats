@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import RecentlyViewedProducts from "./components/common/RecentlyViewedProducts";
+import LookbookReel from "./components/homePage/LookBookReel";
 import { Button } from "./components/ui/button";
 import { useMediaQuery } from "./lib/mediaUtils";
 import { cn } from "./lib/utils";
@@ -72,10 +73,10 @@ const collections = [
 ];
 
 const perks = [
-  { icon: "💎", title: "Lifetime Free Refurbishment" },
-  { icon: "🚚", title: "Free Express Shipping" },
+  { icon: "🚚", title: "Pan-India Delivery" },
   { icon: "📦", title: "Premium Eco Packaging" },
   { icon: "🔐", title: "Secure Payments" },
+  { icon: "💎", title: "Lifetime Free Refurbishment For Members" },
 ];
 
 const testimonials = [
@@ -357,6 +358,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      <LookbookReel />
       {/* RECENTLY VIEWED */}
       <section className="py-4 pb-5 px-4 md:px-8">
         <RecentlyViewedProducts />
