@@ -105,7 +105,7 @@ export default function FilmReel() {
             height: 12,
             display: "flex",
             justifyContent: "space-between",
-            padding: "0 5px 5px 5px",
+            padding: "5px 5px 0px 5px",
             pointerEvents: "none",
             userSelect: "none",
             zIndex: 10,
