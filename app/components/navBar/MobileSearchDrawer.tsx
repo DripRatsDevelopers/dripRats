@@ -8,6 +8,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { PRODUCT_CATEGORY } from "@/constants/GeneralConstants";
+import { useRecentSearches } from "@/hooks/useRecentSearch";
 import { ArrowRight, ChevronLeft, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -20,14 +21,17 @@ export function MobileSearchDrawer() {
   const [isOpen, setIsOpen] = useState(false);
 
   const router = useRouter();
+  const { recent, addSearch, clearAll, removeQuery } = useRecentSearches();
 
   const handleClearSearch = () => {
     setSearchText("");
   };
 
-  const handleSearch = () => {
-    if (!searchText.trim()) return;
-    router.push(`/shop?search=${encodeURIComponent(searchText.trim())}`);
+  const handleSearch = (query?: string) => {
+    const searchQuery = query ?? searchText;
+    if (!searchQuery.trim()) return;
+    addSearch(searchQuery.trim());
+    router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
     setIsOpen(false);
   };
 
@@ -74,6 +78,37 @@ export function MobileSearchDrawer() {
           </div>
         </div>
 
+        {recent.length > 0 && (
+          <div className="text-sm space-y-1">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Recent searches</span>
+              <button className="text-xs text-red-500" onClick={clearAll}>
+                Clear All
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {recent.map((q) => (
+                <div
+                  key={q}
+                  className="flex items-center gap-1 bg-muted px-3 py-1 rounded-full cursor-pointer hover:bg-muted/70"
+                  onClick={() => {
+                    setSearchText(q);
+                    handleSearch();
+                  }}
+                >
+                  <span>{q}</span>
+                  <X
+                    className="h-3 w-3 text-muted-foreground"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeQuery(q);
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {searchText ? (
           <SearchSuggestions
             query={searchText}
@@ -110,7 +145,7 @@ export function MobileSearchDrawer() {
           <div className="pb-4">
             <Button
               variant="ghost"
-              onClick={handleSearch}
+              onClick={() => handleSearch()}
               className="w-full text-primary font-semibold"
             >
               Search for &quot;{searchText?.trim()}&quot; <ArrowRight />

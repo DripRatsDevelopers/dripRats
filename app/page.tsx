@@ -1,12 +1,17 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import RecentlyViewedProducts from "./components/common/RecentlyViewedProducts";
+import { ApiWrapper } from "./components/common/ApiWrapper";
+import RecentlyViewedProducts, {
+  fetchRecentlyViewed,
+} from "./components/common/RecentlyViewedProducts";
 import LookbookReel from "./components/homePage/LookBookReel";
 import { Button } from "./components/ui/button";
 import DripratsImage from "./components/ui/DripratsImage";
+import { useDripratsQuery } from "./hooks/useTanstackQuery";
 import { useMediaQuery } from "./lib/mediaUtils";
 import { cn } from "./lib/utils";
 
@@ -35,41 +40,27 @@ const hotspots = [
   },
 ];
 
-const products = [
-  {
-    id: 1,
-    title: "Eclipse Hoops",
-    price: "₹1,999",
-    image:
-      "https://images.unsplash.com/photo-1679412330075-ef0c1c79f8a8?q=80&w=1080&auto=format&fit=crop",
-  },
-  {
-    id: 2,
-    title: "Solar Ring",
-    price: "₹1,499",
-    image:
-      "https://images.unsplash.com/photo-1679412330075-ef0c1c79f8a8?q=80&w=1080&auto=format&fit=crop",
-  },
+const signatureDropIds = [
+  "bold-chain-necklace",
+  "gold-plated-ring",
+  "silver-textured-bracelet",
 ];
 
 const collections = [
   {
     id: 1,
-    title: "Cosmic Radiance",
-    image:
-      "https://images.unsplash.com/photo-1679412330075-ef0c1c79f8a8?q=80&w=1080&auto=format&fit=crop",
+    title: "Rings",
+    image: "categories/rings",
   },
   {
     id: 2,
-    title: "Urban Muse",
-    image:
-      "https://images.unsplash.com/photo-1679412330075-ef0c1c79f8a8?q=80&w=1080&auto=format&fit=crop",
+    title: "Chains",
+    image: "categories/chains",
   },
   {
     id: 3,
-    title: "Nocturne Elegance",
-    image:
-      "https://images.unsplash.com/photo-1679412330075-ef0c1c79f8a8?q=80&w=1080&auto=format&fit=crop",
+    title: "Bracelets",
+    image: "categories/bracelets",
   },
 ];
 
@@ -105,6 +96,23 @@ export default function HomePage() {
   const handleHotspot = (id: number) => {
     if (isMobile) setActiveHotspot((prev) => (prev === id ? null : id));
   };
+  // const signatureDrops = signatureDropIds.map((id) => {
+  //   return {
+  //     id,
+  //     title: id,
+  //     price: "₹1,999",
+  //   };
+  // });
+
+  const {
+    error,
+    isLoading,
+    data: signatureDrops,
+  } = useDripratsQuery({
+    queryKey: ["recentlyViewed", signatureDropIds],
+    queryFn: () => fetchRecentlyViewed(signatureDropIds),
+    options: { enabled: signatureDropIds.length > 0 },
+  });
 
   const HeroText = (
     <div className="max-w-lg z-10">
@@ -252,43 +260,52 @@ export default function HomePage() {
       </section>
 
       {/* SIGNATURE DROPS */}
-      <section className="py-8 px-4 md:px-16">
-        <h2 className="text-3xl font-semibold mb-8 text-center">
-          Signature Drops
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="group relative overflow-hidden border border-neutral-700 p-4 rounded-lg hover:shadow-xl transition"
-            >
-              <Image
-                src={product.image}
-                alt={product.title}
-                width={300}
-                height={300}
-                className="object-cover w-full h-full"
-              />
-              <div
-                className="absolute bottom-0 left-0 right-0 md:inset-0 bg-black/50 md:bg-black/70 text-white  opacity-0 group-hover:opacity-100
+      <ApiWrapper
+        data={signatureDrops?.length}
+        loading={isLoading}
+        error={error}
+      >
+        <section className="py-8 px-4 md:px-16">
+          <h2 className="text-3xl font-semibold mb-8 text-center">
+            Signature Drops
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+            {signatureDrops &&
+              signatureDrops.map((product) => (
+                <div
+                  key={product.ProductId}
+                  className="group relative overflow-hidden border border-neutral-700 p-4 rounded-lg hover:shadow-xl transition"
+                >
+                  <DripratsImage
+                    src={product.ImageUrls[0]}
+                    alt={product.Name}
+                    width={300}
+                    height={300}
+                    className="object-cover w-full h-full"
+                  />
+                  <div
+                    className="absolute bottom-0 left-0 right-0 md:inset-0 bg-black/50 md:bg-black/70 text-white  opacity-0 group-hover:opacity-100
             md:opacity-0 md:group-hover:opacity-100
             opacity-100 md:opacity-0 transition flex flex-col justify-center items-center transition-opacity duration-300"
-              >
-                <h3 className="text-xl font-semibold">{product.title}</h3>
-                <p className="text-lg">{product.price}</p>
-                <Button
-                  className="px-6 py-3 bg-white text-black dark:bg-black dark:text-white"
-                  onClick={() => {
-                    router.push("/shop/all");
-                  }}
-                >
-                  View Item
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+                  >
+                    <h3 className="text-xl font-semibold">{product.Name}</h3>
+                    <p className="text-lg">{product.DiscountedPrice}</p>
+                    <Button
+                      className="px-6 py-3 bg-white hover:bg-gray-300 text-black dark:bg-black dark:text-white"
+                      onClick={() => {
+                        router.push(
+                          `/shop/${product.Category || "all"}/${product.ProductId}`
+                        );
+                      }}
+                    >
+                      View Item
+                    </Button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </section>
+      </ApiWrapper>
 
       {/* BRAND STORY */}
       <section className="py-20 px-6 md:px-32 bg-neutral-900 text-center text-white">
@@ -305,21 +322,22 @@ export default function HomePage() {
         <h2 className="text-3xl font-semibold mb-8 text-center">
           Explore Collections
         </h2>
-        <div className="flex gap-6 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide justify-center">
           {collections.map((col) => (
-            <div
+            <Link
+              href={`/shop/${col.title}`}
               key={col.id}
               className="min-w-[250px] text-center border border-neutral-300 rounded-lg p-4"
             >
-              <Image
+              <DripratsImage
                 src={col.image}
                 alt={col.title}
                 width={250}
-                height={250}
+                height={200}
                 className="rounded-lg mb-4 object-cover"
               />
               <h3 className="text-xl">{col.title}</h3>
-            </div>
+            </Link>
           ))}
         </div>
       </section>

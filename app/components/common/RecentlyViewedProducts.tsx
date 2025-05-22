@@ -6,7 +6,7 @@ import ProductCard from "@/shop/components/ProductCard";
 import { Product } from "@/types/Products";
 import { useEffect, useState } from "react";
 
-async function fetchRecentlyViewed(ids: string[]): Promise<Product[]> {
+export async function fetchRecentlyViewed(ids: string[]): Promise<Product[]> {
   const params = new URLSearchParams();
   if (ids && ids.length > 0) params.set("productIds", ids.join(","));
   const response = await apiFetch(`/api/products?${params.toString()}`);
