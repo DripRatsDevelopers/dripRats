@@ -10,9 +10,9 @@ import { useCart } from "@/hooks/useCart";
 import { useCheckoutSession } from "@/hooks/useCheckoutSession";
 import { useWishlist } from "@/hooks/useWishlist";
 import { Heart, Minus, Plus, Trash } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import DripratsImage from "../components/ui/DripratsImage";
 import useCartData from "./useCartData";
 
 const Cart = () => {
@@ -116,7 +116,7 @@ const Cart = () => {
                         href={`/shop/${item.Category}/${item.ProductId}`}
                         className="block"
                       >
-                        <Image
+                        <DripratsImage
                           src={item.ImageUrls[0]}
                           alt={item.Name}
                           className="w-30 h-30 object-cover rounded-lg"

@@ -6,6 +6,7 @@ import { useState } from "react";
 import RecentlyViewedProducts from "./components/common/RecentlyViewedProducts";
 import LookbookReel from "./components/homePage/LookBookReel";
 import { Button } from "./components/ui/button";
+import DripratsImage from "./components/ui/DripratsImage";
 import { useMediaQuery } from "./lib/mediaUtils";
 import { cn } from "./lib/utils";
 
@@ -194,8 +195,8 @@ export default function HomePage() {
         {/* Mobile View */}
         <div className="md:hidden relative flex flex-col w-full h-screen">
           <div className="relative w-full">
-            <Image
-              src="https://images.unsplash.com/photo-1679412330075-ef0c1c79f8a8?q=80&w=1080&auto=format&fit=crop"
+            <DripratsImage
+              src="banners/hero-image.jpg"
               alt="Driprats Hero"
               layout="responsive"
               width={3}

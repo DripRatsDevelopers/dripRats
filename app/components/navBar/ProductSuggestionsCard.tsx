@@ -4,8 +4,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { SearchIndex } from "@/types/Products";
-import Image from "next/image";
 import Link from "next/link";
+import DripratsImage from "../ui/DripratsImage";
 
 interface ProductCardProps {
   product: SearchIndex;
@@ -26,7 +26,7 @@ export const ProductSuggestionCard = ({
         <CardContent className="p-0">
           <div className="flex justify-between items-center">
             <div className="flex items-start gap-2">
-              <Image
+              <DripratsImage
                 src={product.ImageUrls?.[0]}
                 alt={product.Name}
                 className="w-20 h-20 rounded-md object-cover border"

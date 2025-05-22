@@ -4,13 +4,13 @@ import { ApiWrapper } from "@/components/common/ApiWrapper";
 import InfiniteScroll from "@/components/common/InfiniteScroll";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import DripratsImage from "@/components/ui/DripratsImage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useInfinitePaginatedQuery } from "@/hooks/useTanstackQuery";
 import { fetchOrders } from "@/lib/orderUtils";
 import { getOrderStatusLabel } from "@/lib/utils";
 import { OrderDetails, OrderEnum } from "@/types/Order";
 import { ChevronRight } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function AllOrdersPage() {
@@ -82,8 +82,8 @@ export default function AllOrdersPage() {
                         {order.FirstItemImage && (
                           <div className="flex flex-row items-center md:gap-2">
                             <div>
-                              <Image
-                                src={order.FirstItemImage || "/placeholder.jpg"}
+                              <DripratsImage
+                                src={order.FirstItemImage}
                                 alt={order.FirstItemName}
                                 className="w-20 h-20 rounded-md object-cover border"
                                 width={20}
@@ -116,8 +116,8 @@ export default function AllOrdersPage() {
                               order.Status === OrderEnum.DELIVERED
                                 ? "text-green-600"
                                 : order.Status !== OrderEnum.PENDING
-                                ? "text-yellow-600"
-                                : "text-red-600"
+                                  ? "text-yellow-600"
+                                  : "text-red-600"
                             }`}
                           >
                             Order{" "}

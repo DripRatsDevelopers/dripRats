@@ -3,7 +3,6 @@
 import { useMediaQuery } from "@/lib/mediaUtils";
 import { cn } from "@/lib/utils";
 import { Expand, X } from "lucide-react"; // Added X for close button
-import Image from "next/image";
 import { useRef, useState } from "react";
 import "swiper/css";
 import "swiper/css/free-mode";
@@ -13,6 +12,7 @@ import "swiper/css/zoom";
 import { FreeMode, Keyboard, Navigation, Thumbs, Zoom } from "swiper/modules";
 import { Swiper, SwiperClass, SwiperRef, SwiperSlide } from "swiper/react";
 import { Button } from "../ui/button";
+import DripratsImage from "../ui/DripratsImage";
 
 interface ProductGalleryProps {
   images: { src: string; alt?: string }[];
@@ -63,7 +63,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
                   "relative w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-lg overflow-hidden"
                 }
               >
-                <Image
+                <DripratsImage
                   src={image.src}
                   alt={image.alt || `Thumbnail ${index + 1}`}
                   fill
@@ -99,7 +99,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
               className="w-full h-full flex justify-center items-center"
             >
               <div className="swiper-zoom-container w-full h-full">
-                <Image
+                <DripratsImage
                   src={image.src}
                   alt={image.alt || `Product image ${index + 1}`}
                   fill

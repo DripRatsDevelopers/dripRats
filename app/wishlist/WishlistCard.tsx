@@ -4,9 +4,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import DripratsImage from "@/components/ui/DripratsImage";
 import { Product } from "@/types/Products";
 import { Share2, ShoppingCart, Trash2 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -59,7 +59,7 @@ export function WishlistCard({
         href={productLink}
         className="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 rounded-md overflow-hidden"
       >
-        <Image
+        <DripratsImage
           src={product.ImageUrls[0]}
           alt={product.Name}
           fill

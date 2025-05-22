@@ -5,6 +5,7 @@ import OrderStatusTimeline from "@/components/common/OrderStatusTimeline";
 import { ShipmentTrackingModal } from "@/components/common/ShippingTrackInfoModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import DripratsImage from "@/components/ui/DripratsImage";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useDripratsMutation,
@@ -15,7 +16,6 @@ import { OrderDetails } from "@/types/Order";
 import { Product } from "@/types/Products";
 import { Separator } from "@radix-ui/react-select";
 import { ArrowLeft } from "lucide-react";
-import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -152,7 +152,7 @@ export default function OrderDetailsPage() {
                         className="flex items-center justify-between"
                       >
                         <div className="flex items-center gap-4">
-                          <Image
+                          <DripratsImage
                             src={
                               productDetails?.[item.ProductId].ImageUrls?.[0]
                             }

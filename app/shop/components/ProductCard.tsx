@@ -1,11 +1,11 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import DripratsImage from "@/components/ui/DripratsImage";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types/Products";
 import { motion } from "framer-motion";
 import { HeartIcon } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 
@@ -73,7 +73,7 @@ const ProductCard = ({
           )}
           {!InStock && <Badge variant="destructive">Out of Stock</Badge>}
         </div>
-        <Image
+        <DripratsImage
           src={ImageUrls[0]}
           alt={Name}
           fill

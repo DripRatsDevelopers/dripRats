@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { CartType } from "@/types/Cart";
 import { Separator } from "@radix-ui/react-select";
 import { ShoppingBag } from "lucide-react";
-import Image from "next/image";
+import DripratsImage from "../ui/DripratsImage";
 
 type Props = {
   products: CartType[];
@@ -42,7 +42,7 @@ export const OrderSummaryPanel = ({
           key={item.ProductId}
           className="p-3 flex flex-row gap-4 items-center md:[w-fit-content]"
         >
-          <Image
+          <DripratsImage
             src={item.ImageUrls?.[0]}
             alt={item.Name}
             width={64}

@@ -1,13 +1,12 @@
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import DripratsImage from "../ui/DripratsImage";
 
 const images = [
-  "https://plus.unsplash.com/premium_photo-1715876268461-7d85ee7b1452?q=80&w=3136&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://plus.unsplash.com/premium_photo-1715876268047-43745b18c603?q=80&w=3136&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://plus.unsplash.com/premium_photo-1715876268461-7d85ee7b1452?q=80&w=3136&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://plus.unsplash.com/premium_photo-1715876268047-43745b18c603?q=80&w=3136&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://plus.unsplash.com/premium_photo-1727894728677-b4d6f7f172af?q=80&w=3135&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  // repeat if needed to fill loop
+  "drip-frames/frame-001",
+  "drip-frames/frame-002",
+  "drip-frames/frame-001",
+  "drip-frames/frame-002",
+  "drip-frames/frame-003",
 ];
 
 export default function FilmReel() {
@@ -144,7 +143,7 @@ export default function FilmReel() {
                 overflow: "hidden",
               }}
             >
-              <Image
+              <DripratsImage
                 src={src}
                 alt="Driprats"
                 width={150}
