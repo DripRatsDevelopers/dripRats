@@ -96,13 +96,6 @@ export default function HomePage() {
   const handleHotspot = (id: number) => {
     if (isMobile) setActiveHotspot((prev) => (prev === id ? null : id));
   };
-  // const signatureDrops = signatureDropIds.map((id) => {
-  //   return {
-  //     id,
-  //     title: id,
-  //     price: "₹1,999",
-  //   };
-  // });
 
   const {
     error,
@@ -322,7 +315,7 @@ export default function HomePage() {
         <h2 className="text-3xl font-semibold mb-8 text-center">
           Explore Collections
         </h2>
-        <div className="flex gap-6 overflow-x-auto scrollbar-hide justify-center">
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide md:justify-center">
           {collections.map((col) => (
             <Link
               href={`/shop/${col.title}`}

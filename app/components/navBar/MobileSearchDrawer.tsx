@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import RecentSearches from "./RecentSearches";
 import SearchSuggestions from "./SearchSuggestions";
 
 export function MobileSearchDrawer() {
@@ -79,41 +80,24 @@ export function MobileSearchDrawer() {
         </div>
 
         {recent.length > 0 && (
-          <div className="text-sm space-y-1">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Recent searches</span>
-              <button className="text-xs text-red-500" onClick={clearAll}>
-                Clear All
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {recent.map((q) => (
-                <div
-                  key={q}
-                  className="flex items-center gap-1 bg-muted px-3 py-1 rounded-full cursor-pointer hover:bg-muted/70"
-                  onClick={() => {
-                    setSearchText(q);
-                    handleSearch();
-                  }}
-                >
-                  <span>{q}</span>
-                  <X
-                    className="h-3 w-3 text-muted-foreground"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeQuery(q);
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+          <RecentSearches
+            handleSearch={(q) => {
+              setSearchText(q);
+              handleSearch();
+            }}
+            recent={recent}
+            clearAll={clearAll}
+            removeQuery={removeQuery}
+          />
         )}
         {searchText ? (
           <SearchSuggestions
             query={searchText}
             isMobile
-            onSelect={() => setIsOpen(false)}
+            onSelect={(query) => {
+              setIsOpen(false);
+              addSearch(query);
+            }}
           />
         ) : null}
 

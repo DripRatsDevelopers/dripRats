@@ -12,7 +12,7 @@ import { ProductSuggestionCard } from "./ProductSuggestionsCard";
 type Props = {
   query: string;
   isMobile?: boolean;
-  onSelect: () => void;
+  onSelect: (query: string) => void;
   handleSearch?: (searchTerm: string) => void;
 };
 
@@ -56,7 +56,9 @@ export default function SearchSuggestions({
               <ProductSuggestionCard
                 key={`${product.ProductId}-${index}`}
                 product={product}
-                onSelect={onSelect}
+                onSelect={() => {
+                  onSelect(product.Name);
+                }}
               />
             ))}
           </div>
@@ -81,7 +83,7 @@ export default function SearchSuggestions({
             variant="ghost"
             className="w-full text-primary font-semibold border-top"
             onClick={() => {
-              onSelect();
+              onSelect(query);
               if (handleSearch) handleSearch(query);
             }}
           >
