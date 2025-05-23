@@ -378,7 +378,7 @@ const ProductDetails = () => {
                 </AccordionItem>
               </Accordion>
 
-              <div className="md:flex-col gap-2 fixed md:static w-full bottom-0 left-0 p-2 md:p-0 shadow-[-4px_-4px_10px_-2px_rgba(0,0,0,0.3)] md:shadow-none flex bg-background rounded-md md:rounded-none">
+              <div className="z-20 md:flex-col gap-2 fixed md:static w-full bottom-0 left-0 p-2 md:p-0 shadow-[-4px_-4px_10px_-2px_rgba(0,0,0,0.3)] md:shadow-none flex bg-background rounded-md md:rounded-none">
                 <Button
                   className="w-[48%] md:w-full bg-white hover:bg-gray-100"
                   onClick={() => {

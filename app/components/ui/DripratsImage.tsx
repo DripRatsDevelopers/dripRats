@@ -25,7 +25,11 @@ const DripratsImage = ({ alt, ...props }: ImageProps) => {
         )}
       />
       {!loaded && (
-        <div className="absolute inset-0 bg-gradient-to-br from-neutral-200 via-neutral-300 to-neutral-200 animate-pulse z-0" />
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#111] via-[#222] to-[#111] animate-pulse z-0">
+          <span className="text-white/50 text-sm tracking-wider font-medium">
+            DRIPRATS
+          </span>
+        </div>
       )}
     </>
   );
