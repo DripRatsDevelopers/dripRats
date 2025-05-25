@@ -1,8 +1,11 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { apiFetch } from "@/lib/apiClient";
-import { OrderEnum, PaymentStatusEnum } from "@/types/Order";
+import {
+  useDripratsMutation,
+  useDripratsQuery,
+} from "@/hooks/useTanstackQuery";
+import { OrderEnum, OrderItem, PaymentStatusEnum } from "@/types/Order";
 import { motion } from "framer-motion";
 import {
   AlertTriangle,
@@ -15,7 +18,6 @@ import { useParams, useRouter } from "next/navigation";
 import {
   ForwardRefExoticComponent,
   RefAttributes,
-  useCallback,
   useEffect,
   useState,
 } from "react";
@@ -86,39 +88,52 @@ export default function OrderStatus() {
 
   const currentStepIndex = statusSteps.findIndex((s) => s.key === status);
 
-  const checkOrderStatus = useCallback(
-    async (orderId: string) => {
-      try {
-        if (!orderId) {
-          return;
-        }
-        const res = await apiFetch(
-          `/api/order/get-order-status?order_id=${orderId}`
-        );
-
-        const {
-          body: { data, error, success },
-        } = res;
-
-        if (success) {
-          const status = data?.Status;
-          setStatus(status);
-          if ([PaymentStatusEnum.PAID, OrderEnum.CONFIRMED].includes(status)) {
-            triggerTransition();
-            return;
-          } else {
-            verifyPayment(orderId);
-          }
-        } else if (error) {
-          router.replace("/");
-        }
-      } catch (error) {
-        console.error(error);
-        setStatus(PaymentStatusEnum.FAILED);
-      }
+  const {
+    data: orderStatus,
+    isLoading,
+    error,
+  } = useDripratsQuery<{ Status: OrderEnum; Items: OrderItem[] }>({
+    queryKey: ["/api/order/get-order-status?order_id=", orderId],
+    apiParams: {
+      url: `/api/order/get-order-status?order_id=${orderId}`,
     },
-    [router]
-  );
+    options: { enabled: !!orderId },
+  });
+
+  const {
+    mutateAsync: verifyPaymentStatus,
+    isPending,
+    isIdle,
+    data: verificationStatus,
+  } = useDripratsMutation<{
+    Status: OrderEnum | PaymentStatusEnum;
+    Items: OrderItem[];
+  }>({
+    apiParams: {
+      url: "/api/payment/verify",
+      method: "POST",
+      body: { orderId },
+    },
+  });
+
+  const verifyPayment = async () => {
+    setStatus(PaymentStatusEnum.VERIFYING);
+
+    try {
+      await verifyPaymentStatus();
+      if (verificationStatus) {
+        const Status = verificationStatus?.Status;
+
+        setStatus(Status);
+        if ([PaymentStatusEnum.PAID, OrderEnum.CONFIRMED].includes(Status)) {
+          triggerTransition();
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      setStatus(PaymentStatusEnum.FAILED);
+    }
+  };
 
   useEffect(() => {
     if (!orderId) {
@@ -126,32 +141,22 @@ export default function OrderStatus() {
       router.replace("/");
       return;
     }
-    checkOrderStatus(orderId as string);
-  }, [orderId, checkOrderStatus, router]);
+  }, [orderId]);
 
-  const verifyPayment = async (orderId: string) => {
-    setStatus(PaymentStatusEnum.VERIFYING);
-
-    try {
-      const res = await apiFetch("/api/payment/verify", {
-        method: "POST",
-        body: { orderId },
-      });
-
-      const {
-        body: {
-          data: { Status },
-        },
-      } = res;
-      setStatus(Status);
-      if ([PaymentStatusEnum.PAID, OrderEnum.CONFIRMED].includes(Status)) {
+  useEffect(() => {
+    if (orderStatus && !isLoading && orderId) {
+      const status = orderStatus?.Status;
+      setStatus(status);
+      if ([PaymentStatusEnum.PAID, OrderEnum.CONFIRMED].includes(status)) {
         triggerTransition();
+        return;
+      } else {
+        if (!isPending && isIdle) verifyPayment();
       }
-    } catch (error) {
-      console.error(error);
-      setStatus(PaymentStatusEnum.FAILED);
+    } else if (error) {
+      router.replace("/");
     }
-  };
+  }, [error, isIdle, isLoading, isPending, orderId, orderStatus]);
 
   const triggerTransition = () => {
     setTimeout(() => {

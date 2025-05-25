@@ -1,5 +1,7 @@
 import { db } from "@/lib/dynamoClient";
 import { createShiprocketOrder } from "@/lib/orderUtils";
+import { sendOrderConfirmationEmail } from "@/lib/resend";
+import { OrderConfirmation } from "@/types/Mail";
 import {
   OrderEnum,
   PaymentStatusEnum,
@@ -153,6 +155,7 @@ export async function POST(req: NextRequest) {
     );
 
     await createShiprocketOrder(order as ShiprocketOrderInput);
+    await sendOrderConfirmationEmail(order as OrderConfirmation);
 
     return new Response("Stock reduced and order confirmed", { status: 200 });
   } catch (err) {

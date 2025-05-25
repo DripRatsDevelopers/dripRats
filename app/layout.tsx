@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     site: "@driprats", //TODO
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: "/logo.png",
   },
   robots: {
     index: true,
@@ -78,6 +78,7 @@ export default function RootLayout({
         />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://driprats.com" />
+        <link rel="icon" href="/logo.ico" />
         <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
           strategy="lazyOnload"

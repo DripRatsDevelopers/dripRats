@@ -29,7 +29,7 @@ export const ProductSuggestionCard = ({
               <DripratsImage
                 src={product.ImageUrls?.[0]}
                 alt={product.Name}
-                className="w-20 h-20 rounded-md object-cover border"
+                className="rounded-md object-cover w-20 h-20 border"
                 width={20}
                 height={20}
               />

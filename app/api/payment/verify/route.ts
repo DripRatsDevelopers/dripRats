@@ -2,6 +2,7 @@ import { apiResponse, db } from "@/lib/dynamoClient";
 import { createShiprocketOrder } from "@/lib/orderUtils";
 import { sendOrderConfirmationEmail } from "@/lib/resend";
 import { verifyUser } from "@/lib/verifyUser";
+import { OrderConfirmation } from "@/types/Mail";
 import {
   OrderEnum,
   PaymentStatusEnum,
@@ -140,14 +141,9 @@ export async function POST(req: Request) {
     );
     const orderItem = orderData.Item;
 
-    createShiprocketOrder(orderItem as ShiprocketOrderInput);
+    await createShiprocketOrder(orderItem as ShiprocketOrderInput);
 
-    await sendOrderConfirmationEmail({
-      Name: "orderItem.fullName", //TODO
-      Email: orderItem.Email,
-      OrderId: orderItem.OrderId,
-      Total: orderItem.TotalAmount.toFixed(2),
-    });
+    await sendOrderConfirmationEmail(orderItem as OrderConfirmation);
 
     return NextResponse.json(
       apiResponse({

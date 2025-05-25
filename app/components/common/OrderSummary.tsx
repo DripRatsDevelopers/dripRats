@@ -6,9 +6,9 @@ import { CartType } from "@/types/Cart";
 import { deliveryPartnerDetails, ShippingInfo } from "@/types/Order";
 import { Separator } from "@radix-ui/react-select";
 import { CircleAlert, Trash2, TriangleAlert } from "lucide-react";
-import Image from "next/image";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import DripratsImage from "../ui/DripratsImage";
 
 interface OrderSummary {
   shippingDetails: ShippingInfo;
@@ -111,12 +111,12 @@ const OrderSummary = ({
                       isOutOfStock ? "opacity-50 pointer-events-none" : ""
                     )}
                   >
-                    <Image
+                    <DripratsImage
                       src={item.ImageUrls[0]}
                       alt={item.Name}
-                      className="w-24 h-24 object-contain rounded"
-                      width={20}
-                      height={20}
+                      width={64}
+                      height={64}
+                      className="rounded-md object-cover w-24 h-24"
                     />
                     {/* Product Details */}
                     <div className="flex-1 ml-4">

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import DripratsImage from "@/components/ui/DripratsImage";
 import { Product } from "@/types/Products";
-import { Share2, ShoppingCart, Trash2 } from "lucide-react";
+import { Share2, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -98,19 +98,11 @@ export function WishlistCard({
             size="sm"
             disabled={!product.InStock}
             onClick={handleMoveToCart}
-            className="hidden md:block"
+            className="text-xs md:text-sm"
           >
-            Move to Cart
+            {isAddedToCart ? "Go to Cart" : "Add to Cart"}
           </Button>
-          <Button
-            size="sm"
-            disabled={!product.InStock}
-            onClick={handleMoveToCart}
-            className="md:hidden"
-          >
-            <ShoppingCart />
-          </Button>
-          <Button size="sm" variant="ghost" onClick={handleShare}>
+          <Button size="sm" variant="outline" onClick={handleShare}>
             <Share2 />
           </Button>
           <Button
