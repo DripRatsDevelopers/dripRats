@@ -7,7 +7,7 @@ import {
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { getAuth } from "firebase/auth";
 import { toast } from "sonner";
-import { apiFetch } from "./apiClient";
+import { apiFetch, baseUrl } from "./apiClient";
 import { db } from "./dynamoClient";
 
 export async function reserveItems(
@@ -156,7 +156,7 @@ export const fetchOrders = async (
   const stringifiedParams = pageParam ? JSON.stringify(pageParam) : null;
 
   const res = await fetch(
-    "/api/order?" +
+    `${baseUrl}/api/order?` +
       new URLSearchParams({
         ...(stringifiedParams && { lastEvaluatedKey: stringifiedParams }),
         limit: "10",
@@ -180,7 +180,7 @@ export const fetchOrders = async (
   return {
     Items: data?.orders,
     LastEvaluatedKey: data.lastEvaluatedKey
-      ? JSON.parse(data.lastEvaluatedKey) ?? null
+      ? (JSON.parse(data.lastEvaluatedKey) ?? null)
       : null,
   };
 };

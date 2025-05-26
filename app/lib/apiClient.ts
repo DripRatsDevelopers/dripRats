@@ -31,7 +31,7 @@ export async function apiFetch<T = any>(
   const user = auth.currentUser;
   const token = user ? await user.getIdToken() : null;
 
-  const res = await fetch(url, {
+  const res = await fetch(`${baseUrl}${url}`, {
     method: options.method || "GET",
     headers: {
       "Content-Type": "application/json",
@@ -67,9 +67,9 @@ export function useApiRequest<T = any>({
 
   const buildUrlWithParams = (apiQueryParams?: Record<string, any>): string => {
     const apiParams = apiQueryParams || queryParams;
-    if (!apiParams) return url;
+    if (!apiParams) return `${baseUrl}${url}`;
     const query = new URLSearchParams(apiParams).toString();
-    return `${url}?${query}`;
+    return `${baseUrl}${url}?${query}`;
   };
 
   const fetchData = async (apiQueryParams?: Record<string, any>) => {
@@ -126,7 +126,7 @@ export async function dripRatsFetch(apiParams?: FetchOptions) {
 
   const token = user ? await user.getIdToken() : null;
 
-  const res = await fetch(url, {
+  const res = await fetch(`${baseUrl}${url}`, {
     method: method || "GET",
     headers: {
       "Content-Type": "application/json",
@@ -142,3 +142,5 @@ export async function dripRatsFetch(apiParams?: FetchOptions) {
   const data = response?.body?.data;
   return data;
 }
+
+export const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
