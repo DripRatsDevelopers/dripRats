@@ -1,3 +1,4 @@
+import { cacheHeaders } from "@/constants/UserConstants";
 import { apiResponse } from "@/lib/dynamoClient";
 import { db } from "@/lib/firebase";
 import {
@@ -26,7 +27,8 @@ export async function POST(request: NextRequest) {
     }));
 
     return NextResponse.json(
-      apiResponse({ success: true, data: { summaryData }, status: 200 })
+      apiResponse({ success: true, data: { summaryData }, status: 200 }),
+      cacheHeaders
     );
   } catch (error) {
     console.error("Error fetching Products:", error);

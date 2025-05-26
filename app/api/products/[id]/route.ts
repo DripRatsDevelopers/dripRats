@@ -1,3 +1,4 @@
+import { cacheHeaders } from "@/constants/UserConstants";
 import { getCache, setCache } from "@/lib/cache";
 import { apiResponse } from "@/lib/dynamoClient";
 import { db } from "@/lib/firebase"; // Adjust based on your Firebase setup
@@ -41,7 +42,8 @@ export async function GET(request: NextRequest, props: Props) {
         })
       );
       return NextResponse.json(
-        apiResponse({ data: productData, success: true, status: 200 })
+        apiResponse({ data: productData, success: true, status: 200 }),
+        cacheHeaders
       );
     }
   } catch (error) {

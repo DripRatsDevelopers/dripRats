@@ -1,3 +1,4 @@
+import { useRecentSearches } from "@/hooks/useRecentSearch";
 import { cn } from "@/lib/utils";
 import { SearchIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +14,7 @@ const AnimatedSearchBar = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { recent } = useRecentSearches();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -49,7 +51,7 @@ const AnimatedSearchBar = ({
             setSearchTerm(e.target.value);
           }}
           onFocus={() => {
-            if (searchTerm.length) {
+            if (searchTerm.length || recent?.length > 0) {
               setShowSuggestions(true);
             }
           }}

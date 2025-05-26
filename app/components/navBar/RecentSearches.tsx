@@ -25,7 +25,7 @@ const RecentSearches = ({
         {recent.map((q) => (
           <div
             key={q}
-            className="flex items-center gap-1 bg-muted px-3 py-1 rounded-full cursor-pointer hover:bg-muted/70"
+            className="flex border md:bg-white md:dark:bg-black items-center gap-1 bg-muted px-3 py-1 rounded-full cursor-pointer hover:bg-muted/70"
             onClick={() => {
               handleSearch(q);
             }}

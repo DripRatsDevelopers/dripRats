@@ -17,7 +17,7 @@ export default function SearchFloater({
 }: Props) {
   const { recent, addSearch, clearAll, removeQuery } = useRecentSearches();
 
-  if (!show || !query) return null;
+  if (!show) return null;
 
   return (
     <div className="bg-secondary absolute top-full mt-2 w-full  z-50 border border-white/20 dark:border-white/10 shadow-xl rounded-xl p-4">
@@ -31,17 +31,19 @@ export default function SearchFloater({
           removeQuery={removeQuery}
         />
       )}
-      <SearchSuggestions
-        query={query}
-        onSelect={(query) => {
-          onSelect();
-          addSearch(query);
-        }}
-        handleSearch={(searchTerm) => {
-          handleSearch(searchTerm);
-          addSearch(searchTerm);
-        }}
-      />
+      {query ? (
+        <SearchSuggestions
+          query={query}
+          onSelect={(query) => {
+            onSelect();
+            addSearch(query);
+          }}
+          handleSearch={(searchTerm) => {
+            handleSearch(searchTerm);
+            addSearch(searchTerm);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

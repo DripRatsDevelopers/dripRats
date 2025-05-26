@@ -41,7 +41,7 @@ export const OrderConfirmationEmail = (OrderDetails: OrderConfirmation) => {
           }}
         >
           <Img
-            src="https://res.cloudinary.com/driprats/image/upload/c_thumb,w_400,g_face/v1748179416/logo.png"
+            src="https://res.cloudinary.com/driprats/image/upload/v1748247550/logo.png"
             alt="Drip Rats"
             width={120}
             height={120}
