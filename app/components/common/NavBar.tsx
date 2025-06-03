@@ -22,7 +22,7 @@ const Navbar = () => {
     }
   };
   return (
-    <nav className="flex justify-between items-center p-2 md:p-4 bg-background text-foreground shadow-md sticky top-0 z-50">
+    <nav className="flex justify-between items-center p-2 md:p-4 bg-background text-foreground shadow-md sticky top-0 z-50 border border-gray-200 dark:border-gray-700">
       <div className="flex items-center gap-2">
         <MobileNavBar />
         <Link href="/" className="text-xl font-bold tracking-widest">

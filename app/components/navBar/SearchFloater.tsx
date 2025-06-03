@@ -1,46 +1,56 @@
 import { useRecentSearches } from "@/hooks/useRecentSearch";
+import { cn } from "@/lib/utils";
 import RecentSearches from "./RecentSearches";
 import SearchSuggestions from "./SearchSuggestions";
 
 type Props = {
-  query: string;
-  show: boolean;
-  onSelect: () => void;
+  searchTerm: string;
+  onClose: () => void;
   handleSearch: (searchTerm: string) => void;
 };
 
 export default function SearchFloater({
-  query,
-  show,
-  onSelect,
+  searchTerm,
+  onClose,
   handleSearch,
 }: Props) {
   const { recent, addSearch, clearAll, removeQuery } = useRecentSearches();
 
-  if (!show) return null;
-
   return (
-    <div className="bg-secondary absolute top-full mt-2 w-full  z-50 border border-white/20 dark:border-white/10 shadow-xl rounded-xl p-4">
-      {recent.length > 0 && (
-        <RecentSearches
-          handleSearch={(q) => {
-            handleSearch(q);
-          }}
-          recent={recent}
-          clearAll={clearAll}
-          removeQuery={removeQuery}
-        />
+    <div
+      className={cn(
+        "absolute top-full mt-2 w-full z-50 rounded-xl p-4 max-h-[80vh] overflow-y-auto",
+        // Dark mode background and borders
+        "bg-white dark:bg-gray-800",
+        "border border-gray-200 dark:border-gray-700",
+        "shadow-xl dark:shadow-gray-900/40",
+        "transition-colors duration-200"
       )}
-      {query ? (
+    >
+      {recent.length > 0 && (
+        <div className="mb-4">
+          <RecentSearches
+            handleSearch={(q) => {
+              handleSearch(q);
+              onClose();
+            }}
+            recent={recent}
+            clearAll={clearAll}
+            removeQuery={removeQuery}
+          />
+        </div>
+      )}
+      {searchTerm ? (
         <SearchSuggestions
-          query={query}
+          query={searchTerm}
           onSelect={(query) => {
-            onSelect();
+            onClose();
             addSearch(query);
           }}
           handleSearch={(searchTerm) => {
             handleSearch(searchTerm);
             addSearch(searchTerm);
+            onClose();
           }}
         />
       ) : null}

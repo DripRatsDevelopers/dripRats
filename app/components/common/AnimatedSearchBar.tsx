@@ -33,50 +33,96 @@ const AnimatedSearchBar = ({
   }, []);
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        setSearchTerm("");
-        handleSearch(searchTerm);
-        setShowSuggestions(false);
-      }}
+    <div
+      ref={containerRef}
+      className={cn(
+        "relative w-full max-w-lg mx-auto min-w-[320px]",
+        // Dark mode container styles
+        "bg-white dark:bg-gray-900",
+        "border border-gray-200 dark:border-gray-700",
+        "rounded-lg shadow-sm dark:shadow-gray-900/20",
+        "transition-all duration-200 ease-in-out",
+        "hover:shadow-md dark:hover:shadow-gray-900/30",
+        showSuggestions && "shadow-lg dark:shadow-gray-900/40"
+      )}
     >
-      <div className="relative flex items-center" ref={containerRef}>
-        <Input
-          type="text"
-          placeholder="Search the Drip..."
-          className="w-100 p-2 pl-10 rounded-full border-0 focus:border focus:border-gray-300 bg-gray-100 focus:bg-transparent  focus:ring-2 focus:ring-blue-500"
-          onChange={(e) => {
-            setShowSuggestions(true);
-            setSearchTerm(e.target.value);
-          }}
-          onFocus={() => {
-            if (searchTerm.length || recent?.length > 0) {
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          setSearchTerm("");
+          handleSearch(searchTerm);
+          setShowSuggestions(false);
+        }}
+        className="flex items-center"
+      >
+        <div className="relative flex-1">
+          <Input
+            className={cn(
+              "w-full pr-16 py-3 text-base",
+              "bg-transparent",
+              "border-none outline-none ring-0 focus-visible:ring-0",
+              // Dark mode text and placeholder styles
+              "text-gray-900 dark:text-gray-100",
+              "placeholder:text-gray-500 dark:placeholder:text-gray-400",
+              "transition-colors duration-200"
+            )}
+            placeholder="Search..."
+            onChange={(e) => {
               setShowSuggestions(true);
-            }
-          }}
-          value={searchTerm}
-        />
-        <Button
-          variant="link"
+              setSearchTerm(e.target.value);
+            }}
+            onFocus={() => {
+              if (searchTerm.length || recent?.length > 0) {
+                setShowSuggestions(true);
+              }
+            }}
+            value={searchTerm}
+          />
+
+          {/* Search Button - positioned inside input */}
+          <Button
+            type="submit"
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "absolute right-2 top-1/2 transform -translate-y-1/2",
+              "h-8 px-3 rounded-md",
+              // Dark mode button styles
+              "text-gray-600 dark:text-gray-400",
+              "hover:text-gray-900 dark:hover:text-gray-100",
+              "hover:bg-gray-100 dark:hover:bg-gray-700",
+              "transition-all duration-200",
+              "text-sm font-medium"
+            )}
+          >
+            <SearchIcon className="h-4 w-4" />
+          </Button>
+        </div>
+      </form>
+
+      {/* Search Suggestions Dropdown */}
+      {showSuggestions && (
+        <div
           className={cn(
-            "absolute left-1",
-            !searchTerm?.trim() ? "pointer-events-none" : "cursor-pointer"
+            "absolute top-full left-0 right-0 mt-1 z-50",
+            // Dark mode dropdown styles
+            "bg-white dark:bg-gray-800",
+            "border border-gray-200 dark:border-gray-700",
+            "rounded-lg shadow-lg dark:shadow-gray-900/40",
+            "transition-all duration-200 ease-in-out"
           )}
         >
-          <SearchIcon className="h-5 w-5 text-gray-400" />
-        </Button>{" "}
-        <SearchFloater
-          query={searchTerm}
-          show={showSuggestions}
-          onSelect={() => {
-            setSearchTerm("");
-            setShowSuggestions(false);
-          }}
-          handleSearch={handleSearch}
-        />
-      </div>
-    </form>
+          <SearchFloater
+            searchTerm={searchTerm}
+            onClose={() => {
+              setSearchTerm("");
+              setShowSuggestions(false);
+            }}
+            handleSearch={handleSearch}
+          />
+        </div>
+      )}
+    </div>
   );
 };
 
