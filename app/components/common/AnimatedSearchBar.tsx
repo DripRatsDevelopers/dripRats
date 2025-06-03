@@ -36,7 +36,7 @@ const AnimatedSearchBar = ({
     <div
       ref={containerRef}
       className={cn(
-        "relative w-full max-w-lg mx-auto min-w-[320px]",
+        "relative w-full max-w-lg mx-auto min-w-[400px]",
         // Dark mode container styles
         "bg-white dark:bg-gray-900",
         "border border-gray-200 dark:border-gray-700",
