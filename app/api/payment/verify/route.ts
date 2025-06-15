@@ -1,4 +1,5 @@
 import { apiResponse, db } from "@/lib/dynamoClient";
+import { notifyTelegram } from "@/lib/notifyTelegram";
 import { createShiprocketOrder } from "@/lib/orderUtils";
 import { sendOrderConfirmationEmail } from "@/lib/resend";
 import { verifyUser } from "@/lib/verifyUser";
@@ -144,6 +145,7 @@ export async function POST(req: Request) {
     await createShiprocketOrder(orderItem as ShiprocketOrderInput);
 
     await sendOrderConfirmationEmail(orderItem as OrderConfirmation);
+    await notifyTelegram(orderItem as ShiprocketOrderInput);
 
     return NextResponse.json(
       apiResponse({

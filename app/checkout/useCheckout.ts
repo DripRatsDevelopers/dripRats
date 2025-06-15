@@ -3,11 +3,14 @@ import {
   FREE_DELIVERY_MINIMUM_AMOUNT,
 } from "@/constants/DeliveryConstants";
 import { useCart } from "@/hooks/useCart";
-import { useDripratsQuery } from "@/hooks/useTanstackQuery";
+import {
+  useDripratsMutation,
+  useDripratsQuery,
+} from "@/hooks/useTanstackQuery";
 import { reserveItems } from "@/lib/orderUtils";
 import { getProductStock, isAnyProductOutOfStock } from "@/lib/productUtils";
 import { CartType } from "@/types/Cart";
-import { InventoryItem } from "@/types/Products";
+import { InventoryItem, Product } from "@/types/Products";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -29,6 +32,21 @@ const useCheckout = () => {
     },
     options: { enabled: !!productId },
   });
+
+  const cartProductIds = cart?.map((cartItem) => cartItem?.ProductId);
+
+  const {
+    mutate,
+    isPending: cartDataLoading,
+    data: cartData,
+  } = useDripratsMutation<Record<string, Product>>({
+    apiParams: {
+      url: `/api/products/getMultipleProducts`,
+      body: cartProductIds,
+      method: "POST",
+    },
+  });
+
   const [checkoutItems, setCheckoutItems] = useState<Record<string, CartType>>({
     initial: {
       ProductId: "",
@@ -48,18 +66,37 @@ const useCheckout = () => {
   const isInitialState = Object.keys(checkoutItems)?.[0] === "initial";
 
   useEffect(() => {
+    if (cart?.length && !cartData) {
+      mutate();
+    }
+  }, [cart?.length, cartData]);
+
+  useEffect(() => {
+    if (cart?.length && cartData && !cartDataLoading) {
+      const items = cart.reduce(
+        (acc, item) => ({
+          ...acc,
+          [item.ProductId]: {
+            ...cartData?.[item?.ProductId],
+            ProductId: item?.ProductId,
+            quantity: item?.quantity,
+          },
+        }),
+        {}
+      );
+      setCheckoutItems(items);
+    }
+  }, [cart, cartData, cartDataLoading]);
+
+  useEffect(() => {
     if (productId) {
       if (!isLoading && status === "success") {
         setCheckoutItems({
           [productId]: { ...data, quantity },
         });
       }
-    } else {
-      setCheckoutItems(
-        cart.reduce((acc, item) => ({ ...acc, [item.ProductId]: item }), {})
-      );
     }
-  }, [cart, data, isLoading, productId, quantity, status]);
+  }, [data, isLoading, productId, quantity, status]);
 
   const checkoutItemsList = Object.values(checkoutItems);
 
@@ -250,7 +287,7 @@ const useCheckout = () => {
       isProductOutOfStock,
       productStocksMap,
       handleRemoveItem,
-      fetchingProductDetails: isLoading,
+      fetchingProductDetails: isLoading || cartDataLoading,
       isInitialState,
     },
     shippingInfo: {
