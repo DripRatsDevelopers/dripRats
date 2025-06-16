@@ -1,3 +1,4 @@
+import cloudinaryLoader from "@/lib/cloudinaryUtils";
 import { Metadata } from "next";
 import ProductDetails from "./ProductDetails";
 
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       "@context": "https://schema.org/",
       "@type": "Product",
       name: product.Name,
-      image: [imageUrl],
+      image: [cloudinaryLoader({ src: imageUrl, width: 1200 })],
       description: product.Description,
       sku: product.ProductId,
       brand: {
@@ -66,7 +67,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         type: "website",
         images: [
           {
-            url: imageUrl,
+            url: cloudinaryLoader({ src: imageUrl, width: 1200 }),
             width: 1200,
             height: 630,
             alt: title,
@@ -77,7 +78,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         card: "summary_large_image",
         title: title,
         description: description,
-        images: [imageUrl],
+        images: [cloudinaryLoader({ src: imageUrl, width: 1200 })],
       },
       metadataBase: new URL(baseUrl),
       other: {

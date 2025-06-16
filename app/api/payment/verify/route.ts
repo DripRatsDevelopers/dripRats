@@ -142,17 +142,19 @@ export async function POST(req: Request) {
     );
     const orderItem = orderData.Item;
 
-    await createShiprocketOrder(orderItem as ShiprocketOrderInput);
-
-    await sendOrderConfirmationEmail(orderItem as OrderConfirmation);
-    await notifyTelegram(orderItem as ShiprocketOrderInput);
-
-    return NextResponse.json(
+    const response = NextResponse.json(
       apiResponse({
         success: true,
         data: { OrderId, Status: OrderEnum.CONFIRMED },
       })
     );
+
+    await createShiprocketOrder(orderItem as ShiprocketOrderInput);
+
+    await sendOrderConfirmationEmail(orderItem as OrderConfirmation);
+    await notifyTelegram(orderItem as ShiprocketOrderInput);
+
+    return response;
   } catch (error) {
     console.error("Payment verification failed:", error);
 

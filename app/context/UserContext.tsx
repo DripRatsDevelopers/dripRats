@@ -54,16 +54,26 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const updateCartMutation = useDripratsMutation<void, CartItem[]>({
     apiParams: {
       url: "/api/user/update-cart",
-      body: { cart },
       method: "POST",
+    },
+    mutationFn: async (newCart: CartItem[]) => {
+      return apiFetch("/api/user/update-cart", {
+        method: "POST",
+        body: { cart: newCart },
+      });
     },
   });
 
   const updateWishlistMutation = useDripratsMutation<void, string[]>({
     apiParams: {
       url: "/api/user/update-wishlist",
-      body: { wishlist },
       method: "POST",
+    },
+    mutationFn: async (newWishlist: string[]) => {
+      return apiFetch("/api/user/update-wishlist", {
+        method: "POST",
+        body: { wishlist: newWishlist },
+      });
     },
   });
 
