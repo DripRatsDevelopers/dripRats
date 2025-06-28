@@ -46,7 +46,8 @@ const CheckoutPage: React.FC = () => {
     disableNavigation,
   } = form;
 
-  const { deliveryDiscount, amountLeftForFreeShipping } = shippingInfo;
+  const { deliveryDiscount, amountLeftForFreeShipping, shippingCharge } =
+    shippingInfo;
 
   if ((isExpired || isSessionInvalid) && !isPaymentLoading) {
     return (
@@ -162,6 +163,7 @@ const CheckoutPage: React.FC = () => {
           totalAmount={grandTotal}
           shippingInfo={shippingDetails}
           items={checkoutItemsList}
+          shippingCharge={shippingCharge}
           {...payment}
         />
       )}

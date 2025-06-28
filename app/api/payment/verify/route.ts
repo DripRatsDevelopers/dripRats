@@ -152,7 +152,6 @@ export async function POST(req: Request) {
     await createShiprocketOrder(orderItem as ShiprocketOrderInput);
 
     await sendOrderConfirmationEmail(orderItem as OrderConfirmation);
-    console.log({ notifyTelegram: "notifying" });
     await notifyTelegram(orderItem as ShiprocketOrderInput);
 
     return response;

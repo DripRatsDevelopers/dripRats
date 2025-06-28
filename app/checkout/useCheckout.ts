@@ -301,6 +301,7 @@ const useCheckout = () => {
     shippingInfo: {
       deliveryDiscount,
       amountLeftForFreeShipping,
+      shippingCharge: deliveryCharge - deliveryDiscount,
     },
     form: {
       currentStep,

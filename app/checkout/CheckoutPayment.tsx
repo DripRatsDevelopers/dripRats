@@ -14,12 +14,14 @@ const CheckoutPayment = ({
   items,
   isPaymentLoading,
   setIsPaymentLoading,
+  shippingCharge,
 }: {
   totalAmount: number;
   shippingInfo: ShippingInfo;
   items: CartType[];
   isPaymentLoading: boolean;
   setIsPaymentLoading: Dispatch<SetStateAction<boolean>>;
+  shippingCharge: number;
 }) => {
   const router = useRouter();
 
@@ -46,6 +48,7 @@ const CheckoutPayment = ({
           items={items}
           isLoading={isPaymentLoading}
           setIsLoading={setIsPaymentLoading}
+          shippingCharge={shippingCharge}
         />
       </CardContent>
     </Card>

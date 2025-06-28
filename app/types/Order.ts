@@ -49,6 +49,7 @@ export type ShiprocketOrderInput = {
   TotalAmount: number;
   Items: OrderItem[];
   Email: string;
+  ShippingCharge: number;
 };
 
 export type ShipmentTrackingData = {

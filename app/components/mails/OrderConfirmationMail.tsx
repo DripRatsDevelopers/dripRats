@@ -20,6 +20,7 @@ export const OrderConfirmationEmail = (OrderDetails: OrderConfirmation) => {
     TotalAmount,
     ShippingAddress: address,
     FirstItemImage,
+    ShippingCharge,
   } = OrderDetails;
   const ShippingAddress = JSON.parse(address);
   const supportMail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
@@ -27,7 +28,7 @@ export const OrderConfirmationEmail = (OrderDetails: OrderConfirmation) => {
   const totalSavings = Items.reduce((total, item) => {
     return total + item.DiscountPerItem * item.Quantity;
   }, 0);
-  console.log({ totalSavings });
+
   return (
     <Html>
       <Preview>
@@ -82,9 +83,6 @@ export const OrderConfirmationEmail = (OrderDetails: OrderConfirmation) => {
               ))}
             </ul>
 
-            <Text style={{ fontWeight: "bold", marginTop: "8px" }}>
-              Total: ₹{TotalAmount}
-            </Text>
             {/* Calculate and display total savings */}
             {totalSavings > 0 ? (
               <Text
@@ -95,9 +93,20 @@ export const OrderConfirmationEmail = (OrderDetails: OrderConfirmation) => {
                   fontSize: "14px",
                 }}
               >
-                🎉 You saved: ₹{totalSavings}
+                🎉 You saved: ₹{totalSavings.toFixed(2)}
               </Text>
             ) : null}
+
+            {/* Display delivery charge if greater than 0 */}
+            {ShippingCharge > 0 ? (
+              <Text style={{ marginTop: "8px", fontSize: "14px" }}>
+                🚚 Delivery Charge: ₹{ShippingCharge.toFixed(2)}
+              </Text>
+            ) : null}
+
+            <Text style={{ fontWeight: "bold", marginTop: "8px" }}>
+              Total: ₹{TotalAmount}
+            </Text>
           </Section>
           <Section style={{ marginBottom: "24px" }}>
             <Heading as="h3" style={{ fontSize: "18px", marginBottom: "8px" }}>

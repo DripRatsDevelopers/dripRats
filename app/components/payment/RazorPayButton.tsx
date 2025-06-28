@@ -20,6 +20,7 @@ interface RazorpayButtonProps {
   items: CartType[];
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
+  shippingCharge: number;
 }
 
 interface RazorpayWindow extends Window {
@@ -32,6 +33,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
   items,
   isLoading,
   setIsLoading,
+  shippingCharge,
 }) => {
   const { user } = useAuth();
   const amountInPaisa = Math.round(amount * 100);
@@ -61,6 +63,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
           Name: item.Name,
           DiscountPerItem: item.Price - (item.DiscountedPrice ?? item.Price),
         })),
+        ShippingCharge: shippingCharge,
         FirstItemImage: items?.[0].ImageUrls?.[0],
         FirstItemName: items?.[0].Name,
         Email: user?.email,

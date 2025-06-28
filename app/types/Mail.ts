@@ -7,4 +7,5 @@ export interface OrderConfirmation {
   ShippingAddress: string;
   FirstItemImage?: string;
   Email: string;
+  ShippingCharge: number;
 }
