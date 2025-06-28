@@ -59,6 +59,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
           Quantity: item.quantity,
           Price: item.Price,
           Name: item.Name,
+          DiscountPerItem: item.Price - (item.DiscountedPrice ?? item.Price),
         })),
         FirstItemImage: items?.[0].ImageUrls?.[0],
         FirstItemName: items?.[0].Name,

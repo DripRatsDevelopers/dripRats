@@ -10,6 +10,15 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import DripratsImage from "../ui/DripratsImage";
 
+// Helper function to calculate discount percentage
+const calculateDiscountPercentage = (
+  originalPrice: number,
+  discountedPrice: number
+): number => {
+  if (originalPrice <= discountedPrice) return 0;
+  return Math.round(((originalPrice - discountedPrice) / originalPrice) * 100);
+};
+
 interface OrderSummary {
   shippingDetails: ShippingInfo;
   deliveryDetails?: deliveryPartnerDetails;
@@ -121,8 +130,31 @@ const OrderSummary = ({
                     {/* Product Details */}
                     <div className="flex-1 ml-4">
                       <p className="font-semibold text-md">{item.Name}</p>
-                      <p>₹{item.Price}</p>
-
+                      <div className="flex items-center gap-2">
+                        {item.DiscountedPrice &&
+                        item.DiscountedPrice < item.Price ? (
+                          <>
+                            <p className="line-through text-gray-500">
+                              ₹{item.Price}
+                            </p>
+                            <p className="font-semibold text-green-600">
+                              ₹{item.DiscountedPrice}
+                            </p>
+                            <Badge
+                              variant="secondary"
+                              className="text-xs bg-green-100 text-green-700"
+                            >
+                              {calculateDiscountPercentage(
+                                item.Price,
+                                item.DiscountedPrice
+                              )}
+                              % OFF
+                            </Badge>
+                          </>
+                        ) : (
+                          <p className="font-semibold">₹{item.Price}</p>
+                        )}
+                      </div>
                       {/* Quantity Controls */}
                       <div className="flex items-center gap-2 mt-2">
                         <button
@@ -147,7 +179,11 @@ const OrderSummary = ({
 
                       {/* Item Total */}
                       <p className="mt-1">
-                        Total: ₹{item.Price * item.quantity}
+                        Total: ₹
+                        {(item.DiscountedPrice &&
+                        item.DiscountedPrice < item.Price
+                          ? item.DiscountedPrice
+                          : item.Price) * item.quantity}
                       </p>
                     </div>
                   </div>
@@ -176,7 +212,7 @@ const OrderSummary = ({
               variant="default"
               className="bg-green-100 text-green-700 w-full text-sm"
             >
-              🎉 You’ve unlocked Free Shipping!
+              🎉 You&apos;ve unlocked Free Shipping!
             </Badge>
           ) : (
             <Badge

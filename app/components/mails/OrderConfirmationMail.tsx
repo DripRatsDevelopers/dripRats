@@ -24,6 +24,10 @@ export const OrderConfirmationEmail = (OrderDetails: OrderConfirmation) => {
   const ShippingAddress = JSON.parse(address);
   const supportMail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
 
+  const totalSavings = Items.reduce((total, item) => {
+    return total + item.DiscountPerItem * item.Quantity;
+  }, 0);
+  console.log({ totalSavings });
   return (
     <Html>
       <Preview>
@@ -72,13 +76,28 @@ export const OrderConfirmationEmail = (OrderDetails: OrderConfirmation) => {
             <ul style={{ paddingLeft: "20px" }}>
               {Items.map((item, index) => (
                 <li key={index} style={{ marginBottom: "6px" }}>
-                  {item.Name} × {item.Quantity} — ₹{item.Price * item.Quantity}
+                  {item.Name} × {item.Quantity} — ₹
+                  {(item.Price - item.DiscountPerItem) * item.Quantity}
                 </li>
               ))}
             </ul>
+
             <Text style={{ fontWeight: "bold", marginTop: "8px" }}>
               Total: ₹{TotalAmount}
             </Text>
+            {/* Calculate and display total savings */}
+            {totalSavings > 0 ? (
+              <Text
+                style={{
+                  color: "#16a34a",
+                  fontWeight: "bold",
+                  marginTop: "8px",
+                  fontSize: "14px",
+                }}
+              >
+                🎉 You saved: ₹{totalSavings}
+              </Text>
+            ) : null}
           </Section>
           <Section style={{ marginBottom: "24px" }}>
             <Heading as="h3" style={{ fontSize: "18px", marginBottom: "8px" }}>

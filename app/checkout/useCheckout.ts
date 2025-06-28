@@ -66,7 +66,7 @@ const useCheckout = () => {
   const isInitialState = Object.keys(checkoutItems)?.[0] === "initial";
 
   useEffect(() => {
-    if (cart?.length && !cartData) {
+    if (cart?.length && !cartData && !productId) {
       mutate();
     }
   }, [cart?.length, cartData]);
@@ -225,7 +225,15 @@ const useCheckout = () => {
     }
   }, [checkoutItemsList, data, router, isLoading, status, isInitialState]);
 
-  const savings = subtotal * 0.1;
+  const savings = checkoutItemsList.reduce(
+    (acc, item) =>
+      acc +
+      (item.Price -
+        (item?.DiscountedPrice ? item.DiscountedPrice : item.Price)) *
+        (item.quantity || 1),
+    0
+  );
+
   const deliveryCharge =
     subtotal - savings >= FREE_DELIVERY_MINIMUM_AMOUNT
       ? 0
