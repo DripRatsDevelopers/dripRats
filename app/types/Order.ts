@@ -19,6 +19,7 @@ export interface OrderItem {
   Quantity: number;
   Price: number;
   Name: string;
+  DiscountPerItem: number;
 }
 
 export interface OrderDetails {
