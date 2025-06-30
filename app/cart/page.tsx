@@ -1,6 +1,7 @@
 "use client";
 
 import { ApiWrapper } from "@/components/common/ApiWrapper";
+import AuthFormModal from "@/components/common/AuthFormModal";
 import InfiniteScroll from "@/components/common/InfiniteScroll";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { Heart, Minus, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import DripratsImage from "../components/ui/DripratsImage";
 import useCartData from "./useCartData";
 
@@ -24,6 +26,8 @@ const Cart = () => {
     totalOriginalAmount,
     totalDiscount,
   } = useCart();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   const productIds = cart.map((item) => item.ProductId);
 
   const cartQuantityMap: Record<string, number> = cart.reduce(
@@ -49,6 +53,17 @@ const Cart = () => {
   const { initSession } = useCheckoutSession();
   const { user } = useAuth();
   const router = useRouter();
+
+  const handleCheckout = () => {
+    const sessionId = initSession(
+      cart?.map((item) => ({
+        productId: item?.ProductId,
+        quantity: item?.quantity,
+      })),
+      "cart"
+    );
+    router.push(`/checkout?sessionId=${sessionId}`);
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -221,14 +236,11 @@ const Cart = () => {
               <Button
                 className="mt-4 w-full bg-primary text-primary-foreground"
                 onClick={() => {
-                  const sessionId = initSession(
-                    cart?.map((item) => ({
-                      productId: item?.ProductId,
-                      quantity: item?.quantity,
-                    })),
-                    "cart"
-                  );
-                  router.push(`/checkout?sessionId=${sessionId}`);
+                  if (!user) {
+                    setShowAuthModal(true);
+                  } else {
+                    handleCheckout();
+                  }
                 }}
               >
                 Proceed to Checkout
@@ -237,6 +249,16 @@ const Cart = () => {
           </div>
         ) : null}
       </ApiWrapper>
+      {showAuthModal ? (
+        <AuthFormModal
+          isAuthModalOpen={showAuthModal}
+          setIsAuthModalOpen={setShowAuthModal}
+          handleAuthSuccess={() => {
+            setShowAuthModal(false);
+            handleCheckout();
+          }}
+        />
+      ) : null}
     </div>
   );
 };

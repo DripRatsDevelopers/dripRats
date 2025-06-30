@@ -1,6 +1,7 @@
 "use client";
 
 import { ApiWrapper } from "@/components/common/ApiWrapper";
+import AuthFormModal from "@/components/common/AuthFormModal";
 import Breadcrumbs from "@/components/common/BreadCrumbs";
 import ProductGallery from "@/components/common/ProductGallery";
 import RecentlyViewedProducts from "@/components/common/RecentlyViewedProducts";
@@ -15,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import { useCheckoutSession } from "@/hooks/useCheckoutSession";
 import useGetDeliveryTime from "@/hooks/useGetDeliveryTime";
@@ -40,6 +42,9 @@ import "./page.css";
 const ProductDetails = () => {
   const [pincode, setPincode] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  const { user } = useAuth();
 
   const path = usePathname();
   const router = useRouter();
@@ -393,7 +398,13 @@ const ProductDetails = () => {
                 </Button>
                 <Button
                   className="w-[48%] md:w-full"
-                  onClick={handleBuyNow}
+                  onClick={() => {
+                    if (!user) {
+                      setShowAuthModal(true);
+                    } else {
+                      handleBuyNow();
+                    }
+                  }}
                   disabled={!inStock}
                 >
                   Buy Now
@@ -408,6 +419,16 @@ const ProductDetails = () => {
         <Separator />
         <RecentlyViewedProducts />
       </div>
+      {showAuthModal ? (
+        <AuthFormModal
+          isAuthModalOpen={showAuthModal}
+          setIsAuthModalOpen={setShowAuthModal}
+          handleAuthSuccess={() => {
+            setShowAuthModal(false);
+            handleBuyNow();
+          }}
+        />
+      ) : null}
     </div>
   );
 };

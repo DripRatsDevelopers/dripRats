@@ -29,6 +29,7 @@ export interface OrderDetails {
     Price: number;
     ProductId: string;
     Quantity: number;
+    DiscountPerItem?: number;
   }>;
   FirstItemImage: string;
   FirstItemName: string;
