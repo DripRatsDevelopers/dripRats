@@ -27,7 +27,8 @@ export const notifyTelegram = async (orderItem: ShiprocketOrderInput) => {
       ? `\n🚚 *Delivery Charge:* ₹${ShippingCharge.toFixed(2)}`
       : "";
 
-  const message = `🚨Hurray! *New Order Received!*\n\n🆔 *Order ID:* ${OrderId}\n👤 *Customer:* ${address?.fullName}\n\n🛍️ *Items:*\n${itemList}${savingsText}${deliveryText}\n\n💰 *Total:* ₹${TotalAmount}`;
+  const message = `🚨Hurray! *New Order Received!*\n\n🆔 *Order ID:* ${OrderId}\n👤 *Customer:* ${address?.fullName}\n📍 *Location:* ${address?.city}, ${address?.state} -
+              ${address?.pincode}\n\n🛍️ *Items:*\n${itemList}${savingsText}${deliveryText}\n\n💰 *Total:* ₹${TotalAmount}`;
 
   await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
     method: "POST",
