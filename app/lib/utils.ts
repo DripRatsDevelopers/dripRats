@@ -325,53 +325,63 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 // addData().catch(console.error);
 
 // async function deleteAllProducts() {
-//   const productsCollection = collection(db, "SearchIndex");
-//   const productsSnapshot = await getDocs(productsCollection);
+//   // const productsCollection = collection(db, "SearchIndex");
+//   const productSummaryCollection = collection(db, "ProductSummary");
+
+//   const productsSnapshot = await getDocs(productSummaryCollection);
 
 //   const batch = writeBatch(db);
 
 //   productsSnapshot.forEach((docSnap) => {
-//     batch.delete(doc(db, "SearchIndex", docSnap.id));
+//     batch.delete(doc(db, "ProductSummary", docSnap.id));
 //   });
 
 //   await batch.commit();
 //   console.log("All products deleted");
 // }
 
-// deleteAllProducts();
+// // deleteAllProducts();
 
 // const productSummary = [
 //   {
 //     ProductId: "gold-plated-ring",
 //     Price: 1599,
+//     DiscountedPrice: 1300,
 //   },
 //   {
 //     ProductId: "silver-classic-ring",
 //     Price: 1299,
+//     DiscountedPrice: 1100,
 //   },
 //   {
 //     ProductId: "vintage-diamond-ring",
 //     Price: 2499,
+//     DiscountedPrice: 2300,
 //   },
 //   {
 //     ProductId: "bold-chain-necklace",
 //     Price: 1899,
+//     DiscountedPrice: 1700,
 //   },
 //   {
 //     ProductId: "elegant-chain",
 //     Price: 1499,
+//     DiscountedPrice: 1400,
 //   },
 //   {
 //     ProductId: "textured-chain",
 //     Price: 1799,
+//     DiscountedPrice: 1700,
 //   },
 //   {
 //     ProductId: "gold-cuban-bracelet",
 //     Price: 1999,
+//     DiscountedPrice: 1800,
 //   },
 //   {
 //     ProductId: "silver-textured-bracelet",
 //     Price: 1499,
+//     DiscountedPrice: 1300,
 //   },
 // ];
 
@@ -382,7 +392,7 @@ export const getOrderStatusLabel = (orderStatus: OrderEnum): string => {
 //   for (const index of productSummary) {
 //     await setDoc(doc(db, "ProductSummary", index.ProductId), index);
 
-//     // await addDoc(productSummaryCollection, index);
+//     // await addDoc(productSummaryCollection, index.ProductId);
 //   }
 
 //   console.log("Data added successfully");

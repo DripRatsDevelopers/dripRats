@@ -4,7 +4,13 @@ import { useUser } from "@/context/UserContext";
 import { CartItem } from "@/types/Cart";
 
 export const useCart = () => {
-  const { cart, setCart, totalCartAmount } = useUser();
+  const {
+    cart,
+    setCart,
+    totalCartAmount,
+    totalOriginalCartAmount,
+    totalCartDiscount,
+  } = useUser();
 
   const addToCart = (productId: string) => {
     const updatedCart = isInCart(productId)
@@ -44,5 +50,7 @@ export const useCart = () => {
     updateQuantity,
     isInCart,
     totalAmount: totalCartAmount,
+    totalOriginalAmount: totalOriginalCartAmount,
+    totalDiscount: totalCartDiscount,
   };
 };

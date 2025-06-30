@@ -30,6 +30,8 @@ type UserContextType = {
   deleteAddress: (addressId: string) => Promise<void>;
   fetchingAddress: boolean;
   totalCartAmount: number;
+  totalOriginalCartAmount: number;
+  totalCartDiscount: number;
   isAddressUpdating: boolean;
 };
 
@@ -91,7 +93,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     isIdle,
     isPending,
   } = useDripratsMutation<{
-    summaryData: { ProductId: string; Price: number }[];
+    summaryData: {
+      ProductId: string;
+      Price: number;
+      DiscountedPrice: number;
+    }[];
   }>({
     apiParams: {
       url: `/api/products/get-product-price`,
@@ -259,17 +265,39 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const totalWishlistItems = wishlist.length;
 
-  const priceMap: Record<string, number> = cartPricedata
-    ? cartPricedata?.reduce((acc: Record<string, number>, cur) => {
-        acc[cur.ProductId] = cur.Price;
-        return acc;
-      }, {})
-    : {};
+  const priceMap: Record<string, { price: number; discountedPrice: number }> =
+    cartPricedata
+      ? cartPricedata?.reduce(
+          (
+            acc: Record<string, { price: number; discountedPrice: number }>,
+            cur
+          ) => {
+            acc[cur.ProductId] = {
+              price: cur.Price,
+              discountedPrice: cur.DiscountedPrice,
+            };
+            return acc;
+          },
+          {}
+        )
+      : {};
 
-  const totalCartAmount = cart.reduce(
-    (sum, item) => sum + priceMap[item.ProductId] * item.quantity,
-    0
+  const { totalCartAmount, totalOriginalCartAmount } = cart.reduce(
+    (acc, item) => {
+      const prices = priceMap[item.ProductId];
+      if (prices) {
+        acc.totalCartAmount += prices.discountedPrice * item.quantity;
+        acc.totalOriginalCartAmount += prices.price * item.quantity;
+      }
+      return acc;
+    },
+    { totalCartAmount: 0, totalOriginalCartAmount: 0 }
   );
+
+  const totalCartDiscount =
+    totalOriginalCartAmount > totalCartAmount
+      ? totalOriginalCartAmount - totalCartAmount
+      : 0;
 
   return (
     <UserContext.Provider
@@ -286,6 +314,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         deleteAddress,
         fetchingAddress: isLoading,
         totalCartAmount,
+        totalOriginalCartAmount,
+        totalCartDiscount,
         isAddressUpdating,
       }}
     >

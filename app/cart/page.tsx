@@ -16,7 +16,14 @@ import DripratsImage from "../components/ui/DripratsImage";
 import useCartData from "./useCartData";
 
 const Cart = () => {
-  const { cart, removeFromCart, updateQuantity, totalAmount } = useCart();
+  const {
+    cart,
+    removeFromCart,
+    updateQuantity,
+    totalAmount,
+    totalOriginalAmount,
+    totalDiscount,
+  } = useCart();
   const productIds = cart.map((item) => item.ProductId);
 
   const cartQuantityMap: Record<string, number> = cart.reduce(
@@ -197,8 +204,18 @@ const Cart = () => {
             {/* Checkout Summary - Right Section (only on md+ screens) */}
             <div className="md:w-1/3 p-4 bg-secondary rounded-lg shadow-lg h-fit">
               <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-              <div className="flex justify-between text-lg font-medium">
-                <span>Total:</span>
+              <div className="flex justify-between text-base">
+                <span>Subtotal</span>
+                <span>₹{totalOriginalAmount.toFixed(2)}</span>
+              </div>
+              {totalDiscount > 0 && (
+                <div className="flex justify-between text-base text-green-600">
+                  <span>Discount</span>
+                  <span>- ₹{totalDiscount.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-lg font-medium border-t mt-2 pt-2">
+                <span>Total</span>
                 <span>₹{totalAmount.toFixed(2)}</span>
               </div>
               <Button
